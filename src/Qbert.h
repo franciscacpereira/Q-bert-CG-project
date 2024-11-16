@@ -14,6 +14,8 @@
 #include "movementTools.h"
 #include "Pyramid.h"
 
+#define JUMP_TIME 600	// ms
+
 class Qbert {
 public:
 	enum class Orientation { RIGHT_DOWN, RIGHT_UP, LEFT_DOWN, LEFT_UP };
@@ -25,6 +27,8 @@ public:
 	void draw();
 	void update();
 	void keyPressed(int);	
+	void startJump(ofVec3f);
+	bool checkPyramidCollision();
 
 
 	// state variables
@@ -33,13 +37,20 @@ public:
 	GLfloat qbertSize;
 	bool isDead;
 	bool isMoving;
+	bool isFalling;
 	Orientation orientation;
 	Pyramid* pyramid;
 
 	// movement variables
-	float mass;
-	long long initialTime;
-	long long elapsedTime;
+	float jumpProgress;
+	float timePerFrame;
+	float previousTime;
+	float elapsedTime;
+	ofVec3f jumpStartPosition;
+	ofVec3f targetPosition;
+
+	float initialTime;
+	float jumpTime = JUMP_TIME;
 	ofVec3f initialPosition;
 	ofVec3f initialVelocity;
 	ofVec3f velocity;

@@ -8,10 +8,14 @@
 
 #include "ofMain.h"
 #include "extraTools.h"
+#include <chrono>
+#include <iostream>"
+
+using Clock = std::chrono::high_resolution_clock;
 
 const float GRAVITY = 9.81f;  // acceleration due to gravity (m/s^2)
 
-long long getTime();
+float getTime();
 float calculateVelocity(float, float, float);
 float calculatePosition(float, float, float, float);
 float calculateAcceleration(float, float);

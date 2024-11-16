@@ -31,11 +31,18 @@ void Qbert::baseSetup() {
 	this->currentPosition = this->startPosition;
 	this->isDead = false;
 	this->isMoving = false;
+	this->isFalling = false;
 	this->orientation = Orientation::LEFT_DOWN;
 	resetPhysics();
 }
 
 void Qbert::resetPhysics() {
+	this->previousTime = 0;
+	this->timePerFrame = 0;
+	this->targetPosition = ofVec3f(0, 0, 0);
+	this->jumpStartPosition = ofVec3f(0, 0, 0);
+	this->jumpProgress = 0;
+
 	this->initialTime = 0;
 	this->elapsedTime = 0;
 	this->initialPosition = ofVec3f(0, 0, 0);
@@ -85,6 +92,11 @@ void Qbert::draw() {
 }
 
 void Qbert::update() {
+	// calculate the time per frame
+	float currentTime = getTime();
+	this->timePerFrame = currentTime - this->previousTime;
+	this->previousTime = currentTime;
+
 	// check if the player is dead
 	if (this->isDead) {
 		baseSetup();
@@ -99,36 +111,38 @@ void Qbert::update() {
 
 	// check if the player is moving
 	if (isMoving) {
-		this->elapsedTime = getTime() - this->initialTime;
-		
-		// calculate the position
-		this->currentPosition.x = calculatePosition(this->initialPosition.x, this->initialVelocity.x, 0, this->elapsedTime);
-		this->currentPosition.y = calculatePosition(this->initialPosition.y, this->initialVelocity.y, this->acceleration.y, this->elapsedTime);
-		this->currentPosition.z = calculatePosition(this->initialPosition.z, this->initialVelocity.z, 0, this->elapsedTime);
 
-		// calculate the velocity
-		this->velocity.x = calculateVelocity(this->initialVelocity.x, 0, this->elapsedTime);
-		this->velocity.y = calculateVelocity(this->initialVelocity.y, this->acceleration.y, this->elapsedTime);
-		this->velocity.z = calculateVelocity(this->initialVelocity.z, 0, this->elapsedTime);
+		this->jumpProgress += this->timePerFrame * 3;
 
-
-		cout << "Current Position: " << this->currentPosition << endl;
-
-		// check collision with any tile
-		int currentMaxLevel = this->pyramid->maxLevel;
-		for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
-			for (int column = 0; column < currentMaxLevel; column++) {
-				GLfloat expectedX = this->pyramid->coords[row][column].x;
-				GLfloat expectedY = this->pyramid->coords[row][column].y + (this->pyramid->tileSize / 2) + (this->qbertSize / 2);
-				GLfloat expectedZ = this->pyramid->coords[row][column].z;
-
-				ofVec3f expectedPosition = ofVec3f(expectedX, expectedY, expectedZ);
-				if (this->currentPosition.x == expectedPosition.x && this->currentPosition.z == expectedPosition.z && this->currentPosition.y <= expectedPosition.y) {
-					this->isMoving = false;
-					resetPhysics();
-					return;
-				}
+		if (this->jumpProgress >= 1 && !isFalling) {
+			if (checkPyramidCollision()) {
+				this->jumpProgress = 1;
+				this->isMoving = false;
+				this->currentPosition = this->targetPosition;
+				return;
 			}
+			else {
+				this->currentPosition = this->targetPosition;
+				this->jumpStartPosition = this->currentPosition;
+				this->targetPosition.y = -100;
+				this->isFalling = true;
+				this->jumpProgress = 0;
+			}
+		}
+		
+		if (!isFalling) {
+			// calculate the new position of the player (jumping)
+			float jumpHeight = sin(this->jumpProgress * PI) * this->pyramid->tileSize;
+			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
+			newPosition.y += jumpHeight;
+			this->currentPosition = newPosition;
+		}
+		else {
+			// calculate the new position of the player (falling)
+			this->jumpProgress += this->timePerFrame * 0.5;
+			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
+			this->currentPosition = newPosition;
+			cout << "Current position (falling): " << this->currentPosition << endl;
 		}
 	} 
 }
@@ -138,43 +152,45 @@ void Qbert::keyPressed(int key) {
 
 	if (key == OF_KEY_UP) {
 		this->orientation = Orientation::RIGHT_UP;
-		isMoving = true;
-		this->initialTime = getTime();
-		this->elapsedTime = 0;
-		this->initialPosition = this->currentPosition;
+		ofVec3f target = ofVec3f(this->currentPosition.x, this->currentPosition.y + this->pyramid->tileSize, this->currentPosition.z - this->pyramid->tileSize);
+		startJump(target);
 
 	} else if (key == OF_KEY_RIGHT) {
 		this->orientation = Orientation::RIGHT_DOWN;
-		isMoving = true;
-		this->initialTime = getTime();
-		this->elapsedTime = 0;
-		this->initialPosition = this->currentPosition;
+		ofVec3f target = ofVec3f(this->currentPosition.x + +this->pyramid->tileSize, this->currentPosition.y - this->pyramid->tileSize, this->currentPosition.z);
+		startJump(target);
 
 	} else if (key == OF_KEY_DOWN) {
 		this->orientation = Orientation::LEFT_DOWN;
-		isMoving = true;
-		this->initialTime = getTime();
-		this->elapsedTime = 0;
-		this->initialPosition = this->currentPosition;
-
-		// x axis stays the same
-		this->initialVelocity = ofVec3f(0, 0, 0);
-		this->acceleration.x = 0;
-
-		// set the initial velocity and acceleration
-		this->velocityAngle = 70;
-		this->acceleration.y = -0.01;
-
-		float temp = 0.5 * -0.001 * pow(600, 2);
-		this->initialVelocity.y = (temp - this->pyramid->tileSize) / 600;
-		this->velocityMagnitude = this->initialVelocity.y / sin(this->velocityAngle);
-		this->initialVelocity.z =  -this->velocityMagnitude * cos(this->velocityAngle);
+		ofVec3f target = ofVec3f(this->currentPosition.x, this->currentPosition.y - this->pyramid->tileSize, this->currentPosition.z + this->pyramid->tileSize);
+		startJump(target);
 
 	} else if (key == OF_KEY_LEFT) {
 		this->orientation = Orientation::LEFT_UP;
-		isMoving = true;
-		this->initialTime = getTime();
-		this->elapsedTime = 0;
-		this->initialPosition = this->currentPosition;
+		ofVec3f target = ofVec3f(this->currentPosition.x - +this->pyramid->tileSize, this->currentPosition.y + this->pyramid->tileSize, this->currentPosition.z);
+		startJump(target);
+
 	}
+}
+
+void Qbert::startJump(ofVec3f target) {
+	if (isMoving) return;
+	this->isMoving = true;
+	this->jumpStartPosition = this->currentPosition;
+	this->targetPosition = target;
+	this->jumpProgress = 0;
+}
+
+bool Qbert::checkPyramidCollision() {
+	int currentMaxLevel = this->pyramid->maxLevel;
+	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
+		for (int col = 0; col < currentMaxLevel; col++) {
+			ofVec3f tile = this->pyramid->coords[row][col];
+			if (this->currentPosition.distance(tile) < this->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
+				cout << "Collision detected!" << endl;
+				return true;
+			}
+		}
+	}
+	return false;
 }

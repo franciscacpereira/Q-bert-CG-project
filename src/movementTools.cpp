@@ -6,9 +6,9 @@
 #include "movementTools.h"
 
 // function to get the current time in milliseconds
-long long getTime() {
+float getTime() {
 	using namespace std::chrono;
-	return duration<float, std::milli>(steady_clock::now().time_since_epoch()).count();
+	return duration<float /*, std::milli*/>(steady_clock::now().time_since_epoch()).count();
 }
 
 // function to get the current velocity of an object in a given axis
