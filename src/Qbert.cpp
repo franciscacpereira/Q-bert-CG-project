@@ -20,7 +20,7 @@ Qbert::Qbert(Pyramid* pyramid) {
 	this->qbertSize = this->pyramid->tileSize * 0.6;
 
 	GLfloat x = this->pyramid->coords[0][0].x;
-	GLfloat y = this->pyramid->coords[0][0].y + tileSize - (this->qbertSize / 2);
+	GLfloat y = this->pyramid->coords[0][0].y + tileSize * 0.5 + this->qbertSize * 0.5;
 	GLfloat z = this->pyramid->coords[0][0].z;
 
 	this->startPosition = ofVec3f(x, y, z);
@@ -29,28 +29,19 @@ Qbert::Qbert(Pyramid* pyramid) {
 
 void Qbert::baseSetup() {
 	this->currentPosition = this->startPosition;
+	this->orientation = Orientation::LEFT_DOWN;
 	this->isDead = false;
 	this->isMoving = false;
 	this->isFalling = false;
-	this->orientation = Orientation::LEFT_DOWN;
 	resetPhysics();
 }
 
 void Qbert::resetPhysics() {
-	this->previousTime = 0;
-	this->timePerFrame = 0;
-	this->targetPosition = ofVec3f(0, 0, 0);
-	this->jumpStartPosition = ofVec3f(0, 0, 0);
 	this->jumpProgress = 0;
-
-	this->initialTime = 0;
-	this->elapsedTime = 0;
-	this->initialPosition = ofVec3f(0, 0, 0);
-	this->initialVelocity = ofVec3f(0, 0, 0);
-	this->velocity = ofVec3f(0, 0, 0);
-	this->velocityMagnitude = 0;
-	this->velocityAngle = 0;
-	this->acceleration = ofVec3f(0, 0, 0);
+	this->timePerFrame = 0;
+	this->previousTime = 0;
+	this->jumpStartPosition = ofVec3f(0, 0, 0);
+	this->targetPosition = ofVec3f(0, 0, 0);
 }
 
 void Qbert::draw() {
@@ -115,14 +106,13 @@ void Qbert::update() {
 		this->jumpProgress += this->timePerFrame * 3;
 
 		if (this->jumpProgress >= 1 && !isFalling) {
+			this->currentPosition = this->targetPosition;
 			if (checkPyramidCollision()) {
 				this->jumpProgress = 1;
 				this->isMoving = false;
-				this->currentPosition = this->targetPosition;
 				return;
 			}
 			else {
-				this->currentPosition = this->targetPosition;
 				this->jumpStartPosition = this->currentPosition;
 				this->targetPosition.y = -100;
 				this->isFalling = true;
@@ -139,7 +129,7 @@ void Qbert::update() {
 		}
 		else {
 			// calculate the new position of the player (falling)
-			this->jumpProgress += this->timePerFrame * 0.5;
+			this->jumpProgress += this->timePerFrame * 0.25;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			this->currentPosition = newPosition;
 			cout << "Current position (falling): " << this->currentPosition << endl;
@@ -186,7 +176,7 @@ bool Qbert::checkPyramidCollision() {
 	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
 		for (int col = 0; col < currentMaxLevel; col++) {
 			ofVec3f tile = this->pyramid->coords[row][col];
-			if (this->currentPosition.distance(tile) < this->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
+			if (this->currentPosition.distance(tile) <= this->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
 				cout << "Collision detected!" << endl;
 				return true;
 			}

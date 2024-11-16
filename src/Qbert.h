@@ -35,28 +35,18 @@ public:
 	ofVec3f startPosition;
 	ofVec3f currentPosition;
 	GLfloat qbertSize;
+	Orientation orientation;
+	Pyramid* pyramid;
 	bool isDead;
 	bool isMoving;
 	bool isFalling;
-	Orientation orientation;
-	Pyramid* pyramid;
 
 	// movement variables
 	float jumpProgress;
 	float timePerFrame;
 	float previousTime;
-	float elapsedTime;
 	ofVec3f jumpStartPosition;
 	ofVec3f targetPosition;
-
-	float initialTime;
-	float jumpTime = JUMP_TIME;
-	ofVec3f initialPosition;
-	ofVec3f initialVelocity;
-	ofVec3f velocity;
-	float velocityMagnitude;
-	float velocityAngle;
-	ofVec3f acceleration;
 };
 
 #endif // QBERT_H
