@@ -1,6 +1,11 @@
 #pragma once
 
 #include "ofMain.h"
+#include "extraTools.h"
+#include "cameraTools.h"
+#include "colorTools.h"
+#include "Pyramid.h"
+#include "Qbert.h"
 
 class ofApp : public ofBaseApp{
 
@@ -20,5 +25,25 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		/* DEBUG VARIALES */
+		GLfloat debugRotationX, debugRotationY, debugRotationZ;
 		
+		/* CAMERA AND VIEWPORT VARIABLES */
+		int viewType;
+
+		// ortho view variables
+		int isometricCameraDistance;
+		int orthoAdjust;
+		GLfloat orthoRatio;
+
+		// perspective view variables
+		int perspectiveCameraDistance;
+		GLfloat lensAngle = 75;
+		GLfloat alpha = 10;
+		GLfloat beta = 1000;
+
+		/* GAME VARIABLES */
+		Pyramid* pyramid;
+		Qbert* qbert;
 };
