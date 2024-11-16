@@ -1,24 +1,63 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup>
-		<ClCompile Include="src\ofApp.cpp">
-			<Filter>src</Filter>
-		</ClCompile>
-		<ClCompile Include="src\main.cpp">
-			<Filter>src</Filter>
-		</ClCompile>
-	</ItemGroup>
-	<ItemGroup>
-		<Filter Include="src">
-			<UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
-		</Filter>
-	</ItemGroup>
-	<ItemGroup>
-		<ClInclude Include="src\ofApp.h">
-			<Filter>src</Filter>
-		</ClInclude>
-	</ItemGroup>
-	<ItemGroup>
-		<ResourceCompile Include="icon.rc" />
-	</ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cameraTools.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\extraTools.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementTools.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ofApp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pyramid.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Qbert.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tile.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\cameraTools.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\colorTools.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\extraTools.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementTools.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ofApp.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pyramid.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Qbert.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tile.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
