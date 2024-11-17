@@ -42,6 +42,7 @@ void Qbert::resetPhysics() {
 	this->previousTime = 0;
 	this->jumpStartPosition = ofVec3f(0, 0, 0);
 	this->targetPosition = ofVec3f(0, 0, 0);
+	this->pyramidCollision = false;
 }
 
 void Qbert::draw() {
@@ -103,6 +104,43 @@ void Qbert::update() {
 	// check if the player is moving
 	if (isMoving) {
 
+
+		if (this->jumpProgress >= 1 && !isFalling) {
+			this->currentPosition = this->targetPosition;
+			if (this->pyramidCollision) {
+				this->jumpProgress = 1;
+				this->isMoving = false;
+				this->pyramidCollision = false;
+				cout << "colision with pyramid\n";
+				return;
+			}
+			else {
+				cout << "Free Falling\n";
+				this->jumpStartPosition = this->currentPosition;
+				this->targetPosition.y = -100;
+				this->isFalling = true;
+				this->jumpProgress = 0;
+			}
+		}
+
+		this->jumpProgress += this->timePerFrame * 3;
+
+		if (!isFalling) {
+			// calculate the new position of the player (jumping)
+			float jumpHeight = sin(this->jumpProgress * PI) * this->pyramid->tileSize;
+			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
+			newPosition.y += jumpHeight;
+			this->currentPosition = newPosition;
+		}
+		else {
+			// calculate the new position of the player (falling)
+			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
+			this->currentPosition = newPosition;
+		}
+
+
+		/*
+		
 		this->jumpProgress += this->timePerFrame * 3;
 
 		if (this->jumpProgress >= 1 && !isFalling) {
@@ -119,7 +157,7 @@ void Qbert::update() {
 				this->jumpProgress = 0;
 			}
 		}
-		
+
 		if (!isFalling) {
 			// calculate the new position of the player (jumping)
 			float jumpHeight = sin(this->jumpProgress * PI) * this->pyramid->tileSize;
@@ -129,10 +167,10 @@ void Qbert::update() {
 		}
 		else {
 			// calculate the new position of the player (falling)
-			this->jumpProgress += this->timePerFrame * 0.25;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			this->currentPosition = newPosition;
 		}
+		*/
 	} 
 }
 

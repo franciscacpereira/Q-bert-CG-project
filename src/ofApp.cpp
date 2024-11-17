@@ -38,6 +38,7 @@ void ofApp::update(){
 	// update camera variables
 
 	// update game variables
+	checkCollision();
 	qbert->update();
 }
 
@@ -182,4 +183,24 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+////////////////////////////////////////////////////////////////
+
+void ofApp::checkCollision() {
+	// collision between pyramid and qbert
+	int currentMaxLevel = this->pyramid->maxLevel;
+	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
+		for (int col = 0; col < currentMaxLevel; col++) {
+			ofVec3f tile = this->pyramid->coords[row][col];
+			if (qbert->currentPosition.distance(tile) <= qbert->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
+				// change the color of the tile
+				this->pyramid->setTileColor(row, col, true);
+				this->qbert->pyramidCollision = true;
+				cout << "### COLISION ###\n";
+				return;
+			}
+		}
+	}
+	this->qbert->pyramidCollision = false;
 }

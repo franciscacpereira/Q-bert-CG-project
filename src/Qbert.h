@@ -47,6 +47,7 @@ public:
 	float previousTime;
 	ofVec3f jumpStartPosition;
 	ofVec3f targetPosition;
+	bool pyramidCollision;
 };
 
 #endif // QBERT_H
