@@ -48,4 +48,7 @@ class ofApp : public ofBaseApp{
 		/* GAME VARIABLES */
 		Pyramid* pyramid;
 		Qbert* qbert;
+
+		/* GAME STATE VARIABLES */ 
+		bool gameStarted;
 };

@@ -20,21 +20,23 @@ class Qbert {
 public:
 	enum class Orientation { RIGHT_DOWN, RIGHT_UP, LEFT_DOWN, LEFT_UP };
 
-	Qbert(ofVec3f, GLfloat);
-	Qbert(Pyramid*);
+	Qbert(ofVec3f, GLfloat, GLfloat, GLfloat);
+	//Qbert(Pyramid*);
 	void baseSetup();
 	void resetPhysics();
 	void draw();
 	void update();
 	void keyPressed(int);	
 	void startJump(ofVec3f);
-	bool checkPyramidCollision();
+	//bool checkPyramidCollision();
 
 
 	// state variables
 	ofVec3f startPosition;
 	ofVec3f currentPosition;
 	GLfloat qbertSize;
+	GLfloat jumpHeight;
+	GLfloat jumpDistance;
 	Orientation orientation;
 	Pyramid* pyramid;
 	bool isDead;

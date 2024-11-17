@@ -13,7 +13,11 @@ void ofApp::setup() {
 
 	// init game variables
 	pyramid = new Pyramid(7, 50);
-	qbert = new Qbert(pyramid);
+
+	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
+	ofVec3f qbertStartPosition = pyramid->coords[0][0];
+	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
+	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize);
 
 	// init camera variables
 	viewType = 0;
@@ -26,6 +30,9 @@ void ofApp::setup() {
 	lensAngle = 75;
 	alpha = 10;
 	beta = 1000;
+
+	// init game state variables
+	gameStarted = false;
 }
 
 //--------------------------------------------------------------
@@ -38,8 +45,8 @@ void ofApp::update(){
 	// update camera variables
 
 	// update game variables
-	checkCollision();
 	qbert->update();
+	checkCollision();
 }
 
 //--------------------------------------------------------------
@@ -95,6 +102,8 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_RIGHT || key == OF_KEY_LEFT) gameStarted = true;
+
 	qbert->keyPressed(key);
 
 	switch (key) {
@@ -193,11 +202,12 @@ void ofApp::checkCollision() {
 	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
 		for (int col = 0; col < currentMaxLevel; col++) {
 			ofVec3f tile = this->pyramid->coords[row][col];
-			if (qbert->currentPosition.distance(tile) <= qbert->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
+			if (qbert->currentPosition.distance(tile) < qbert->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {	// changed from <= to < so it wouldn´t paint the first tile when it died
 				// change the color of the tile
-				this->pyramid->setTileColor(row, col, true);
+				if (this->qbert->isMoving) {
+					this->pyramid->setTileColor(row, col, true);
+				}
 				this->qbert->pyramidCollision = true;
-				cout << "### COLISION ###\n";
 				return;
 			}
 		}

@@ -6,13 +6,16 @@
 
 #include "Qbert.h"
 
-Qbert::Qbert(ofVec3f startPosition, GLfloat size) {
+Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance) {
 	this->pyramid = nullptr;
 	this->startPosition = startPosition;
 	this->qbertSize = size;
+	this->jumpHeight = jumpHeight;
+	this->jumpDistance = jumpDistance;
 	baseSetup();
 }
 
+/*
 Qbert::Qbert(Pyramid* pyramid) {
 	this->pyramid = pyramid;
 
@@ -26,6 +29,7 @@ Qbert::Qbert(Pyramid* pyramid) {
 	this->startPosition = ofVec3f(x, y, z);
 	baseSetup();
 }
+*/
 
 void Qbert::baseSetup() {
 	this->currentPosition = this->startPosition;
@@ -104,18 +108,15 @@ void Qbert::update() {
 	// check if the player is moving
 	if (isMoving) {
 
-
 		if (this->jumpProgress >= 1 && !isFalling) {
 			this->currentPosition = this->targetPosition;
 			if (this->pyramidCollision) {
 				this->jumpProgress = 1;
 				this->isMoving = false;
 				this->pyramidCollision = false;
-				cout << "colision with pyramid\n";
 				return;
 			}
 			else {
-				cout << "Free Falling\n";
 				this->jumpStartPosition = this->currentPosition;
 				this->targetPosition.y = -100;
 				this->isFalling = true;
@@ -127,9 +128,9 @@ void Qbert::update() {
 
 		if (!isFalling) {
 			// calculate the new position of the player (jumping)
-			float jumpHeight = sin(this->jumpProgress * PI) * this->pyramid->tileSize;
+			float height = sin(this->jumpProgress * PI) * this->jumpHeight;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
-			newPosition.y += jumpHeight;
+			newPosition.y += height;
 			this->currentPosition = newPosition;
 		}
 		else {
@@ -140,7 +141,6 @@ void Qbert::update() {
 
 
 		/*
-		
 		this->jumpProgress += this->timePerFrame * 3;
 
 		if (this->jumpProgress >= 1 && !isFalling) {
@@ -179,22 +179,22 @@ void Qbert::keyPressed(int key) {
 
 	if (key == OF_KEY_UP) {
 		this->orientation = Orientation::RIGHT_UP;
-		ofVec3f target = ofVec3f(this->currentPosition.x, this->currentPosition.y + this->pyramid->tileSize, this->currentPosition.z - this->pyramid->tileSize);
+		ofVec3f target = ofVec3f(this->currentPosition.x, this->currentPosition.y + this->jumpHeight, this->currentPosition.z - this->jumpDistance);
 		startJump(target);
 
 	} else if (key == OF_KEY_RIGHT) {
 		this->orientation = Orientation::RIGHT_DOWN;
-		ofVec3f target = ofVec3f(this->currentPosition.x + +this->pyramid->tileSize, this->currentPosition.y - this->pyramid->tileSize, this->currentPosition.z);
+		ofVec3f target = ofVec3f(this->currentPosition.x + this->jumpDistance, this->currentPosition.y - this->jumpHeight, this->currentPosition.z);
 		startJump(target);
 
 	} else if (key == OF_KEY_DOWN) {
 		this->orientation = Orientation::LEFT_DOWN;
-		ofVec3f target = ofVec3f(this->currentPosition.x, this->currentPosition.y - this->pyramid->tileSize, this->currentPosition.z + this->pyramid->tileSize);
+		ofVec3f target = ofVec3f(this->currentPosition.x, this->currentPosition.y - this->jumpHeight, this->currentPosition.z + this->jumpDistance);
 		startJump(target);
 
 	} else if (key == OF_KEY_LEFT) {
 		this->orientation = Orientation::LEFT_UP;
-		ofVec3f target = ofVec3f(this->currentPosition.x - +this->pyramid->tileSize, this->currentPosition.y + this->pyramid->tileSize, this->currentPosition.z);
+		ofVec3f target = ofVec3f(this->currentPosition.x - this->jumpDistance, this->currentPosition.y + this->jumpHeight, this->currentPosition.z);
 		startJump(target);
 
 	}
@@ -208,6 +208,7 @@ void Qbert::startJump(ofVec3f target) {
 	this->jumpProgress = 0;
 }
 
+/*
 bool Qbert::checkPyramidCollision() {
 	int currentMaxLevel = this->pyramid->maxLevel;
 	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
@@ -222,3 +223,4 @@ bool Qbert::checkPyramidCollision() {
 	}
 	return false;
 }
+*/
