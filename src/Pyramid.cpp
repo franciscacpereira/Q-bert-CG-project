@@ -14,6 +14,7 @@ Pyramid::Pyramid(GLint maxLevel, GLfloat tileSize) {
 	this->maxLevel = maxLevel;
 	this->tileSize = tileSize;
 	this->setCoords();
+	this->setColors();
 }
 
 void Pyramid::baseSetup() {
@@ -21,6 +22,7 @@ void Pyramid::baseSetup() {
 	this->maxLevel = 7;
 	this->tileSize = 10;
 	this->setCoords();
+	this->setColors();
 }
 
 void Pyramid::draw() {
@@ -31,7 +33,7 @@ void Pyramid::draw() {
 			for (int column = 0; column < currentMaxLevel; column++) {
 				// individual tile stack
 				glPushMatrix(); {
-					this->drawTile(this->coords[row][column], true);
+					this->drawTile(this->coords[row][column], this->colors[row][column]);
 				} glPopMatrix();
 			}
 		}
@@ -64,6 +66,28 @@ void Pyramid::setCoords() {
 			this->coords[row][column] = ofVec3f(width, height, length);
 		}
 	}
+}
+
+// sets the colors of the pyramid
+// uses a boolean value to decide if the tile is flipped or not
+void Pyramid::setColors() {
+	this->colors = vector<vector<bool>>(this->maxLevel);
+
+	int currentMaxLevel = this->maxLevel;
+	for (int row = 0; row < this->maxLevel; row++, currentMaxLevel--) {
+		// create the new row
+		this->colors[row] = vector<bool>(currentMaxLevel);
+
+		for (int column = 0; column < currentMaxLevel; column++) {
+			// add new color to the matrix
+			this->colors[row][column] = false;
+		}
+	}
+}
+
+// sets the color of a single tile to flipped or not
+void Pyramid::setTileColor(int row, int column, bool isFlipped) {
+	this->colors[row][column] = isFlipped;
 }
 
 // draws a single tile from the pyramid
@@ -113,11 +137,11 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// top face
-		if (isFlipped) {
+		if (!isFlipped) {
 			glRed();
 		}
 		else {
-			glLime();
+			glDarkBlue();
 		}
 		glPushMatrix(); {
 			glTranslated(0, unit, 0);

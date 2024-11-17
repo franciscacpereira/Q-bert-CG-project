@@ -14,7 +14,7 @@
 #include "movementTools.h"
 #include "Pyramid.h"
 
-#define JUMP_TIME 600	// ms
+#define PYRAMID_TO_QBERT_RATIO 0.6
 
 class Qbert {
 public:

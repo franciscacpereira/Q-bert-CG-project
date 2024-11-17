@@ -18,11 +18,14 @@ public:
     void baseSetup();
     void draw();
     void setCoords();
+	void setColors();
+	void setTileColor(int, int, bool);
 	void drawTile(ofVec3f, bool);
 
     GLint maxLevel;
     GLfloat tileSize;
     vector<vector<ofVec3f>> coords;
+	vector<vector<bool>> colors;
 };
 
 #endif // PYRAMID_H

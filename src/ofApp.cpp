@@ -67,7 +67,7 @@ void ofApp::draw(){
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 4), 0, 0, 1, 0);
+		lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 3), 0, 0, 1, 0);
 		break;
 	case 2:
 		// first person view

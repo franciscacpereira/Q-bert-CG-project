@@ -17,7 +17,7 @@ Qbert::Qbert(Pyramid* pyramid) {
 	this->pyramid = pyramid;
 
 	int tileSize = this->pyramid->tileSize;
-	this->qbertSize = this->pyramid->tileSize * 0.6;
+	this->qbertSize = this->pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 
 	GLfloat x = this->pyramid->coords[0][0].x;
 	GLfloat y = this->pyramid->coords[0][0].y + tileSize * 0.5 + this->qbertSize * 0.5;
@@ -132,7 +132,6 @@ void Qbert::update() {
 			this->jumpProgress += this->timePerFrame * 0.25;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			this->currentPosition = newPosition;
-			cout << "Current position (falling): " << this->currentPosition << endl;
 		}
 	} 
 }
@@ -177,7 +176,8 @@ bool Qbert::checkPyramidCollision() {
 		for (int col = 0; col < currentMaxLevel; col++) {
 			ofVec3f tile = this->pyramid->coords[row][col];
 			if (this->currentPosition.distance(tile) <= this->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
-				cout << "Collision detected!" << endl;
+				// change the color of the tile
+				this->pyramid->setTileColor(row, col, true);
 				return true;
 			}
 		}
