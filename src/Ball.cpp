@@ -13,18 +13,6 @@ Ball::Ball(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jump
 	this->jumpDistance = jumpDistance;
 	this->deathHeight = -500;
 	baseSetup();
-	
-	/*
-	this->targetPosition = this->startPosition;
-	this->currentPosition = this->startPosition;
-	this->currentPosition.y = this->currentPosition.y + 500;
-	this->jumpStartPosition = this->currentPosition;
-	this->isMoving = true;
-	this->isFalling = true;
-	this->jumpProgress = 0.5;
-	cout << "BALL POSITION: " << this->currentPosition << endl;
-	cout << "BALL TARGET POSITION: " << this->targetPosition << endl;
-	*/
 }
 
 void Ball::baseSetup() {
@@ -68,21 +56,20 @@ void Ball::draw() {
 }
 
 void Ball::update() {
+	// calculate the time per frame
+	float currentTime = getTime();
+	this->timePerFrame = currentTime - this->previousTime;
+	this->previousTime = currentTime;
+
 	// check if the player is dead
 	if (this->isDead) {
 		baseSetup();
 		return;
 	}
 
-	// calculate the time per frame
-	float currentTime = getTime();
-	this->timePerFrame = currentTime - this->previousTime;
-	this->previousTime = currentTime;
-
 	// check if the player fell into the ground
 	if (this->currentPosition.y - this->ballSize <= this->deathHeight) {
 		this->isDead = true;
-		cout << "BALL DIED" << endl;
 		return;
 	}
 
@@ -93,14 +80,12 @@ void Ball::update() {
 		if ((this->currentPosition.y - this->targetPosition.y) <= 0) {
 			this->initialFall = false;
 			this->currentPosition = this->targetPosition;
-			cout << "END OF INITIAL FALL\n";
 		}
 
 	} else {
 
 		// check if the player is moving
 		if (this->isMoving) {
-			cout << "NEW MOVEMENT!!\n";
 
 			if (this->jumpProgress >= 1 && !isFalling) {
 				this->currentPosition = this->targetPosition;
@@ -111,12 +96,10 @@ void Ball::update() {
 					return;
 				}
 				else {
-					
 					this->jumpStartPosition = this->currentPosition;
 					this->targetPosition.y = -100;
 					this->isFalling = true;
 					this->jumpProgress = 0;
-					
 
 					/*
 					// set variables for free fall
@@ -143,13 +126,13 @@ void Ball::update() {
 				ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 				newPosition.y += height;
 				this->currentPosition = newPosition;
-				cout << "BALL POSITION (not falling): " << this->currentPosition << endl;
 			}
 			else {
 				this->jumpProgress += this->timePerFrame * 6;
 				// calculate the new position of the player (falling)
 				ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 				this->currentPosition = newPosition;
+
 				/*
 				this->fallVelocity += this->fallAcceleration;
 				this->currentPosition += this->fallVelocity;

@@ -7,11 +7,12 @@
 #include "Qbert.h"
 
 Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance) {
-	//this->pyramid = nullptr;
 	this->startPosition = startPosition;
 	this->qbertSize = size;
 	this->jumpHeight = jumpHeight;
 	this->jumpDistance = jumpDistance;
+	i = 0;
+	j = 0;
 	baseSetup();
 }
 
@@ -33,11 +34,17 @@ Qbert::Qbert(Pyramid* pyramid) {
 
 void Qbert::baseSetup() {
 	this->currentPosition = this->startPosition;
+	this->previousPosition = this->startPosition;
+	this->prevPrevPosition = this->prevPrevPosition;
 	this->orientation = Orientation::LEFT_DOWN;
 	this->isDead = false;
 	this->isMoving = false;
 	this->isFalling = false;
 	resetPhysics();
+
+	// set variables for fall
+	this->fallVelocity = ofVec3f(0, -0.5, 0);
+	this->fallAcceleration = ofVec3f(0, -0.5, 0);
 }
 
 void Qbert::resetPhysics() {
@@ -47,6 +54,7 @@ void Qbert::resetPhysics() {
 	this->jumpStartPosition = ofVec3f(0, 0, 0);
 	this->targetPosition = ofVec3f(0, 0, 0);
 	this->pyramidCollision = false;
+	this->velocityMod = 15;
 }
 
 void Qbert::draw() {
@@ -95,12 +103,14 @@ void Qbert::update() {
 
 	// check if the player is dead
 	if (this->isDead) {
+		i = 0;
+		cout << "DIED ######################################\n";
 		baseSetup();
 		return;
 	}
 
 	// check if the player fell into the ground
-	if (this->currentPosition.y - this->qbertSize <= -500) {
+	if (this->currentPosition.y - this->qbertSize <= -this->startPosition.y) {
 		this->isDead = true;
 		return;
 	}
@@ -114,29 +124,85 @@ void Qbert::update() {
 				this->jumpProgress = 1;
 				this->isMoving = false;
 				this->pyramidCollision = false;
+				j = 0;
 				return;
 			}
 			else {
-				this->jumpStartPosition = this->currentPosition;
+				/*
+				if (this->currentPosition.distance(this->previousPosition) > 5) {
+					this->fallVelocity = (this->currentPosition - this->previousPosition);
+					cout << "fall velocity = " << this->fallVelocity << "\n" << endl;
+					cout << "current position = " << this->currentPosition << "\n" << endl;
+					cout << "previous position = " << this->previousPosition << "\n" << endl;
+					cout << "distance = " << this->currentPosition.distance(this->previousPosition) << "\n" << endl;
+
+				} else {
+					this->fallVelocity = (this->currentPosition - this->prevPrevPosition);
+					cout << "fall velocity = " << this->fallVelocity << "\n" << endl;
+					cout << "current position = " << this->currentPosition << "\n" << endl;
+					cout << "prePrev position = " << this->previousPosition << "\n" << endl;
+					cout << "distance = " << this->currentPosition.distance(this->previousPosition) << "\n" << endl;
+
+				}
+				*/
+				//this->jumpStartPosition = this->currentPosition;
+				
+				/*
 				this->targetPosition.y = -100;
+				if (this->orientation == Orientation::LEFT_UP || this->orientation == Orientation::RIGHT_DOWN) {
+					this->targetPosition.x = this->currentPosition.x + this->jumpDistance * 0.5;
+				} else if (this->orientation == Orientation::LEFT_DOWN || this->orientation == Orientation::RIGHT_UP) {
+					this->targetPosition.z = this->currentPosition.z + this->jumpDistance * 0.5;
+				}
+				*/
+				this->fallVelocity.y = this->velocityMod * sin((3 * PI) / 2);
+
+				if (this->orientation == Orientation::LEFT_UP || this->orientation == Orientation::RIGHT_DOWN) {
+					this->fallVelocity.x = this->velocityMod * cos((3 * PI) / 2);
+				}
+				else if (this->orientation == Orientation::LEFT_DOWN || this->orientation == Orientation::RIGHT_UP) {
+					this->fallVelocity.z = this->velocityMod * cos((3 * PI) / 2);
+				}
+
+
 				this->isFalling = true;
 				this->jumpProgress = 0;
+				j = 0;
+				
 			}
 		}
 
-		if (!isFalling) {
+		if (!this->isFalling) {
 			this->jumpProgress += this->timePerFrame * 3;
 			// calculate the new position of the player (jumping)
 			float height = sin(this->jumpProgress * PI) * this->jumpHeight;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			newPosition.y += height;
+
+			this->prevPrevPosition = this->previousPosition;
+			this->previousPosition = this->currentPosition;
 			this->currentPosition = newPosition;
+			j++;	
+			cout << "j = " << j << "\n" << endl;
 		}
 		else {
-			this->jumpProgress += this->timePerFrame * 5;
+			/*
+			GLfloat ratio = 6;
+			this->jumpProgress += this->timePerFrame * ratio;
 			// calculate the new position of the player (falling)
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			this->currentPosition = newPosition;
+			
+			*/
+
+			
+			this->fallVelocity += this->fallAcceleration;
+
+			this->previousPosition = this->currentPosition;
+			this->currentPosition += this->fallVelocity;
+			i++;
+			
+			cout << i << "\tjump progess = " << this->jumpProgress << "\n" << endl;
 		}
 
 

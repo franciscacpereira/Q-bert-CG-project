@@ -34,6 +34,8 @@ public:
 	// state variables
 	ofVec3f startPosition;
 	ofVec3f currentPosition;
+	ofVec3f previousPosition;
+	ofVec3f prevPrevPosition;
 	GLfloat qbertSize;
 	Orientation orientation;
 	//Pyramid* pyramid;
@@ -50,6 +52,14 @@ public:
 	ofVec3f jumpStartPosition;
 	ofVec3f targetPosition;
 	bool pyramidCollision;
+
+	GLfloat velocityMod;
+	ofVec3f fallVelocity;
+	ofVec3f fallAcceleration;
+	GLfloat prevCurThreshold = 5;
+
+	int i;
+	int j;
 };
 
 #endif // QBERT_H
