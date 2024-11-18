@@ -31,7 +31,6 @@ class ofApp : public ofBaseApp{
 
 		void checkPyramidCollision();
 		ofVec3f getBallSpawnPoint();
-		int getRandomInt(int min, int max);
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;

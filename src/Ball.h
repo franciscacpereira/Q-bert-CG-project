@@ -16,36 +16,42 @@ class Ball {
 public:
 	enum class Orientation { RIGHT_DOWN, LEFT_DOWN };
 
-	Ball(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance);
+	Ball(ofVec3f, GLfloat, GLfloat, GLfloat, GLfloat);
 	void baseSetup();
 	void resetPhysics();
 	void draw();
 	void update();
 	void startJump(ofVec3f);
 
-	// state variables
+	// position variables
 	ofVec3f startPosition;
 	ofVec3f currentPosition;
-	GLfloat ballSize;
+
+	// state variables
+	GLfloat size;
 	Orientation orientation;
 	bool isDead;
 	bool isMoving;
 	bool isFalling;
+	bool pyramidCollision;
+	bool qbertCollision;
+	bool initialFall;
 
 	// movement variables
+	ofVec3f jumpStartPosition;
+	ofVec3f targetPosition;
+
 	GLfloat deathHeight;
 	GLfloat jumpHeight;
 	GLfloat jumpDistance;
 	GLfloat jumpProgress;
 	float timePerFrame;
 	float previousTime;
-	ofVec3f jumpStartPosition;
-	ofVec3f targetPosition;
-	bool pyramidCollision;
 
-	bool initialFall;
 	ofVec3f fallVelocity;
 	ofVec3f fallAcceleration;
+	GLfloat velocityMod;
+	GLfloat fallAngle;
 };
 
 #endif // BALL_H

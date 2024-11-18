@@ -21,6 +21,17 @@ void setFrWt() {
 	ofSetWindowTitle(ofToString(ofGetFrameRate()));
 }
 
+// function to get a random integer between min and max
+int getRandomInt(int min, int max) {
+	if (min > max) std::swap(min, max);
+
+	std::random_device randomDevice;
+	std::default_random_engine generator(randomDevice());
+	std::uniform_real_distribution<> distribution(min, max);
+
+	return static_cast<int>(distribution(generator));
+}
+
 // print ModelView Matrix
 void coutModelviewMatrix() {
 	GLfloat Matriz[4][4];

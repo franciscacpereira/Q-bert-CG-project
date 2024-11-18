@@ -15,6 +15,7 @@
 float gw();
 float gh();
 void setFrWt();
+int getRandomInt(int, int);
 void coutModelviewMatrix();
 ofVec3f cross(ofVec3f, ofVec3f);
 

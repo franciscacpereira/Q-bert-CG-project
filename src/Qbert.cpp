@@ -6,11 +6,12 @@
 
 #include "Qbert.h"
 
-Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance, int lives) {
+Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance, GLfloat deathHeight, int lives) {
 	this->startPosition = this->currentPosition = this->previousPosition = startPosition;
 	this->size = size;
 	this->jumpHeight = jumpHeight;
 	this->jumpDistance = jumpDistance;
+	this->deathHeight = deathHeight;
 	this->lives = lives;
 
 	this->velocityMod = 15.;
@@ -39,11 +40,12 @@ void Qbert::resetPhysics() {
 	this->previousTime = 0;
 
 	// set variables for fall
-	this->fallVelocity = ofVec3f(0, -0.5, 0);
-	this->fallAcceleration = ofVec3f(0, -0.5, 0);
+	this->fallVelocity = ofVec3f(0, 0, 0);
+	this->fallAcceleration = ofVec3f(0, 0, 0);
 }
 
 void Qbert::draw() {
+	if (this->isDead) return;
 	GLfloat unit = 0.5;
 
 	// draw the qbert player
@@ -94,16 +96,17 @@ void Qbert::update() {
 	}
 
 	// check if the player fell into the ground
-	if (this->currentPosition.y - this->size <= -this->startPosition.y) {
+	if (this->currentPosition.y - this->size <= this->deathHeight) {
 		this->isDead = true;
-		this->previousPosition = this->startPosition;
 		this->lives--;
+		this->previousPosition = this->startPosition;	// so it spawns from the start position
 		return;
 	}
 
 	// check if the player is moving
 	if (this->isMoving) {
 
+		/* CHECK IF TARGET HAS BEEN REACHED */
 		if (this->jumpProgress >= 1 && !isFalling) {
 			// reached or surpassed the target position in the jump movement
 			this->currentPosition = this->targetPosition;
@@ -137,6 +140,7 @@ void Qbert::update() {
 			}
 		}
 
+		/* UPDATE POSITION */
 		if (this->isFalling) {
 			// free falling (will end up crashing with the ground)
 			this->fallVelocity += this->fallAcceleration;

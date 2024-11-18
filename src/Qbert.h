@@ -12,7 +12,6 @@
 #include "extraTools.h"
 #include "colorTools.h"
 #include "movementTools.h"
-#include "Pyramid.h"
 
 #define PYRAMID_TO_QBERT_RATIO 0.6
 
@@ -20,7 +19,7 @@ class Qbert {
 public:
 	enum class Orientation { RIGHT_DOWN, RIGHT_UP, LEFT_DOWN, LEFT_UP };
 
-	Qbert(ofVec3f, GLfloat, GLfloat, GLfloat, int);
+	Qbert(ofVec3f, GLfloat, GLfloat, GLfloat, GLfloat, int);
 	void baseSetup();
 	void resetPhysics();
 	void draw();
@@ -48,6 +47,7 @@ public:
 	ofVec3f jumpStartPosition;
 	ofVec3f targetPosition;
 
+	GLfloat deathHeight;
 	GLfloat jumpHeight;
 	GLfloat jumpDistance;
 	GLfloat jumpProgress;

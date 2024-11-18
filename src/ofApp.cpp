@@ -13,15 +13,16 @@ void ofApp::setup() {
 
 	// init game variables
 	pyramid = new Pyramid(7, 50);
+	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 	ofVec3f qbertStartPosition = pyramid->coords[0][0];
 	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
-	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, 3);
+	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight, 3);
 
 	ballSize = pyramid->tileSize * 0.8;
 	ofVec3f ballStartPosition = getBallSpawnPoint();
-	ball = new Ball(ballStartPosition, ballSize, pyramid->tileSize, pyramid->tileSize);
+	ball = new Ball(ballStartPosition, ballSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight);
 
 
 	// init camera variables
@@ -221,7 +222,7 @@ void ofApp::checkPyramidCollision() {
 				this->qbert->pyramidCollision = true;
 				qbertCollision = true;
 			}
-			if (ball->currentPosition.distance(tile) < ball->ballSize * 0.5 + this->pyramid->tileSize * 0.5) {
+			if (ball->currentPosition.distance(tile) < ball->size * 0.5 + this->pyramid->tileSize * 0.5) {
 				this->ball->pyramidCollision = true;
 				ballCollision = true;
 			}
@@ -259,14 +260,4 @@ ofVec3f ofApp::getBallSpawnPoint() {
 	}
 	
 	return spawnPoint;
-}
-
-int ofApp::getRandomInt(int min, int max) {
-	if (min > max) std::swap(min, max);
-
-	std::random_device randomDevice;
-	std::default_random_engine generator(randomDevice());
-	std::uniform_real_distribution<> distribution(min, max);
-
-	return static_cast<int>(distribution(generator));
 }
