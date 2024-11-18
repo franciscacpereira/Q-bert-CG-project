@@ -35,16 +35,16 @@ public:
 	ofVec3f startPosition;
 	ofVec3f currentPosition;
 	GLfloat qbertSize;
-	GLfloat jumpHeight;
-	GLfloat jumpDistance;
 	Orientation orientation;
-	Pyramid* pyramid;
+	//Pyramid* pyramid;
 	bool isDead;
 	bool isMoving;
 	bool isFalling;
 
 	// movement variables
-	float jumpProgress;
+	GLfloat jumpHeight;
+	GLfloat jumpDistance;
+	GLfloat jumpProgress;
 	float timePerFrame;
 	float previousTime;
 	ofVec3f jumpStartPosition;

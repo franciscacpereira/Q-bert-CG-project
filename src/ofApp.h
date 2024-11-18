@@ -6,6 +6,9 @@
 #include "colorTools.h"
 #include "Pyramid.h"
 #include "Qbert.h"
+#include "Ball.h"
+
+#include <random>
 
 class ofApp : public ofBaseApp{
 
@@ -26,7 +29,9 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		void checkCollision();
+		void checkPyramidCollision();
+		ofVec3f getBallSpawnPoint();
+		int getRandomInt(int min, int max);
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
@@ -48,6 +53,9 @@ class ofApp : public ofBaseApp{
 		/* GAME VARIABLES */
 		Pyramid* pyramid;
 		Qbert* qbert;
+		Ball* ball;
+
+		GLfloat ballSize;
 
 		/* GAME STATE VARIABLES */ 
 		bool gameStarted;

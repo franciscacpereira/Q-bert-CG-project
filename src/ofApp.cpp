@@ -19,6 +19,11 @@ void ofApp::setup() {
 	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
 	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize);
 
+	ballSize = pyramid->tileSize * 0.8;
+	ofVec3f ballStartPosition = getBallSpawnPoint();
+	ball = new Ball(ballStartPosition, ballSize, pyramid->tileSize, pyramid->tileSize);
+
+
 	// init camera variables
 	viewType = 0;
 
@@ -46,7 +51,8 @@ void ofApp::update(){
 
 	// update game variables
 	qbert->update();
-	checkCollision();
+	if (gameStarted) ball->update();
+	checkPyramidCollision();
 }
 
 //--------------------------------------------------------------
@@ -93,6 +99,7 @@ void ofApp::draw(){
 	}
 
 	/* DRAW THE GAME */
+	if(gameStarted) ball->draw();
 	qbert->draw();
 	pyramid->draw();
 
@@ -102,8 +109,9 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_RIGHT || key == OF_KEY_LEFT) gameStarted = true;
-
+	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
+		gameStarted = true;
+	}
 	qbert->keyPressed(key);
 
 	switch (key) {
@@ -196,8 +204,11 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 ////////////////////////////////////////////////////////////////
 
-void ofApp::checkCollision() {
-	// collision between pyramid and qbert
+void ofApp::checkPyramidCollision() {
+	// collision between pyramid and qbert and ball
+	bool qbertCollision = false;
+	bool ballCollision = false;
+
 	int currentMaxLevel = this->pyramid->maxLevel;
 	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
 		for (int col = 0; col < currentMaxLevel; col++) {
@@ -208,9 +219,54 @@ void ofApp::checkCollision() {
 					this->pyramid->setTileColor(row, col, true);
 				}
 				this->qbert->pyramidCollision = true;
-				return;
+				qbertCollision = true;
+			}
+			if (ball->currentPosition.distance(tile) < ball->ballSize * 0.5 + this->pyramid->tileSize * 0.5) {
+				this->ball->pyramidCollision = true;
+				ballCollision = true;
 			}
 		}
 	}
-	this->qbert->pyramidCollision = false;
+	if (!qbertCollision) {
+		this->qbert->pyramidCollision = false;
+	}
+	if (!ballCollision) {
+		this->ball->pyramidCollision = false;
+	}
+}
+
+ofVec3f ofApp::getBallSpawnPoint() {
+	ofVec3f spawnPoint = ofVec3f(0., 0., 0.);
+	GLfloat buffer = pyramid->tileSize;
+	GLfloat qbertDistance = ballSize * 0.5 + qbert->qbertSize * 0.5 + buffer;
+	GLfloat surfaceDistance = pyramid->tileSize * 0.5 + ballSize * 0.5;
+
+	bool validSpawnPoint = false;
+
+	while (!validSpawnPoint) {
+		// get a random tile center point
+		int row = getRandomInt(0, pyramid->maxLevel - pyramid->maxLevel * 0.5);
+		int column = getRandomInt(0, pyramid->coords[row].size() - pyramid->coords[row].size() * 0.5);
+
+		// adjust height to surface level
+		spawnPoint = pyramid->coords[row][column];
+		spawnPoint.y += surfaceDistance;
+
+		// check if there is collision with Qbert position
+		if (spawnPoint.distance(qbert->currentPosition) > qbertDistance) {
+			validSpawnPoint = true;
+		}
+	}
+	
+	return spawnPoint;
+}
+
+int ofApp::getRandomInt(int min, int max) {
+	if (min > max) std::swap(min, max);
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(min, max);
+
+	return static_cast<int>(dis(gen));
 }

@@ -7,7 +7,7 @@
 #include "Qbert.h"
 
 Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance) {
-	this->pyramid = nullptr;
+	//this->pyramid = nullptr;
 	this->startPosition = startPosition;
 	this->qbertSize = size;
 	this->jumpHeight = jumpHeight;
