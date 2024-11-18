@@ -100,7 +100,7 @@ void Qbert::update() {
 	}
 
 	// check if the player fell into the ground
-	if (this->currentPosition.y - this->qbertSize <= 0) {
+	if (this->currentPosition.y - this->qbertSize <= -500) {
 		this->isDead = true;
 		return;
 	}
@@ -124,9 +124,8 @@ void Qbert::update() {
 			}
 		}
 
-		this->jumpProgress += this->timePerFrame * 3;
-
 		if (!isFalling) {
+			this->jumpProgress += this->timePerFrame * 3;
 			// calculate the new position of the player (jumping)
 			float height = sin(this->jumpProgress * PI) * this->jumpHeight;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
@@ -134,6 +133,7 @@ void Qbert::update() {
 			this->currentPosition = newPosition;
 		}
 		else {
+			this->jumpProgress += this->timePerFrame * 5;
 			// calculate the new position of the player (falling)
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			this->currentPosition = newPosition;

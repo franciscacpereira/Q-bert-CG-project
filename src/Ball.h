@@ -33,6 +33,7 @@ public:
 	bool isFalling;
 
 	// movement variables
+	GLfloat deathHeight;
 	GLfloat jumpHeight;
 	GLfloat jumpDistance;
 	GLfloat jumpProgress;
@@ -41,6 +42,10 @@ public:
 	ofVec3f jumpStartPosition;
 	ofVec3f targetPosition;
 	bool pyramidCollision;
+
+	bool initialFall;
+	ofVec3f fallVelocity;
+	ofVec3f fallAcceleration;
 };
 
 #endif // BALL_H
