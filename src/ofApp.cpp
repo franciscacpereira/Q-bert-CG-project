@@ -17,7 +17,7 @@ void ofApp::setup() {
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 	ofVec3f qbertStartPosition = pyramid->coords[0][0];
 	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
-	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize);
+	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, 3);
 
 	ballSize = pyramid->tileSize * 0.8;
 	ofVec3f ballStartPosition = getBallSpawnPoint();
@@ -213,7 +213,7 @@ void ofApp::checkPyramidCollision() {
 	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
 		for (int col = 0; col < currentMaxLevel; col++) {
 			ofVec3f tile = this->pyramid->coords[row][col];
-			if (qbert->currentPosition.distance(tile) < qbert->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {	// changed from <= to < so it wouldn´t paint the first tile when it died
+			if (qbert->currentPosition.distance(tile) < qbert->size * 0.5 + this->pyramid->tileSize * 0.5) {	// changed from <= to < so it wouldn´t paint the first tile when it died
 				// change the color of the tile
 				if (this->qbert->isMoving) {
 					this->pyramid->setTileColor(row, col, true);
@@ -238,7 +238,7 @@ void ofApp::checkPyramidCollision() {
 ofVec3f ofApp::getBallSpawnPoint() {
 	ofVec3f spawnPoint = ofVec3f(0., 0., 0.);
 	GLfloat buffer = pyramid->tileSize;
-	GLfloat qbertDistance = ballSize * 0.5 + qbert->qbertSize * 0.5 + buffer;
+	GLfloat qbertDistance = ballSize * 0.5 + qbert->size * 0.5 + buffer;
 	GLfloat surfaceDistance = pyramid->tileSize * 0.5 + ballSize * 0.5;
 
 	bool validSpawnPoint = false;
@@ -264,9 +264,9 @@ ofVec3f ofApp::getBallSpawnPoint() {
 int ofApp::getRandomInt(int min, int max) {
 	if (min > max) std::swap(min, max);
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(min, max);
+	std::random_device randomDevice;
+	std::default_random_engine generator(randomDevice());
+	std::uniform_real_distribution<> distribution(min, max);
 
-	return static_cast<int>(dis(gen));
+	return static_cast<int>(distribution(generator));
 }

@@ -6,55 +6,41 @@
 
 #include "Qbert.h"
 
-Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance) {
-	this->startPosition = startPosition;
-	this->qbertSize = size;
+Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance, int lives) {
+	this->startPosition = this->currentPosition = this->previousPosition = startPosition;
+	this->size = size;
 	this->jumpHeight = jumpHeight;
 	this->jumpDistance = jumpDistance;
-	i = 0;
-	j = 0;
+	this->lives = lives;
+
+	this->velocityMod = 15.;
+	this->fallAngle = 13 * PI / 9; //25 * PI / 18;  // ideal: 163 * PI / 120;
+
 	baseSetup();
 }
-
-/*
-Qbert::Qbert(Pyramid* pyramid) {
-	this->pyramid = pyramid;
-
-	int tileSize = this->pyramid->tileSize;
-	this->qbertSize = this->pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
-
-	GLfloat x = this->pyramid->coords[0][0].x;
-	GLfloat y = this->pyramid->coords[0][0].y + tileSize * 0.5 + this->qbertSize * 0.5;
-	GLfloat z = this->pyramid->coords[0][0].z;
-
-	this->startPosition = ofVec3f(x, y, z);
-	baseSetup();
-}
-*/
 
 void Qbert::baseSetup() {
-	this->currentPosition = this->startPosition;
-	this->previousPosition = this->startPosition;
-	this->prevPrevPosition = this->prevPrevPosition;
+	this->currentPosition = this->previousPosition;
 	this->orientation = Orientation::LEFT_DOWN;
 	this->isDead = false;
 	this->isMoving = false;
 	this->isFalling = false;
 	resetPhysics();
+}
+
+void Qbert::resetPhysics() {
+	// set variables for jump
+	this->pyramidCollision = false;
+	this->jumpStartPosition = ofVec3f(0, 0, 0);
+	this->targetPosition = ofVec3f(0, 0, 0);
+
+	this->jumpProgress = 0;
+	this->timePerFrame = 0;
+	this->previousTime = 0;
 
 	// set variables for fall
 	this->fallVelocity = ofVec3f(0, -0.5, 0);
 	this->fallAcceleration = ofVec3f(0, -0.5, 0);
-}
-
-void Qbert::resetPhysics() {
-	this->jumpProgress = 0;
-	this->timePerFrame = 0;
-	this->previousTime = 0;
-	this->jumpStartPosition = ofVec3f(0, 0, 0);
-	this->targetPosition = ofVec3f(0, 0, 0);
-	this->pyramidCollision = false;
-	this->velocityMod = 15;
 }
 
 void Qbert::draw() {
@@ -79,7 +65,7 @@ void Qbert::draw() {
 			// it is alreadey drawn in the right orientation
 		}
 
-		glScaled(this->qbertSize, this->qbertSize, this->qbertSize);
+		glScaled(this->size, this->size, this->size);
 
 		// nose stack
 		glDarkOrange();
@@ -102,59 +88,38 @@ void Qbert::update() {
 	this->previousTime = currentTime;
 
 	// check if the player is dead
-	if (this->isDead) {
-		i = 0;
-		cout << "DIED ######################################\n";
+	if (this->isDead && this->lives > 0) {
 		baseSetup();
 		return;
 	}
 
 	// check if the player fell into the ground
-	if (this->currentPosition.y - this->qbertSize <= -this->startPosition.y) {
+	if (this->currentPosition.y - this->size <= -this->startPosition.y) {
 		this->isDead = true;
+		this->previousPosition = this->startPosition;
+		this->lives--;
 		return;
 	}
 
 	// check if the player is moving
-	if (isMoving) {
+	if (this->isMoving) {
 
 		if (this->jumpProgress >= 1 && !isFalling) {
+			// reached or surpassed the target position in the jump movement
 			this->currentPosition = this->targetPosition;
+
 			if (this->pyramidCollision) {
+				// collided with the pyramid when jumping
 				this->jumpProgress = 1;
 				this->isMoving = false;
 				this->pyramidCollision = false;
-				j = 0;
 				return;
 			}
 			else {
-				/*
-				if (this->currentPosition.distance(this->previousPosition) > 5) {
-					this->fallVelocity = (this->currentPosition - this->previousPosition);
-					cout << "fall velocity = " << this->fallVelocity << "\n" << endl;
-					cout << "current position = " << this->currentPosition << "\n" << endl;
-					cout << "previous position = " << this->previousPosition << "\n" << endl;
-					cout << "distance = " << this->currentPosition.distance(this->previousPosition) << "\n" << endl;
+				// did not collide with the pyramid, start free falling
+				this->isFalling = true;
+				this->jumpProgress = 0;
 
-				} else {
-					this->fallVelocity = (this->currentPosition - this->prevPrevPosition);
-					cout << "fall velocity = " << this->fallVelocity << "\n" << endl;
-					cout << "current position = " << this->currentPosition << "\n" << endl;
-					cout << "prePrev position = " << this->previousPosition << "\n" << endl;
-					cout << "distance = " << this->currentPosition.distance(this->previousPosition) << "\n" << endl;
-
-				}
-				*/
-				//this->jumpStartPosition = this->currentPosition;
-
-				/*
-				this->targetPosition.y = -100;
-				if (this->orientation == Orientation::LEFT_UP || this->orientation == Orientation::RIGHT_DOWN) {
-					this->targetPosition.x = this->currentPosition.x + this->jumpDistance * 0.5;
-				} else if (this->orientation == Orientation::LEFT_DOWN || this->orientation == Orientation::RIGHT_UP) {
-					this->targetPosition.z = this->currentPosition.z + this->jumpDistance * 0.5;
-				}
-				*/
 				this->fallVelocity.y = this->velocityMod * sin(this->fallAngle);
 
 				if (this->orientation == Orientation::LEFT_UP) {
@@ -169,82 +134,24 @@ void Qbert::update() {
 				} else if (this->orientation == Orientation::LEFT_DOWN) {
 					this->fallVelocity.z = - (this->velocityMod * cos(this->fallAngle));
 				}
-
-				cout << "fall velocity = " << this->fallVelocity << "\n" << endl;
-
-
-				this->isFalling = true;
-				this->jumpProgress = 0;
-				j = 0;
-				
 			}
 		}
 
-		if (!this->isFalling) {
+		if (this->isFalling) {
+			// free falling (will end up crashing with the ground)
+			this->fallVelocity += this->fallAcceleration;
+			this->currentPosition += this->fallVelocity;
+		} 
+		else {
+			// jumping
 			this->jumpProgress += this->timePerFrame * 3;
-			// calculate the new position of the player (jumping)
+
 			float height = sin(this->jumpProgress * PI) * this->jumpHeight;
 			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
 			newPosition.y += height;
 
-			this->prevPrevPosition = this->previousPosition;
-			this->previousPosition = this->currentPosition;
-			this->currentPosition = newPosition;
-			j++;	
-			cout << "j = " << j << "\n" << endl;
-		}
-		else {
-			/*
-			GLfloat ratio = 6;
-			this->jumpProgress += this->timePerFrame * ratio;
-			// calculate the new position of the player (falling)
-			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
-			this->currentPosition = newPosition;
-			
-			*/
-
-			
-			this->fallVelocity += this->fallAcceleration;
-
-			this->previousPosition = this->currentPosition;
-			this->currentPosition += this->fallVelocity;
-			i++;
-			
-			cout << i << "\tjump progess = " << this->jumpProgress << "\n" << endl;
-		}
-
-
-		/*
-		this->jumpProgress += this->timePerFrame * 3;
-
-		if (this->jumpProgress >= 1 && !isFalling) {
-			this->currentPosition = this->targetPosition;
-			if (checkPyramidCollision()) {
-				this->jumpProgress = 1;
-				this->isMoving = false;
-				return;
-			}
-			else {
-				this->jumpStartPosition = this->currentPosition;
-				this->targetPosition.y = -100;
-				this->isFalling = true;
-				this->jumpProgress = 0;
-			}
-		}
-
-		if (!isFalling) {
-			// calculate the new position of the player (jumping)
-			float jumpHeight = sin(this->jumpProgress * PI) * this->pyramid->tileSize;
-			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
-			newPosition.y += jumpHeight;
 			this->currentPosition = newPosition;
 		}
-		else {
-			// calculate the new position of the player (falling)
-			ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
-			this->currentPosition = newPosition;
-		}
-		*/
 	} 
 }
 
@@ -282,19 +189,6 @@ void Qbert::startJump(ofVec3f target) {
 	this->jumpProgress = 0;
 }
 
-/*
-bool Qbert::checkPyramidCollision() {
-	int currentMaxLevel = this->pyramid->maxLevel;
-	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
-		for (int col = 0; col < currentMaxLevel; col++) {
-			ofVec3f tile = this->pyramid->coords[row][col];
-			if (this->currentPosition.distance(tile) <= this->qbertSize * 0.5 + this->pyramid->tileSize * 0.5) {
-				// change the color of the tile
-				this->pyramid->setTileColor(row, col, true);
-				return true;
-			}
-		}
-	}
-	return false;
+void Qbert::resetLives() {
+	this->lives = 3;
 }
-*/

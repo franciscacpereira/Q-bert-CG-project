@@ -20,47 +20,44 @@ class Qbert {
 public:
 	enum class Orientation { RIGHT_DOWN, RIGHT_UP, LEFT_DOWN, LEFT_UP };
 
-	Qbert(ofVec3f, GLfloat, GLfloat, GLfloat);
-	//Qbert(Pyramid*);
+	Qbert(ofVec3f, GLfloat, GLfloat, GLfloat, int);
 	void baseSetup();
 	void resetPhysics();
 	void draw();
 	void update();
-	void keyPressed(int);	
+	void keyPressed(int);
 	void startJump(ofVec3f);
-	//bool checkPyramidCollision();
+	void resetLives();
 
-
-	// state variables
+	// position variables
 	ofVec3f startPosition;
 	ofVec3f currentPosition;
 	ofVec3f previousPosition;
-	ofVec3f prevPrevPosition;
-	GLfloat qbertSize;
+
+	// state variables
+	GLfloat size;
 	Orientation orientation;
-	//Pyramid* pyramid;
 	bool isDead;
 	bool isMoving;
 	bool isFalling;
+	bool pyramidCollision;
+	bool ballCollision;
+	int lives;
 
 	// movement variables
+	ofVec3f jumpStartPosition;
+	ofVec3f targetPosition;
+
 	GLfloat jumpHeight;
 	GLfloat jumpDistance;
 	GLfloat jumpProgress;
 	float timePerFrame;
 	float previousTime;
-	ofVec3f jumpStartPosition;
-	ofVec3f targetPosition;
-	bool pyramidCollision;
 
-	GLfloat velocityMod;
 	ofVec3f fallVelocity;
 	ofVec3f fallAcceleration;
-	GLfloat fallAngle = 13 * PI / 9; //25 * PI / 18;  // ideal: 163 * PI / 120;
-	GLfloat prevCurThreshold = 5;
-
-	int i;
-	int j;
+	GLfloat velocityMod;
+	GLfloat fallAngle;
 };
 
 #endif // QBERT_H
