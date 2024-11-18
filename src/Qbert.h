@@ -56,6 +56,7 @@ public:
 	GLfloat velocityMod;
 	ofVec3f fallVelocity;
 	ofVec3f fallAcceleration;
+	GLfloat fallAngle = 13 * PI / 9; //25 * PI / 18;  // ideal: 163 * PI / 120;
 	GLfloat prevCurThreshold = 5;
 
 	int i;

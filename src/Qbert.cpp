@@ -146,7 +146,7 @@ void Qbert::update() {
 				}
 				*/
 				//this->jumpStartPosition = this->currentPosition;
-				
+
 				/*
 				this->targetPosition.y = -100;
 				if (this->orientation == Orientation::LEFT_UP || this->orientation == Orientation::RIGHT_DOWN) {
@@ -155,14 +155,22 @@ void Qbert::update() {
 					this->targetPosition.z = this->currentPosition.z + this->jumpDistance * 0.5;
 				}
 				*/
-				this->fallVelocity.y = this->velocityMod * sin((3 * PI) / 2);
+				this->fallVelocity.y = this->velocityMod * sin(this->fallAngle);
 
-				if (this->orientation == Orientation::LEFT_UP || this->orientation == Orientation::RIGHT_DOWN) {
-					this->fallVelocity.x = this->velocityMod * cos((3 * PI) / 2);
+				if (this->orientation == Orientation::LEFT_UP) {
+					this->fallVelocity.x = this->velocityMod * cos(this->fallAngle);
+
+				} else if (this->orientation == Orientation::RIGHT_DOWN) {
+					this->fallVelocity.x = - (this->velocityMod * cos(this->fallAngle));
+
+				} else if (this->orientation == Orientation::RIGHT_UP) {
+					this->fallVelocity.z = this->velocityMod * cos(this->fallAngle);
+
+				} else if (this->orientation == Orientation::LEFT_DOWN) {
+					this->fallVelocity.z = - (this->velocityMod * cos(this->fallAngle));
 				}
-				else if (this->orientation == Orientation::LEFT_DOWN || this->orientation == Orientation::RIGHT_UP) {
-					this->fallVelocity.z = this->velocityMod * cos((3 * PI) / 2);
-				}
+
+				cout << "fall velocity = " << this->fallVelocity << "\n" << endl;
 
 
 				this->isFalling = true;
