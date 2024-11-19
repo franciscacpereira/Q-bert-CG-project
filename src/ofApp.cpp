@@ -12,18 +12,28 @@ void ofApp::setup() {
 	debugRotationZ = 0;
 
 	// init game variables
-	pyramid = new Pyramid(7, 50);
+	maxLives = 3;
+
+	pyramid = new Pyramid(7, 25);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 	ofVec3f qbertStartPosition = pyramid->coords[0][0];
 	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
-	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight, 3);
+	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight, maxLives);
 
 	ballSize = pyramid->tileSize * 0.8;
-	ofVec3f ballStartPosition = getBallSpawnPoint();
-	ball = new Ball(ballStartPosition, ballSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight);
+	maxBalls = 10;
+	for (int i = 0; i < maxBalls; i++) {
+		balls.push_back(Ball(ofVec3f(0, 0, 0), ballSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight));
+	}
 
+	GLfloat startZ = pyramid->tileSize * pyramid->maxLevel * 0.5;
+	GLfloat livesDistance = qbertSize;
+	for (int i = 0; i < maxLives; i++) {
+		ofVec3f startPos = ofVec3f(-startZ + i * livesDistance, pyramid->tileSize * pyramid->maxLevel, startZ - i * livesDistance);
+		lives.push_back(Qbert(startPos, qbertSize, 0, 0, 0, maxLives));
+	}
 
 	// init camera variables
 	viewType = 0;
@@ -52,8 +62,8 @@ void ofApp::update(){
 
 	// update game variables
 	qbert->update();
-	if (gameStarted) ball->update();
 	checkPyramidCollision();
+	checkBallCollision();
 }
 
 //--------------------------------------------------------------
@@ -100,7 +110,11 @@ void ofApp::draw(){
 	}
 
 	/* DRAW THE GAME */
-	if(gameStarted) ball->draw();
+
+	for (int i = 0; i < qbert->lives; i++) {
+		lives[i].draw();
+	}
+
 	qbert->draw();
 	pyramid->draw();
 
@@ -206,7 +220,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 ////////////////////////////////////////////////////////////////
 
 void ofApp::checkPyramidCollision() {
-	// collision between pyramid and qbert and ball
 	bool qbertCollision = false;
 	bool ballCollision = false;
 
@@ -214,6 +227,8 @@ void ofApp::checkPyramidCollision() {
 	for (int row = 0; row < this->pyramid->maxLevel; row++, currentMaxLevel--) {
 		for (int col = 0; col < currentMaxLevel; col++) {
 			ofVec3f tile = this->pyramid->coords[row][col];
+
+			// qbert vs pyramid collision
 			if (qbert->currentPosition.distance(tile) < qbert->size * 0.5 + this->pyramid->tileSize * 0.5) {	// changed from <= to < so it wouldn´t paint the first tile when it died
 				// change the color of the tile
 				if (this->qbert->isMoving) {
@@ -222,18 +237,45 @@ void ofApp::checkPyramidCollision() {
 				this->qbert->pyramidCollision = true;
 				qbertCollision = true;
 			}
+
+			// ball vs pyramid collision
+			for (int i = 0; i < this->maxBalls; i++) {
+				ofVec3f ballPos = this->balls[i].currentPosition;
+				if (ballPos.distance(tile) < this->balls[i].size * 0.5 + this->pyramid->tileSize * 0.5) {
+					this->balls[i].pyramidCollision = true;
+					ballCollision = true;
+				}
+			}
+			/*
 			if (ball->currentPosition.distance(tile) < ball->size * 0.5 + this->pyramid->tileSize * 0.5) {
 				this->ball->pyramidCollision = true;
 				ballCollision = true;
 			}
+			*/
 		}
 	}
-	if (!qbertCollision) {
-		this->qbert->pyramidCollision = false;
+	
+
+	//this->qbert->pyramidCollision = qbertCollision;
+	//this->ball->pyramidCollision = ballCollision;
+}
+
+void ofApp::checkBallCollision() {
+	// collision between ball and qbert
+	for (int i = 0; i < maxBalls; i++) {
+		if (qbert->currentPosition.distance(balls[i].currentPosition) <= qbert->size * 0.5 + balls[i].size * 0.5) {
+			qbert->ballCollision = true;
+			balls[i].qbertCollision = true;
+		}
 	}
-	if (!ballCollision) {
-		this->ball->pyramidCollision = false;
+
+
+	/*
+	if (this->qbert->currentPosition.distance(this->ball->currentPosition) <= this->qbert->size * 0.5 + this->ball->size * 0.5) {
+		this->qbert->ballCollision = true;
+		this->ball->qbertCollision = true;
 	}
+	*/
 }
 
 ofVec3f ofApp::getBallSpawnPoint() {

@@ -17,6 +17,9 @@ Ball::Ball(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jump
 	this->fallAngle = 13 * PI / 9; //25 * PI / 18;  // ideal: 163 * PI / 120;
 
 	baseSetup();
+
+	// start deactivated so it can be activated on command
+	this->isDead = true;
 }
 
 void Ball::baseSetup() {
@@ -25,6 +28,8 @@ void Ball::baseSetup() {
 	this->isDead = false;
 	this->isMoving = false;
 	this->isFalling = false;
+	this->isWaiting = false;
+	this->qbertCollision = false;
 	resetPhysics();
 
 	// set variables for initial fall
@@ -65,14 +70,19 @@ void Ball::update() {
 	this->timePerFrame = currentTime - this->previousTime;
 	this->previousTime = currentTime;
 
-	// check if the ball is dead
-	if (this->isDead) {
-		baseSetup();
+	// check if the ball is dead or paused
+	if (this->isDead || this->isWaiting) {
 		return;
 	}
 
 	// check if the ball fell to the ground
 	if (this->currentPosition.y - this->size <= this->deathHeight) {
+		this->isDead = true;
+		return;
+	}
+
+	// check if the ball collided with the qbert
+	if (this->qbertCollision) {
 		this->isDead = true;
 		return;
 	}
@@ -119,27 +129,6 @@ void Ball::update() {
 					else if (this->orientation == Orientation::LEFT_DOWN) {
 						this->fallVelocity.z = -(this->velocityMod * cos(this->fallAngle));
 					}
-
-					/*
-					this->jumpStartPosition = this->currentPosition;
-					this->targetPosition.y = -100;
-					this->isFalling = true;
-					this->jumpProgress = 0;
-
-					
-					// set variables for free fall
-					if (this->orientation == Orientation::LEFT_DOWN) {
-						this->fallVelocity = ofVec3f(0, -0.5, 1);
-						this->fallAcceleration = ofVec3f(0, -0.5, 0);
-					}
-					else if (this->orientation == Orientation::RIGHT_DOWN) {
-						this->fallVelocity = ofVec3f(1, -0.5, 0);
-						this->fallAcceleration = ofVec3f(0, -0.5, 0);
-						this->targetPosition.x += jumpDistance * 2;
-					}
-					this->isFalling = true;
-					this->jumpProgress = 0;
-					*/
 				}
 			}
 
@@ -148,17 +137,6 @@ void Ball::update() {
 				// free falling (will end up crashing with the ground)
 				this->fallVelocity += this->fallAcceleration;
 				this->currentPosition += this->fallVelocity;
-
-				/* this->jumpProgress += this->timePerFrame * 6;
-				// calculate the new position of the player (falling)
-				ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
-				this->currentPosition = newPosition;
-
-				this->fallVelocity += this->fallAcceleration;
-				this->currentPosition += this->fallVelocity;
-
-				cout << "BALL POSITION: " << this->currentPosition << endl;
-				*/
 			}
 			else {
 				// jumping
@@ -194,4 +172,13 @@ void Ball::startJump(ofVec3f target) {
 	this->jumpStartPosition = this->currentPosition;
 	this->targetPosition = target;
 	this->jumpProgress = 0;
+}
+
+void Ball::activate(ofVec3f position) {
+	this->startPosition = position;
+	baseSetup();
+}
+
+void Ball::pause() {
+	this->isWaiting = true;
 }

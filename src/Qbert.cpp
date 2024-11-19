@@ -26,6 +26,7 @@ void Qbert::baseSetup() {
 	this->isDead = false;
 	this->isMoving = false;
 	this->isFalling = false;
+	this->ballCollision = false;
 	resetPhysics();
 }
 
@@ -102,6 +103,13 @@ void Qbert::update() {
 		this->previousPosition = this->startPosition;	// so it spawns from the start position
 		return;
 	}
+
+	// check if the player collision with ball
+	if (this->ballCollision) {
+		this->isDead = true;
+		this->lives--;
+	}
+
 
 	// check if the player is moving
 	if (this->isMoving) {

@@ -22,6 +22,8 @@ public:
 	void draw();
 	void update();
 	void startJump(ofVec3f);
+	void activate(ofVec3f);
+	void pause();
 
 	// position variables
 	ofVec3f startPosition;
@@ -36,6 +38,7 @@ public:
 	bool pyramidCollision;
 	bool qbertCollision;
 	bool initialFall;
+	bool isWaiting;
 
 	// movement variables
 	ofVec3f jumpStartPosition;

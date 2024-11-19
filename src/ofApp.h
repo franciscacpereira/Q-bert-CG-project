@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		void checkPyramidCollision();
+		void checkBallCollision();
 		ofVec3f getBallSpawnPoint();
 
 		/* DEBUG VARIALES */
@@ -52,8 +53,11 @@ class ofApp : public ofBaseApp{
 		/* GAME VARIABLES */
 		Pyramid* pyramid;
 		Qbert* qbert;
-		Ball* ball;
+		vector<Qbert> lives;
+		vector<Ball> balls;
 
+		int maxLives;
+		int maxBalls;
 		GLfloat ballSize;
 
 		/* GAME STATE VARIABLES */ 
