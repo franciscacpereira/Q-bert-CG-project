@@ -65,6 +65,10 @@ class ofApp : public ofBaseApp{
 		GLfloat shakeFrequency;
 		GLfloat pyramidShakeAngle;
 		float shakeTime;
+		float timePerFrame;
+		float previousTime;
+		float gameOverTime;
+		float gameOverDuration;
 
 
 		/* GAME STATE VARIABLES */ 

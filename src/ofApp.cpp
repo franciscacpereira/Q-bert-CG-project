@@ -20,9 +20,11 @@ void ofApp::setup() {
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	pyramidShakeAngle = 0;
-	shakeAmplitude = 2;
-	shakeFrequency = 1;
+	shakeAmplitude = 1.5;
+	shakeFrequency = 10;
 	shakeTime = 0;
+	gameOverTime = 0;
+	gameOverDuration = 2;
 
 	// qbert
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
@@ -73,6 +75,9 @@ void ofApp::update(){
 	/* UPDATE CAMERA VARIABLES */
 
 	/* UPDATE GAME VARIABLES */
+	float currentTime = getTime();
+	this->timePerFrame = currentTime - this->previousTime;
+	this->previousTime = currentTime;
 
 	// if game has been won pause all moving objects in screen
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
@@ -87,14 +92,33 @@ void ofApp::update(){
 	// game over
 	if (this->qbert->lives <= 0) {
 		gameOver = true;
-		pyramidShakeAngle = shakeAmplitude * sin(2 * PI * shakeFrequency * shakeTime);
-		shakeTime += 0.1;
 
-		this->qbert->pause();
-		
-		for (int i = 0; i < maxBalls; i++) {
-			balls[i].pause();
+		// start game over animation timer and pause all objects
+		if (gameOverTime == 0) {
+			gameOverTime = currentTime;
+
+			this->qbert->pause();
+
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].pause();
+			}
 		}
+
+		// check if game over animation has ended
+		if (currentTime - gameOverTime < gameOverDuration) {
+
+			pyramidShakeAngle = shakeAmplitude * sin(2 * PI * shakeFrequency * shakeTime);
+			shakeTime += timePerFrame;
+		}
+		else {
+			// kill all objects
+			this->qbert->isDead = true;
+			
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].isDead = true;
+			}
+		}
+
 	}
 
 	// game running
@@ -175,20 +199,6 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if (gameOver || gameWon) {
-		if (key == 'r') {
-			int curentView = viewType;
-			setup();
-			viewType = curentView;
-		}
-		return;
-	}
-
-	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
-		enemyActivated = true;
-	}
-	qbert->keyPressed(key);
-
 	switch (key) {
 	case '1':
 		glDisable(GL_CULL_FACE);
@@ -225,6 +235,20 @@ void ofApp::keyPressed(int key){
 		}
 		break;
 	}
+
+	if (gameOver || gameWon) {
+		if (key == 'r') {
+			int curentView = viewType;
+			setup();
+			viewType = curentView;
+		}
+		return;
+	}
+
+	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
+		enemyActivated = true;
+	}
+	qbert->keyPressed(key);
 }
 
 //--------------------------------------------------------------
