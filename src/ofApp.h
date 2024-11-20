@@ -50,6 +50,14 @@ class ofApp : public ofBaseApp{
 		GLfloat alpha = 10;
 		GLfloat beta = 1000;
 
+		// first person view variables
+		GLfloat camX;
+		GLfloat camY;
+		GLfloat camZ;
+		GLfloat targetX;
+		GLfloat targetY;
+		GLfloat targetZ;
+
 		/* GAME VARIABLES */
 		Pyramid* pyramid;
 		Qbert* qbert;

@@ -15,9 +15,10 @@
 
 #define PYRAMID_TO_QBERT_RATIO 0.6
 
+enum class Orientation { RIGHT_DOWN, RIGHT_UP, LEFT_DOWN, LEFT_UP };
+
 class Qbert {
 public:
-	enum class Orientation { RIGHT_DOWN, RIGHT_UP, LEFT_DOWN, LEFT_UP };
 
 	Qbert(ofVec3f, GLfloat, GLfloat, GLfloat, GLfloat, int);
 	void baseSetup();

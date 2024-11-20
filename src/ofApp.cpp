@@ -165,7 +165,47 @@ void ofApp::draw(){
 		break;
 	case 2:
 		// first person view
-		// to be implemented ...
+		camX = qbert->currentPosition.x;
+		camY = qbert->currentPosition.y + qbert->size * 3;
+		camZ = qbert->currentPosition.z;
+
+		targetX = targetY = targetZ = 0;
+
+		if (qbert->orientation == Orientation::LEFT_UP) {
+			//camX -= qbert->size * 0.5;
+			targetX = camX - pyramid->tileSize * pyramid->maxLevel * 0.5;
+			targetZ = camZ;
+			targetY = pyramid->tileSize * pyramid->maxLevel;
+
+		}
+		else if (qbert->orientation == Orientation::RIGHT_DOWN) {
+			camX += qbert->size * 0.5;
+			targetX = camX + pyramid->tileSize * pyramid->maxLevel * 0.5;
+			targetZ = camZ;
+
+		}
+		else if (qbert->orientation == Orientation::RIGHT_UP) {
+			//camZ += qbert->size * 0.5;
+			targetX = camX;
+			targetZ = camZ - pyramid->tileSize * pyramid->maxLevel * 0.5;
+			targetY = pyramid->tileSize * pyramid->maxLevel;
+
+		}
+		else if (qbert->orientation == Orientation::LEFT_DOWN) {
+			camZ += qbert->size * 0.5;
+			targetX = camX;
+			targetZ = camZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		}
+
+		glViewport(0, 0, gw(), gh());
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		perspective(lensAngle, alpha, beta);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		lookat(camX, camY, camZ, targetX, targetY, targetZ, 0, 1, 0);
 		break;
 	case 3:
 		// random tests
@@ -248,6 +288,22 @@ void ofApp::keyPressed(int key){
 	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
 		enemyActivated = true;
 	}
+
+	if (viewType == 2) {
+		if (key == OF_KEY_UP) {
+			key = OF_KEY_DOWN;
+		}
+		else if (key == OF_KEY_DOWN) {
+			key = OF_KEY_UP;
+		}
+		else if (key == OF_KEY_LEFT) {
+			key = OF_KEY_RIGHT;
+		}
+		else if (key == OF_KEY_RIGHT) {
+			key = OF_KEY_LEFT;
+		}
+	}
+
 	qbert->keyPressed(key);
 }
 
