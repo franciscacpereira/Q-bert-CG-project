@@ -16,8 +16,13 @@ void ofApp::setup() {
 	currentLives = maxLives;
 
 	// pyramid
-	pyramid = new Pyramid(7, 25);
+	pyramid = new Pyramid(7, 50);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
+
+	pyramidShakeAngle = 0;
+	shakeAmplitude = 2;
+	shakeFrequency = 1;
+	shakeTime = 0;
 
 	// qbert
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
@@ -69,7 +74,7 @@ void ofApp::update(){
 
 	/* UPDATE GAME VARIABLES */
 
-	// game won
+	// if game has been won pause all moving objects in screen
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
 		gameWon = true;
 		this->qbert->pause();
@@ -82,6 +87,9 @@ void ofApp::update(){
 	// game over
 	if (this->qbert->lives <= 0) {
 		gameOver = true;
+		pyramidShakeAngle = shakeAmplitude * sin(2 * PI * shakeFrequency * shakeTime);
+		shakeTime += 0.1;
+
 		this->qbert->pause();
 		
 		for (int i = 0; i < maxBalls; i++) {
@@ -156,6 +164,8 @@ void ofApp::draw(){
 		balls[i].draw();
 	}
 
+	glRotated(pyramidShakeAngle, 1, 0, 1);
+
 	qbert->draw();
 	pyramid->draw();
 
@@ -167,7 +177,9 @@ void ofApp::draw(){
 void ofApp::keyPressed(int key){
 	if (gameOver || gameWon) {
 		if (key == 'r') {
+			int curentView = viewType;
 			setup();
+			viewType = curentView;
 		}
 		return;
 	}

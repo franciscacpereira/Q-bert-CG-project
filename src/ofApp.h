@@ -61,6 +61,12 @@ class ofApp : public ofBaseApp{
 		int maxBalls;
 		GLfloat ballSize;
 
+		GLfloat shakeAmplitude; 
+		GLfloat shakeFrequency;
+		GLfloat pyramidShakeAngle;
+		float shakeTime;
+
+
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;
 		bool gameOver;

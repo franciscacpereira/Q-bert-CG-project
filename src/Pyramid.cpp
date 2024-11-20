@@ -45,8 +45,6 @@ void Pyramid::baseSetup() {
 }
 
 void Pyramid::draw() {
-
-	cout << "nbrFlippedTiles: " << this->nbrFlippedTiles << endl;
 	// pyramid stack
 	glPushMatrix(); {
 		int currentMaxLevel = this->maxLevel;
@@ -66,7 +64,6 @@ void Pyramid::update() {
 	if (nbrFlippedTiles == nbrTotalTiles && !this->rainbowAnimation) {
 		this->rainbowAnimation = true;
 		this->previousChangeTimer = getTime();
-		cout << "GAME WON - STARTING RAINBOW ANIMATION\n" << endl;
 	}
 
 	if (this->shakeAnimation) {
@@ -79,7 +76,6 @@ void Pyramid::update() {
 		if (elapsedTime >= this->colorChangeTime) {
 
 			this->currentColorIndex++;
-			cout << "COLOR INDEX: " << this->currentColorIndex << "\n" << endl;
 			if (this->currentColorIndex >= this->rainbowColors.size()) {
 				this->currentColorIndex = 0;
 			}
