@@ -17,6 +17,15 @@ Pyramid::Pyramid(GLint maxLevel, GLfloat tileSize) {
 	this->tileSize = tileSize;
 	this->setCoords();
 	this->setColors();
+	this->topColor = RED;
+	this->leftFaceColor = PINK;
+	this->rightFaceColor = MAGENTA;
+
+	this->shakeAnimation = false;
+	this->rainbowAnimation = false;
+	this->rainbowColors = { RED, ORANGE, YELLOW, GREEN, CYAN, DARK_BLUE, PURPLE };
+	this->previousChangeTimer = 0;
+	this->currentColorIndex = 0;
 }
 
 void Pyramid::baseSetup() {
@@ -27,6 +36,12 @@ void Pyramid::baseSetup() {
 	this->tileSize = 10;
 	this->setCoords();
 	this->setColors();
+
+	this->shakeAnimation = false;
+	this->rainbowAnimation = false;
+	this->rainbowColors = { RED, ORANGE, YELLOW, GREEN, CYAN, DARK_BLUE, PURPLE };
+	this->previousChangeTimer = 0;
+	this->currentColorIndex = -1;
 }
 
 void Pyramid::draw() {
@@ -48,8 +63,29 @@ void Pyramid::draw() {
 
 void Pyramid::update() {
 	// check if game has been won
-	if (this->nbrFlippedTiles == this->nbrTotalTiles) {
-		cout << " INSERT WINNING ANIMATION >>\n" << endl;
+	if (nbrFlippedTiles == nbrTotalTiles && !this->rainbowAnimation) {
+		this->rainbowAnimation = true;
+		this->previousChangeTimer = getTime();
+		cout << "GAME WON - STARTING RAINBOW ANIMATION\n" << endl;
+	}
+
+	if (this->shakeAnimation) {
+		cout << " INSERT SHAKING ANIMATION >>\n" << endl;
+	}
+	else if (this->rainbowAnimation) {
+		float currentTime = getTime();
+		float elapsedTime = currentTime - this->previousChangeTimer;
+
+		if (elapsedTime >= this->colorChangeTime) {
+
+			this->currentColorIndex++;
+			cout << "COLOR INDEX: " << this->currentColorIndex << "\n" << endl;
+			if (this->currentColorIndex >= this->rainbowColors.size()) {
+				this->currentColorIndex = 0;
+			}
+
+			this->previousChangeTimer = currentTime;
+		}
 	}
 }
 
@@ -111,14 +147,14 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 	glScaled(this->tileSize, this->tileSize, this->tileSize);
 	glPushMatrix(); {
 		// front face
-		glPink();
+		setColor(this->leftFaceColor);
 		glPushMatrix(); {
 			glTranslated(0, 0, unit);
 			unitSquare();
 		} glPopMatrix();
 
 		// back face
-		glMagenta();
+		setColor(this->rightFaceColor);
 		glPushMatrix(); {
 			glTranslated(0, 0, -unit);
 			glRotated(180, 0, 1, 0);
@@ -126,7 +162,7 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// left face
-		glPink();
+		setColor(this->leftFaceColor);
 		glPushMatrix(); {
 			glTranslated(-unit, 0, 0);
 			glRotated(270, 0, 1, 0);
@@ -134,7 +170,7 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// right face
-		glMagenta();
+		setColor(this->rightFaceColor);
 		glPushMatrix(); {
 			glTranslated(unit, 0, 0);
 			glRotated(90, 0, 1, 0);
@@ -150,11 +186,16 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// top face
-		if (!isFlipped) {
-			glRed();
+		if (this->rainbowAnimation) {
+			setColor(this->rainbowColors[this->currentColorIndex]);
 		}
 		else {
-			glDarkBlue();
+			if (!isFlipped) {
+				setColor(this->topColor);
+			}
+			else {
+				glDarkBlue();
+			}
 		}
 		glPushMatrix(); {
 			glTranslated(0, unit, 0);

@@ -12,6 +12,8 @@
 #include "colorTools.h"
 #include "movementTools.h"
 
+#define COLOR_CHANGE_TIME 0.1	// ms
+
 class Pyramid {
 public:
 	Pyramid();
@@ -30,9 +32,19 @@ public:
     GLfloat tileSize;
     vector<vector<ofVec3f>> coords;
 	vector<vector<bool>> colors;
+	Color topColor;
+	Color leftFaceColor;
+	Color rightFaceColor;
 
 	// animation variables
+	bool shakeAnimation;
 
+
+	bool rainbowAnimation;
+	vector<Color> rainbowColors;
+	float colorChangeTime = COLOR_CHANGE_TIME;
+	float previousChangeTimer;
+	int currentColorIndex;
 };
 
 #endif // PYRAMID_H
