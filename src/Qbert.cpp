@@ -27,6 +27,7 @@ void Qbert::baseSetup() {
 	this->isMoving = false;
 	this->isFalling = false;
 	this->ballCollision = false;
+	this->isWaiting = false;
 	resetPhysics();
 }
 
@@ -90,6 +91,11 @@ void Qbert::update() {
 	this->timePerFrame = currentTime - this->previousTime;
 	this->previousTime = currentTime;
 
+	// pause the game
+	if (this->isWaiting) {
+		return;
+	}
+
 	// check if the player is dead
 	if (this->isDead && this->lives > 0) {
 		baseSetup();
@@ -106,6 +112,7 @@ void Qbert::update() {
 
 	// check if the player collision with ball
 	if (this->ballCollision) {
+		// collision animation ...
 		this->isDead = true;
 		this->lives--;
 	}
@@ -118,6 +125,7 @@ void Qbert::update() {
 		if (this->jumpProgress >= 1 && !isFalling) {
 			// reached or surpassed the target position in the jump movement
 			this->currentPosition = this->targetPosition;
+			this->previousPosition = this->currentPosition;
 
 			if (this->pyramidCollision) {
 				// collided with the pyramid when jumping
@@ -197,10 +205,15 @@ void Qbert::startJump(ofVec3f target) {
 	if (isMoving) return;
 	this->isMoving = true;
 	this->jumpStartPosition = this->currentPosition;
+	this->previousPosition = this->currentPosition;
 	this->targetPosition = target;
 	this->jumpProgress = 0;
 }
 
 void Qbert::resetLives() {
 	this->lives = 3;
+}
+
+void Qbert::pause() {
+	this->isWaiting = true;
 }

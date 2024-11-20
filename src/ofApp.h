@@ -57,9 +57,12 @@ class ofApp : public ofBaseApp{
 		vector<Ball> balls;
 
 		int maxLives;
+		int currentLives;
 		int maxBalls;
 		GLfloat ballSize;
 
 		/* GAME STATE VARIABLES */ 
-		bool gameStarted;
+		bool enemyActivated;
+		bool gameOver;
+		bool gameWon;
 };

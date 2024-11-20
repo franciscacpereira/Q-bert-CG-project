@@ -27,6 +27,7 @@ public:
 	void keyPressed(int);
 	void startJump(ofVec3f);
 	void resetLives();
+	void pause();
 
 	// position variables
 	ofVec3f startPosition;
@@ -42,6 +43,7 @@ public:
 	bool pyramidCollision;
 	bool ballCollision;
 	int lives;
+	bool isWaiting;
 
 	// movement variables
 	ofVec3f jumpStartPosition;

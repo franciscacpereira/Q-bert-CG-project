@@ -11,6 +11,8 @@ Pyramid::Pyramid() {
 }
 
 Pyramid::Pyramid(GLint maxLevel, GLfloat tileSize) {
+	this->nbrFlippedTiles = 0;
+	this->nbrTotalTiles = maxLevel * (maxLevel + 1) / 2;
 	this->maxLevel = maxLevel;
 	this->tileSize = tileSize;
 	this->setCoords();
@@ -19,6 +21,8 @@ Pyramid::Pyramid(GLint maxLevel, GLfloat tileSize) {
 
 void Pyramid::baseSetup() {
 	// set the coords matrix to have the coordinates of a 7 level pyramid with 10 units per tile
+	this->nbrFlippedTiles = 0;
+	this->nbrTotalTiles = 28;
 	this->maxLevel = 7;
 	this->tileSize = 10;
 	this->setCoords();
@@ -26,6 +30,8 @@ void Pyramid::baseSetup() {
 }
 
 void Pyramid::draw() {
+
+	cout << "nbrFlippedTiles: " << this->nbrFlippedTiles << endl;
 	// pyramid stack
 	glPushMatrix(); {
 		int currentMaxLevel = this->maxLevel;
@@ -38,6 +44,13 @@ void Pyramid::draw() {
 			}
 		}
 	} glPopMatrix();
+}
+
+void Pyramid::update() {
+	// check if game has been won
+	if (this->nbrFlippedTiles == this->nbrTotalTiles) {
+		cout << " INSERT WINNING ANIMATION >>\n" << endl;
+	}
 }
 
 // sets the coordinates of the pyramid

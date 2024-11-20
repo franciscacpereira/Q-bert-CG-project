@@ -6,28 +6,33 @@ void ofApp::setup() {
 	ofBackground(18, 18, 23);
 	glLineWidth(5);
 
-	// init debug variables
+	/* INIT DEBUG VARIABLES */
 	debugRotationX = 0;
 	debugRotationY = 0;
 	debugRotationZ = 0;
 
-	// init game variables
+	/* INIT GAME VARIABLES */
 	maxLives = 3;
+	currentLives = maxLives;
 
+	// pyramid
 	pyramid = new Pyramid(7, 25);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
+	// qbert
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 	ofVec3f qbertStartPosition = pyramid->coords[0][0];
 	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
 	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight, maxLives);
 
+	// balls
 	ballSize = pyramid->tileSize * 0.8;
 	maxBalls = 10;
 	for (int i = 0; i < maxBalls; i++) {
 		balls.push_back(Ball(ofVec3f(0, 0, 0), ballSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight));
 	}
 
+	// lives
 	GLfloat startZ = pyramid->tileSize * pyramid->maxLevel * 0.5;
 	GLfloat livesDistance = qbertSize;
 	for (int i = 0; i < maxLives; i++) {
@@ -35,7 +40,7 @@ void ofApp::setup() {
 		lives.push_back(Qbert(startPos, qbertSize, 0, 0, 0, maxLives));
 	}
 
-	// init camera variables
+	/* INIT CAMERA VARIABLES */
 	viewType = 0;
 
 	isometricCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (pyramid->tileSize * pyramid->maxLevel);
@@ -47,23 +52,55 @@ void ofApp::setup() {
 	alpha = 10;
 	beta = 1000;
 
-	// init game state variables
-	gameStarted = false;
+	/* INIT GAME STATE VARIABLES */
+	enemyActivated = false;
+	gameOver = false;
+	gameWon = false;
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	// update debug variables
+	/* UPDATE DEBUG VARIABLES */
 	debugRotationX += 0.5;
 	debugRotationY += 0.5;
 	debugRotationZ += 1;
 
-	// update camera variables
+	/* UPDATE CAMERA VARIABLES */
 
-	// update game variables
+	/* UPDATE GAME VARIABLES */
+
+	// game won
+	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
+		gameWon = true;
+		this->qbert->pause();
+
+		for (int i = 0; i < maxBalls; i++) {
+			balls[i].pause();
+		}
+	}
+
+	// game over
+	if (this->qbert->lives <= 0) {
+		gameOver = true;
+		this->qbert->pause();
+		
+		for (int i = 0; i < maxBalls; i++) {
+			balls[i].pause();
+		}
+	}
+
+	// game running
 	qbert->update();
+	pyramid->update();
+
+	if (enemyActivated) {
+		for (int i = 0; i < maxBalls; i++) {
+			balls[i].update();
+		}
+		checkBallCollision();
+	}
+
 	checkPyramidCollision();
-	checkBallCollision();
 }
 
 //--------------------------------------------------------------
@@ -115,6 +152,10 @@ void ofApp::draw(){
 		lives[i].draw();
 	}
 
+	for (int i = 0; i < maxBalls; i++) {
+		balls[i].draw();
+	}
+
 	qbert->draw();
 	pyramid->draw();
 
@@ -124,8 +165,15 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	if (gameOver || gameWon) {
+		if (key == 'r') {
+			setup();
+		}
+		return;
+	}
+
 	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
-		gameStarted = true;
+		enemyActivated = true;
 	}
 	qbert->keyPressed(key);
 
@@ -232,6 +280,8 @@ void ofApp::checkPyramidCollision() {
 			if (qbert->currentPosition.distance(tile) < qbert->size * 0.5 + this->pyramid->tileSize * 0.5) {	// changed from <= to < so it wouldn´t paint the first tile when it died
 				// change the color of the tile
 				if (this->qbert->isMoving) {
+					if (!this->pyramid->colors[row][col])
+						this->pyramid->nbrFlippedTiles++;
 					this->pyramid->setTileColor(row, col, true);
 				}
 				this->qbert->pyramidCollision = true;
@@ -268,6 +318,7 @@ void ofApp::checkBallCollision() {
 			balls[i].qbertCollision = true;
 		}
 	}
+
 
 
 	/*

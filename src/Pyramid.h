@@ -10,6 +10,7 @@
 #include "ofMain.h"
 #include "extraTools.h"
 #include "colorTools.h"
+#include "movementTools.h"
 
 class Pyramid {
 public:
@@ -17,15 +18,21 @@ public:
 	Pyramid(GLint, GLfloat);
     void baseSetup();
     void draw();
+	void update();
     void setCoords();
 	void setColors();
 	void setTileColor(int, int, bool);
 	void drawTile(ofVec3f, bool);
 
+	int nbrFlippedTiles;
+	int nbrTotalTiles;
     GLint maxLevel;
     GLfloat tileSize;
     vector<vector<ofVec3f>> coords;
 	vector<vector<bool>> colors;
+
+	// animation variables
+
 };
 
 #endif // PYRAMID_H
