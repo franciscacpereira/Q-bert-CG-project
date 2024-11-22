@@ -111,8 +111,10 @@ void Qbert::update() {
 		return;
 	}
 
+	cout << "Lives: " << this->lives << endl;
 	// check if the player collision with ball
 	if (this->ballCollision) {
+		cout << "Ball Collision" << endl;
 		// collision animation ...
 		this->isDead = true;
 		this->previousOrientation = this->orientation;

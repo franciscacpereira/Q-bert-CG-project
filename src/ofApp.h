@@ -90,6 +90,12 @@ class ofApp : public ofBaseApp{
 		float gameWonTime;
 		float gameWonDuration;
 
+		// ball collision animation variables
+		float ballCollisionTime;
+		float ballCollisionDuration;
+		float lastQbertFlashTime;
+		bool drawQbert;
+
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;

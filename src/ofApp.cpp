@@ -30,6 +30,7 @@ void ofApp::setup() {
 	gameWonDuration = gameOverDuration;
 
 	// qbert
+	drawQbert = true;
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 	ofVec3f qbertStartPosition = pyramid->coords[0][0];
 	qbertStartPosition.y += pyramid->tileSize * 0.5 + qbertSize * 0.5;
@@ -40,6 +41,10 @@ void ofApp::setup() {
 	lastBallSpawnTime = -1;
 	lastActiveBallIndex = -1;
 
+	ballCollisionDuration = 1;
+	ballCollisionTime = -1;
+	lastQbertFlashTime = -1;
+
 	balls.clear();
 	ballSize = pyramid->tileSize * 0.8;
 	maxBalls = 10;
@@ -48,6 +53,7 @@ void ofApp::setup() {
 	}
 
 	// lives
+	lives.clear();
 	GLfloat startZ = pyramid->tileSize * pyramid->maxLevel * 0.5;
 	GLfloat livesDistance = qbertSize;
 	for (int i = 0; i < maxLives; i++) {
@@ -153,6 +159,37 @@ void ofApp::update(){
 			}
 		}
 
+	}
+
+	// ball collision animation
+	if (qbert->ballCollision) {
+		// start of collision animation
+		if (ballCollisionTime == -1) {
+			ballCollisionTime = currentTime;
+			qbert->pause();
+			lastQbertFlashTime = currentTime;
+			drawQbert = true;
+
+			// pause all balls
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].pause();
+			}
+		}
+
+		if (currentTime - ballCollisionTime < ballCollisionDuration) {
+			// collision animation
+			if (currentTime - lastQbertFlashTime >= 0.08) {
+				lastQbertFlashTime = currentTime;
+				drawQbert = !drawQbert;
+			}
+		}
+		else {
+			// end of collision animation
+			ballCollisionTime = -1;
+			qbert->ballCollision = false;
+			drawQbert = true;
+			qbert->isDead = true;
+		}
 	}
 
 	// deactivate all balls when Qbert hasn´t started moving yet (usually after losing a life)
@@ -305,7 +342,7 @@ void ofApp::draw(){
 		balls[i].draw();
 	}
 
-	qbert->draw();
+	if (drawQbert) qbert->draw();
 	pyramid->draw();
 
 	glScaled(1000, 1000, 1000);
