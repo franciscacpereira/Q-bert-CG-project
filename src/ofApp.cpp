@@ -86,7 +86,7 @@ void ofApp::update(){
 	this->timePerFrame = currentTime - this->previousTime;
 	this->previousTime = currentTime;
 
-	// if game has been won pause all moving objects in screen
+	// game won
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
 
 		if (!gameWon) {
@@ -115,11 +115,15 @@ void ofApp::update(){
 			for (int i = 0; i < maxBalls; i++) {
 				balls[i].isDead = true;
 			}
+
+			for (int i = 0; i < maxLives; i++) {
+				lives[i].isDead = true;
+			}
 		}
 	}
 
 	// game over
-	if (this->qbert->lives <= 0) {
+	if (this->qbert->lives <= 0 && !gameWon) {
 		gameOver = true;
 		enemyActivated = false;
 
@@ -151,15 +155,15 @@ void ofApp::update(){
 
 	}
 
+	// deactivate all balls when Qbert hasn´t started moving yet (usually after losing a life)
 	if (qbert->isDead) {
-		// deactivate all balls when Qbert hasn´t started moving yet (usually after losing a life)
 		enemyActivated = false;
 		for (int i = 0; i < maxBalls; i++) {
 			balls[i].isDead = true;
 		}
 	}
 
-	// reposition qbert after death and game is running
+	// reposition qbert after death and game is running (else stays dead)
 	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
 		this->qbert->activate();
 	}

@@ -35,7 +35,7 @@ void Ball::baseSetup() {
 	// set variables for initial fall
 	this->initialFall = true;
 	this->fallVelocity = ofVec3f(0, -0.25, 0);
-	this->fallAcceleration = ofVec3f(0, -0.25, 0);
+	this->fallAcceleration = ofVec3f(0, -0.15, 0);
 	this->targetPosition = this->currentPosition;
 	this->currentPosition.y += -(this->deathHeight);
 }
