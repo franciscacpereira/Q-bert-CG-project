@@ -77,9 +77,8 @@ void ofApp::update(){
 	debugRotationY += 0.5;
 	debugRotationZ += 1;
 
-	/* UPDATE CAMERA VARIABLES */
-
 	/* UPDATE GAME VARIABLES */
+	// calculate time per frame (delta_t)
 	float currentTime = getTime();
 	this->timePerFrame = currentTime - this->previousTime;
 	this->previousTime = currentTime;
@@ -167,6 +166,8 @@ void ofApp::update(){
 	}
 
 	checkPyramidCollision();
+
+	/* UPDATE CAMERA VARIABLES */
 }
 
 //--------------------------------------------------------------
@@ -323,17 +324,23 @@ void ofApp::keyPressed(int key){
 	}
 
 	if (viewType == 2) {
-		if (key == OF_KEY_UP) {
-			key = OF_KEY_DOWN;
+		if (qbert->orientation == Orientation::LEFT_DOWN || qbert->orientation == Orientation::RIGHT_DOWN) {
+			if (key == OF_KEY_UP) {
+				key = OF_KEY_DOWN;
+			}
+			else if (key == OF_KEY_DOWN) {
+				key = OF_KEY_UP;
+			}
+			else if (key == OF_KEY_LEFT) {
+				key = OF_KEY_RIGHT;
+			}
+			else if (key == OF_KEY_RIGHT) {
+				key = OF_KEY_LEFT;
+			}
 		}
-		else if (key == OF_KEY_DOWN) {
-			key = OF_KEY_UP;
-		}
-		else if (key == OF_KEY_LEFT) {
-			key = OF_KEY_RIGHT;
-		}
-		else if (key == OF_KEY_RIGHT) {
-			key = OF_KEY_LEFT;
+		else if (qbert->orientation == Orientation::LEFT_UP || qbert->orientation == Orientation::RIGHT_UP) {
+			// do nothing
+			// needs improvements...
 		}
 	}
 
