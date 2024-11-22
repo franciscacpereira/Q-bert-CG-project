@@ -37,6 +37,7 @@ void ofApp::setup() {
 	lastBallSpawnTime = -1;
 	lastActiveBallIndex = -1;
 
+	balls.clear();
 	ballSize = pyramid->tileSize * 0.8;
 	maxBalls = 10;
 	for (int i = 0; i < maxBalls; i++) {
