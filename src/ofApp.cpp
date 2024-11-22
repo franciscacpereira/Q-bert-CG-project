@@ -33,6 +33,10 @@ void ofApp::setup() {
 	qbert = new Qbert(qbertStartPosition, qbertSize, pyramid->tileSize, pyramid->tileSize, objectDeathHeight, maxLives);
 
 	// balls
+	ballSpawnInterval = 0;
+	lastBallSpawnTime = -1;
+	lastActiveBallIndex = -1;
+
 	ballSize = pyramid->tileSize * 0.8;
 	maxBalls = 10;
 	for (int i = 0; i < maxBalls; i++) {
@@ -82,6 +86,7 @@ void ofApp::update(){
 	// if game has been won pause all moving objects in screen
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
 		gameWon = true;
+		enemyActivated = false;
 		this->qbert->pause();
 
 		for (int i = 0; i < maxBalls; i++) {
@@ -92,6 +97,7 @@ void ofApp::update(){
 	// game over
 	if (this->qbert->lives <= 0) {
 		gameOver = true;
+		enemyActivated = false;
 
 		// start game over animation timer and pause all objects
 		if (gameOverTime == 0) {
@@ -126,6 +132,33 @@ void ofApp::update(){
 	pyramid->update();
 
 	if (enemyActivated) {
+
+		// no ball has been activated yet (activate the first one)
+		if (lastBallSpawnTime == -1 && lastActiveBallIndex == -1) {
+			cout << "First ball activated" << endl;
+			ballSpawnInterval = getRandomFloat(0.5, 3);
+			lastBallSpawnTime = currentTime;
+			lastActiveBallIndex++;
+			if (balls[lastActiveBallIndex].isDead || balls[lastActiveBallIndex].isWaiting)
+				balls[lastActiveBallIndex].activate(getBallSpawnPoint());
+		}
+
+		
+		// activate new ball if the time interval has passed
+		if (currentTime - lastBallSpawnTime >= ballSpawnInterval) {
+			cout << "New ball activated" << endl;
+			ballSpawnInterval = getRandomFloat(0.5, 3);
+			lastBallSpawnTime = currentTime;
+			lastActiveBallIndex++;
+			if (lastActiveBallIndex >= maxBalls) {
+				lastActiveBallIndex = 0;
+			}
+
+			if (balls[lastActiveBallIndex].isDead || balls[lastActiveBallIndex].isWaiting) 
+				balls[lastActiveBallIndex].activate(getBallSpawnPoint());
+		}
+
+		// update all balls (if they are not active nothing happens)
 		for (int i = 0; i < maxBalls; i++) {
 			balls[i].update();
 		}
@@ -201,7 +234,7 @@ void ofApp::draw(){
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		perspective(lensAngle, alpha, beta);
+		perspective(lensAngle, 15, beta);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -219,6 +252,7 @@ void ofApp::draw(){
 	}
 
 	/* DRAW THE GAME */
+	glRotated(pyramidShakeAngle, 1, 0, 1);
 
 	for (int i = 0; i < qbert->lives; i++) {
 		lives[i].draw();
@@ -227,8 +261,6 @@ void ofApp::draw(){
 	for (int i = 0; i < maxBalls; i++) {
 		balls[i].draw();
 	}
-
-	glRotated(pyramidShakeAngle, 1, 0, 1);
 
 	qbert->draw();
 	pyramid->draw();
@@ -383,7 +415,7 @@ void ofApp::checkPyramidCollision() {
 			// ball vs pyramid collision
 			for (int i = 0; i < this->maxBalls; i++) {
 				ofVec3f ballPos = this->balls[i].currentPosition;
-				if (ballPos.distance(tile) < this->balls[i].size * 0.5 + this->pyramid->tileSize * 0.5) {
+				if (balls[i].isDead == false && balls[i].isWaiting == false && ballPos.distance(tile) <= this->balls[i].size * 0.5 + this->pyramid->tileSize * 0.5) {
 					this->balls[i].pyramidCollision = true;
 					ballCollision = true;
 				}
@@ -405,7 +437,7 @@ void ofApp::checkPyramidCollision() {
 void ofApp::checkBallCollision() {
 	// collision between ball and qbert
 	for (int i = 0; i < maxBalls; i++) {
-		if (qbert->currentPosition.distance(balls[i].currentPosition) <= qbert->size * 0.5 + balls[i].size * 0.5) {
+		if (balls[i].isDead == false && balls[i].isWaiting == false && qbert->currentPosition.distance(balls[i].currentPosition) <= qbert->size * 0.5 + balls[i].size * 0.5) {
 			qbert->ballCollision = true;
 			balls[i].qbertCollision = true;
 		}

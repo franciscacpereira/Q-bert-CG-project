@@ -34,8 +34,8 @@ void Ball::baseSetup() {
 
 	// set variables for initial fall
 	this->initialFall = true;
-	this->fallVelocity = ofVec3f(0, -0.5, 0);
-	this->fallAcceleration = ofVec3f(0, -0.5, 0);
+	this->fallVelocity = ofVec3f(0, -0.25, 0);
+	this->fallAcceleration = ofVec3f(0, -0.25, 0);
 	this->targetPosition = this->currentPosition;
 	this->currentPosition.y += -(this->deathHeight);
 }
@@ -84,6 +84,7 @@ void Ball::update() {
 	// check if the ball collided with the qbert
 	if (this->qbertCollision) {
 		this->isDead = true;
+		//this->startPosition = ofVec3f(0, 0, 0);
 		return;
 	}
 
@@ -140,7 +141,7 @@ void Ball::update() {
 			}
 			else {
 				// jumping
-				this->jumpProgress += this->timePerFrame * 1.5;
+				this->jumpProgress += this->timePerFrame * 1.25;
 				
 				float height = sin(this->jumpProgress * PI) * this->jumpHeight;
 				ofVec3f newPosition = this->jumpStartPosition.getInterpolated(this->targetPosition, this->jumpProgress);
@@ -177,6 +178,7 @@ void Ball::startJump(ofVec3f target) {
 void Ball::activate(ofVec3f position) {
 	this->startPosition = position;
 	baseSetup();
+	cout << "Ball activated\tstart position: " << position << endl;
 }
 
 void Ball::pause() {

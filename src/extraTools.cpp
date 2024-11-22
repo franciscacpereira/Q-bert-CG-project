@@ -32,6 +32,17 @@ int getRandomInt(int min, int max) {
 	return static_cast<int>(distribution(generator));
 }
 
+// function to get a random float between min and max
+float getRandomFloat(float min, float max) {
+	if (min > max) std::swap(min, max);
+
+	std::random_device randomDevice;
+	std::default_random_engine generator(randomDevice());
+	std::uniform_real_distribution<float> distribution(min, max);
+
+	return distribution(generator);
+}
+
 // print ModelView Matrix
 void coutModelviewMatrix() {
 	GLfloat Matriz[4][4];

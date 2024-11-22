@@ -69,6 +69,12 @@ class ofApp : public ofBaseApp{
 		int maxBalls;
 		GLfloat ballSize;
 
+		// ball spawn variables
+		float ballSpawnInterval;
+		float lastBallSpawnTime;
+		int lastActiveBallIndex;
+
+		// shake animation variables
 		GLfloat shakeAmplitude; 
 		GLfloat shakeFrequency;
 		GLfloat pyramidShakeAngle;
