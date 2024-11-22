@@ -8,6 +8,7 @@
 
 Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat jumpDistance, GLfloat deathHeight, int lives) {
 	this->startPosition = this->currentPosition = this->previousPosition = startPosition;
+	this->orientation = this->previousOrientation = Orientation::LEFT_DOWN;
 	this->size = size;
 	this->jumpHeight = jumpHeight;
 	this->jumpDistance = jumpDistance;
@@ -22,7 +23,7 @@ Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat ju
 
 void Qbert::baseSetup() {
 	this->currentPosition = this->previousPosition;
-	this->orientation = Orientation::LEFT_DOWN;
+	this->orientation = this->previousOrientation;
 	this->isDead = false;
 	this->isMoving = false;
 	this->isFalling = false;
@@ -114,6 +115,7 @@ void Qbert::update() {
 	if (this->ballCollision) {
 		// collision animation ...
 		this->isDead = true;
+		this->previousOrientation = this->orientation;
 		this->lives--;
 	}
 

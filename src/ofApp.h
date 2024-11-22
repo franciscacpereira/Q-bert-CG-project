@@ -74,15 +74,21 @@ class ofApp : public ofBaseApp{
 		float lastBallSpawnTime;
 		int lastActiveBallIndex;
 
+		// delta_t variables
+		float timePerFrame;
+		float previousTime;
+
 		// shake animation variables
 		GLfloat shakeAmplitude; 
 		GLfloat shakeFrequency;
 		GLfloat pyramidShakeAngle;
 		float shakeTime;
-		float timePerFrame;
-		float previousTime;
 		float gameOverTime;
 		float gameOverDuration;
+
+		// rainbow animation variables
+		float gameWonTime;
+		float gameWonDuration;
 
 
 		/* GAME STATE VARIABLES */ 

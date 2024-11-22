@@ -39,6 +39,7 @@ public:
 	// state variables
 	GLfloat size;
 	Orientation orientation;
+	Orientation previousOrientation;
 	bool isDead;
 	bool isMoving;
 	bool isFalling;

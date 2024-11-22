@@ -26,6 +26,9 @@ void ofApp::setup() {
 	gameOverTime = 0;
 	gameOverDuration = 2;
 
+	gameWonTime = 0;
+	gameWonDuration = gameOverDuration;
+
 	// qbert
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
 	ofVec3f qbertStartPosition = pyramid->coords[0][0];
@@ -85,12 +88,33 @@ void ofApp::update(){
 
 	// if game has been won pause all moving objects in screen
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
-		gameWon = true;
-		enemyActivated = false;
-		this->qbert->pause();
 
-		for (int i = 0; i < maxBalls; i++) {
-			balls[i].pause();
+		if (!gameWon) {
+			gameWon = true;
+			enemyActivated = false;
+
+			// pause all objects
+			this->qbert->pause();
+
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].pause();
+			}
+
+			// start rainbow animation
+			pyramid->rainbowAnimation = true;
+			gameWonTime = currentTime;
+		}
+
+		if (currentTime - gameWonTime >= gameWonDuration) {
+			// end rainbow animation
+			pyramid->rainbowAnimation = false;
+
+			// kill all objects
+			this->qbert->isDead = true;
+
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].isDead = true;
+			}
 		}
 	}
 
@@ -135,7 +159,8 @@ void ofApp::update(){
 		}
 	}
 
-	if (this->qbert->isDead && this->qbert->lives > 0) {
+	// reposition qbert after death and game is running
+	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
 		this->qbert->activate();
 	}
 

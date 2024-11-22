@@ -39,7 +39,6 @@ public:
 	// animation variables
 	bool shakeAnimation;
 
-
 	bool rainbowAnimation;
 	vector<Color> rainbowColors;
 	float colorChangeTime = COLOR_CHANGE_TIME;

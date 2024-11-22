@@ -61,15 +61,13 @@ void Pyramid::draw() {
 
 void Pyramid::update() {
 	// check if game has been won
+	/*
 	if (nbrFlippedTiles == nbrTotalTiles && !this->rainbowAnimation) {
 		this->rainbowAnimation = true;
 		this->previousChangeTimer = getTime();
-	}
+	}**/
 
-	if (this->shakeAnimation) {
-		cout << " INSERT SHAKING ANIMATION >>\n" << endl;
-	}
-	else if (this->rainbowAnimation) {
+	if (this->rainbowAnimation) {
 		float currentTime = getTime();
 		float elapsedTime = currentTime - this->previousChangeTimer;
 
@@ -82,6 +80,8 @@ void Pyramid::update() {
 
 			this->previousChangeTimer = currentTime;
 		}
+	} else {
+		this->previousChangeTimer = getTime();
 	}
 }
 
