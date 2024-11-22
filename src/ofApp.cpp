@@ -127,6 +127,18 @@ void ofApp::update(){
 
 	}
 
+	if (qbert->isDead) {
+		// deactivate all balls when Qbert hasn´t started moving yet (usually after losing a life)
+		enemyActivated = false;
+		for (int i = 0; i < maxBalls; i++) {
+			balls[i].isDead = true;
+		}
+	}
+
+	if (this->qbert->isDead && this->qbert->lives > 0) {
+		this->qbert->activate();
+	}
+
 	// game running
 	qbert->update();
 	pyramid->update();
@@ -135,7 +147,6 @@ void ofApp::update(){
 
 		// no ball has been activated yet (activate the first one)
 		if (lastBallSpawnTime == -1 && lastActiveBallIndex == -1) {
-			cout << "First ball activated" << endl;
 			ballSpawnInterval = getRandomFloat(0.5, 3);
 			lastBallSpawnTime = currentTime;
 			lastActiveBallIndex++;
@@ -146,7 +157,6 @@ void ofApp::update(){
 		
 		// activate new ball if the time interval has passed
 		if (currentTime - lastBallSpawnTime >= ballSpawnInterval) {
-			cout << "New ball activated" << endl;
 			ballSpawnInterval = getRandomFloat(0.5, 3);
 			lastBallSpawnTime = currentTime;
 			lastActiveBallIndex++;
@@ -162,6 +172,8 @@ void ofApp::update(){
 		for (int i = 0; i < maxBalls; i++) {
 			balls[i].update();
 		}
+
+		// only check collisions if balls are active (spare resources)
 		checkBallCollision();
 	}
 

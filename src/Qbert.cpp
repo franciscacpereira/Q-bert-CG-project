@@ -27,7 +27,7 @@ void Qbert::baseSetup() {
 	this->isMoving = false;
 	this->isFalling = false;
 	this->ballCollision = false;
-	this->isWaiting = false;
+	this->isWaiting = true;
 	resetPhysics();
 }
 
@@ -98,7 +98,7 @@ void Qbert::update() {
 
 	// check if the player is dead
 	if (this->isDead && this->lives > 0) {
-		baseSetup();
+		//baseSetup();
 		return;
 	}
 
@@ -204,6 +204,7 @@ void Qbert::keyPressed(int key) {
 void Qbert::startJump(ofVec3f target) {
 	if (isMoving) return;
 	this->isMoving = true;
+	this->isWaiting = false;
 	this->jumpStartPosition = this->currentPosition;
 	this->previousPosition = this->currentPosition;
 	this->targetPosition = target;
@@ -216,4 +217,8 @@ void Qbert::resetLives() {
 
 void Qbert::pause() {
 	this->isWaiting = true;
+}
+
+void Qbert::activate() {
+	baseSetup();
 }
