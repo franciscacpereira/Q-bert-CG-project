@@ -74,8 +74,8 @@ void ofApp::setup() {
 	beta = 1000;
 
 	fpCameraDistance = 0;
-	fpLensAngle = 60;
-	fpAlpha = 10;
+	fpLensAngle = 40;
+	fpAlpha = 1;
 	fpBeta = 1000;
 
 	/* INIT GAME STATE VARIABLES */
@@ -90,6 +90,7 @@ void ofApp::update(){
 	debugRotationX += 0.5;
 	debugRotationY += 0.5;
 	debugRotationZ += 1;
+
 
 	/* UPDATE GAME VARIABLES */
 	// calculate time per frame (delta_t)
@@ -181,7 +182,6 @@ void ofApp::update(){
 			for (int i = 0; i < maxBalls; i++) {
 				balls[i].pause();
 			}
-			cout << "new animation time!!\n";
 		}
 
 		if (currentTime - ballCollisionTime < ballCollisionDuration) {
@@ -190,7 +190,6 @@ void ofApp::update(){
 				lastQbertFlashTime = currentTime;
 				drawQbert = !drawQbert;
 			}
-			cout << "ball animation\t elapsed time: " << (currentTime - ballCollisionTime) << ", ballCollisionDuration: " << ballCollisionDuration << endl;
 		}
 		else {
 			// end of collision animation
@@ -213,7 +212,6 @@ void ofApp::update(){
 	// reposition qbert after death and game is running (else stays dead)
 	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
 		this->qbert->activate();
-		cout << "qbert activated\n";
 	}
 
 	// game running
@@ -289,43 +287,66 @@ void ofApp::draw(){
 		lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 3), 0, 0, 1, 0);
 		break;
 	case 2:
+		// create small viewport off whole matrix to make first person view more easy to play
+		glViewport(gw() - gw() * 0.3, gh() - gh() * 0.3, gw() * 0.25, gh() * 0.25);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
+
+		glPushMatrix(); {
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].draw();
+			}
+
+			if (drawQbert) qbert->draw();
+			pyramid->draw();
+		} glPopMatrix();
+
 		// first person view
 		fpCamX = qbert->currentPosition.x;
-		fpCamY = qbert->currentPosition.y + qbert->size * 3;
+		fpCamY = qbert->currentPosition.y;
 		fpCamZ = qbert->currentPosition.z;
 
 		fpTargetX = fpTargetY = fpTargetZ = 0;
 
 		if (qbert->orientation == Orientation::LEFT_UP) {
-			//camX -= qbert->size * 0.5;
+			fpCamX -= qbert->size * 0.5;
+			//fpCamY += qbert->size * 3;
 			fpTargetX = fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.5;
+			fpTargetY = fpCamY + pyramid->tileSize * pyramid->maxLevel;
 			fpTargetZ = fpCamZ;
-			fpTargetY = pyramid->tileSize * pyramid->maxLevel;
 
 		}
 		else if (qbert->orientation == Orientation::RIGHT_DOWN) {
 			fpCamX += qbert->size * 0.5;
+			fpCamY += qbert->size * 3;
 			fpTargetX = fpCamX + pyramid->tileSize * pyramid->maxLevel * 0.5;
+			fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
 			fpTargetZ = fpCamZ;
-
 		}
 		else if (qbert->orientation == Orientation::RIGHT_UP) {
-			//camZ += qbert->size * 0.5;
+			//fpCamY += qbert->size * 3;
+			fpCamZ -= qbert->size * 0.5;
 			fpTargetX = fpCamX;
 			fpTargetZ = fpCamZ - pyramid->tileSize * pyramid->maxLevel * 0.5;
-			fpTargetY = pyramid->tileSize * pyramid->maxLevel;
+			fpTargetY = fpCamY + pyramid->tileSize * pyramid->maxLevel;
 
 		}
 		else if (qbert->orientation == Orientation::LEFT_DOWN) {
+			fpCamY += qbert->size * 3;
 			fpCamZ += qbert->size * 0.5;
 			fpTargetX = fpCamX;
+			fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
 			fpTargetZ = fpCamZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
 		}
 
 		glViewport(0, 0, gw(), gh());
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
 		perspective(fpLensAngle, fpAlpha, fpBeta);
 
 		glMatrixMode(GL_MODELVIEW);
@@ -344,21 +365,24 @@ void ofApp::draw(){
 	}
 
 	/* DRAW THE GAME */
-	glRotated(pyramidShakeAngle, 1, 0, 1);
+	glPushMatrix(); {
+		glRotated(pyramidShakeAngle, 1, 0, 1);
 
-	for (int i = 0; i < qbert->lives; i++) {
-		lives[i].draw();
-	}
+		for (int i = 0; i < qbert->lives; i++) {
+			lives[i].draw();
+		}
 
-	for (int i = 0; i < maxBalls; i++) {
-		balls[i].draw();
-	}
+		for (int i = 0; i < maxBalls; i++) {
+			balls[i].draw();
+		}
 
-	if (drawQbert) qbert->draw();
-	pyramid->draw();
+		if (drawQbert) qbert->draw();
+		pyramid->draw();
 
-	glScaled(1000, 1000, 1000);
-	draw3DAxis();
+		glScaled(1000, 1000, 1000);
+		draw3DAxis();
+
+	} glPopMatrix();
 }
 
 //--------------------------------------------------------------
@@ -398,6 +422,25 @@ void ofApp::keyPressed(int key){
 			viewType = 0;
 		}
 		break;
+
+	case 'l':
+		fpLensAngle++;
+
+		if (fpLensAngle > 180)
+			fpLensAngle = 0;
+
+		cout << "LENS ANGLE = " << fpLensAngle << endl;
+		break;
+	
+	case 'a':
+		fpAlpha += 0.1;
+
+		cout << "ALPHA = " << fpAlpha << endl;
+		break;
+
+	case 'b':
+		fpBeta++;
+		break;
 	}
 
 	if (gameOver || gameWon) {
@@ -414,7 +457,7 @@ void ofApp::keyPressed(int key){
 	}
 
 	if (viewType == 2) {
-		if (qbert->orientation == Orientation::LEFT_DOWN || qbert->orientation == Orientation::RIGHT_DOWN) {
+		//if (qbert->orientation == Orientation::LEFT_DOWN || qbert->orientation == Orientation::RIGHT_DOWN) {
 			if (key == OF_KEY_UP) {
 				key = OF_KEY_DOWN;
 			}
@@ -427,11 +470,11 @@ void ofApp::keyPressed(int key){
 			else if (key == OF_KEY_RIGHT) {
 				key = OF_KEY_LEFT;
 			}
-		}
-		else if (qbert->orientation == Orientation::LEFT_UP || qbert->orientation == Orientation::RIGHT_UP) {
+		//}
+		//else if (qbert->orientation == Orientation::LEFT_UP || qbert->orientation == Orientation::RIGHT_UP) {
 			// do nothing
 			// needs improvements...
-		}
+		//}
 	}
 
 	qbert->keyPressed(key);
