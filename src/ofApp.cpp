@@ -166,6 +166,8 @@ void ofApp::update(){
 		// start of collision animation
 		if (ballCollisionTime == -1) {
 			ballCollisionTime = currentTime;
+			qbert->update();
+			qbert->isDead = false;
 			qbert->pause();
 			lastQbertFlashTime = currentTime;
 			drawQbert = true;
@@ -186,7 +188,7 @@ void ofApp::update(){
 		else {
 			// end of collision animation
 			ballCollisionTime = -1;
-			qbert->ballCollision = false;
+			//qbert->ballCollision = false;
 			drawQbert = true;
 			qbert->isDead = true;
 		}
@@ -205,8 +207,13 @@ void ofApp::update(){
 		this->qbert->activate();
 	}
 
+	if (qbert->ballCollision) cout << "Ball Colision 1!" << endl;
+
 	// game running
 	qbert->update();
+
+	if (qbert->ballCollision) cout << "\tBall Colision 2!" << endl;
+
 	pyramid->update();
 
 	if (enemyActivated) {

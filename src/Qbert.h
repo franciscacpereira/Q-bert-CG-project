@@ -29,6 +29,7 @@ public:
 	void startJump(ofVec3f);
 	void resetLives();
 	void pause();
+	void resume();
 	void activate();
 
 	// position variables
