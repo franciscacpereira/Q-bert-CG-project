@@ -40,23 +40,28 @@ class ofApp : public ofBaseApp{
 		int viewType;
 
 		// ortho view variables
-		int isometricCameraDistance;
-		int orthoAdjust;
+		GLfloat isometricCameraDistance;
+		GLfloat orthoAdjust;
 		GLfloat orthoRatio;
 
 		// perspective view variables
-		int perspectiveCameraDistance;
+		GLfloat perspectiveCameraDistance;
 		GLfloat lensAngle = 75;
 		GLfloat alpha = 10;
 		GLfloat beta = 1000;
 
 		// first person view variables
-		GLfloat camX;
-		GLfloat camY;
-		GLfloat camZ;
-		GLfloat targetX;
-		GLfloat targetY;
-		GLfloat targetZ;
+		GLfloat fpCameraDistance;
+		GLfloat fpLensAngle;
+		GLfloat fpAlpha;
+		GLfloat fpBeta;
+		GLfloat fpCamX;
+		GLfloat fpCamY;
+		GLfloat fpCamZ;
+		GLfloat fpTargetX;
+		GLfloat fpTargetY;
+		GLfloat fpTargetZ;
+
 
 		/* GAME VARIABLES */
 		Pyramid* pyramid;

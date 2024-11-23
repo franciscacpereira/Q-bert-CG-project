@@ -73,6 +73,11 @@ void ofApp::setup() {
 	alpha = 10;
 	beta = 1000;
 
+	fpCameraDistance = 0;
+	fpLensAngle = 60;
+	fpAlpha = 10;
+	fpBeta = 1000;
+
 	/* INIT GAME STATE VARIABLES */
 	enemyActivated = false;
 	gameOver = false;
@@ -176,6 +181,7 @@ void ofApp::update(){
 			for (int i = 0; i < maxBalls; i++) {
 				balls[i].pause();
 			}
+			cout << "new animation time!!\n";
 		}
 
 		if (currentTime - ballCollisionTime < ballCollisionDuration) {
@@ -184,6 +190,7 @@ void ofApp::update(){
 				lastQbertFlashTime = currentTime;
 				drawQbert = !drawQbert;
 			}
+			cout << "ball animation\t elapsed time: " << (currentTime - ballCollisionTime) << ", ballCollisionDuration: " << ballCollisionDuration << endl;
 		}
 		else {
 			// end of collision animation
@@ -191,6 +198,7 @@ void ofApp::update(){
 			//qbert->ballCollision = false;
 			drawQbert = true;
 			qbert->isDead = true;
+			qbert->ballCollision = false;
 		}
 	}
 
@@ -205,14 +213,11 @@ void ofApp::update(){
 	// reposition qbert after death and game is running (else stays dead)
 	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
 		this->qbert->activate();
+		cout << "qbert activated\n";
 	}
-
-	if (qbert->ballCollision) cout << "Ball Colision 1!" << endl;
 
 	// game running
 	qbert->update();
-
-	if (qbert->ballCollision) cout << "\tBall Colision 2!" << endl;
 
 	pyramid->update();
 
@@ -285,47 +290,47 @@ void ofApp::draw(){
 		break;
 	case 2:
 		// first person view
-		camX = qbert->currentPosition.x;
-		camY = qbert->currentPosition.y + qbert->size * 3;
-		camZ = qbert->currentPosition.z;
+		fpCamX = qbert->currentPosition.x;
+		fpCamY = qbert->currentPosition.y + qbert->size * 3;
+		fpCamZ = qbert->currentPosition.z;
 
-		targetX = targetY = targetZ = 0;
+		fpTargetX = fpTargetY = fpTargetZ = 0;
 
 		if (qbert->orientation == Orientation::LEFT_UP) {
 			//camX -= qbert->size * 0.5;
-			targetX = camX - pyramid->tileSize * pyramid->maxLevel * 0.5;
-			targetZ = camZ;
-			targetY = pyramid->tileSize * pyramid->maxLevel;
+			fpTargetX = fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.5;
+			fpTargetZ = fpCamZ;
+			fpTargetY = pyramid->tileSize * pyramid->maxLevel;
 
 		}
 		else if (qbert->orientation == Orientation::RIGHT_DOWN) {
-			camX += qbert->size * 0.5;
-			targetX = camX + pyramid->tileSize * pyramid->maxLevel * 0.5;
-			targetZ = camZ;
+			fpCamX += qbert->size * 0.5;
+			fpTargetX = fpCamX + pyramid->tileSize * pyramid->maxLevel * 0.5;
+			fpTargetZ = fpCamZ;
 
 		}
 		else if (qbert->orientation == Orientation::RIGHT_UP) {
 			//camZ += qbert->size * 0.5;
-			targetX = camX;
-			targetZ = camZ - pyramid->tileSize * pyramid->maxLevel * 0.5;
-			targetY = pyramid->tileSize * pyramid->maxLevel;
+			fpTargetX = fpCamX;
+			fpTargetZ = fpCamZ - pyramid->tileSize * pyramid->maxLevel * 0.5;
+			fpTargetY = pyramid->tileSize * pyramid->maxLevel;
 
 		}
 		else if (qbert->orientation == Orientation::LEFT_DOWN) {
-			camZ += qbert->size * 0.5;
-			targetX = camX;
-			targetZ = camZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
+			fpCamZ += qbert->size * 0.5;
+			fpTargetX = fpCamX;
+			fpTargetZ = fpCamZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
 		}
 
 		glViewport(0, 0, gw(), gh());
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		perspective(lensAngle, 15, beta);
+		perspective(fpLensAngle, fpAlpha, fpBeta);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		lookat(camX, camY, camZ, targetX, targetY, targetZ, 0, 1, 0);
+		lookat(fpCamX, fpCamY, fpCamZ, fpTargetX, fpTargetY, fpTargetZ, 0, 1, 0);
 		break;
 	case 3:
 		// random tests
