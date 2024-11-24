@@ -79,6 +79,5 @@ void lookat(
 	glLoadIdentity();
 	glMultMatrixf(&camTransformMatrix[0][0]);
 	//glTranslatef(-cam.x, -cam.y, -cam.z);
-
 }
 

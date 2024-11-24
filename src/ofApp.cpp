@@ -10,6 +10,7 @@ void ofApp::setup() {
 	debugRotationX = 0;
 	debugRotationY = 0;
 	debugRotationZ = 0;
+	debug = false;
 
 	/* INIT GAME VARIABLES */
 	maxLives = 3;
@@ -82,6 +83,9 @@ void ofApp::setup() {
 	enemyActivated = false;
 	gameOver = false;
 	gameWon = false;
+
+	/* PRINT START INSTRUCTION IN CONSOLE */
+	printStartInstructionsConsole();
 }
 
 //--------------------------------------------------------------
@@ -107,10 +111,7 @@ void ofApp::update(){
 
 			// pause all objects
 			this->qbert->pause();
-
-			for (int i = 0; i < maxBalls; i++) {
-				balls[i].pause();
-			}
+			for (int i = 0; i < maxBalls; i++) balls[i].pause();
 
 			// start rainbow animation
 			pyramid->rainbowAnimation = true;
@@ -123,14 +124,8 @@ void ofApp::update(){
 
 			// kill all objects
 			this->qbert->isDead = true;
-
-			for (int i = 0; i < maxBalls; i++) {
-				balls[i].isDead = true;
-			}
-
-			for (int i = 0; i < maxLives; i++) {
-				lives[i].isDead = true;
-			}
+			for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
+			//for (int i = 0; i < maxLives; i++) lives[i].isDead = true;
 		}
 	}
 
@@ -144,10 +139,7 @@ void ofApp::update(){
 			gameOverTime = currentTime;
 
 			this->qbert->pause();
-
-			for (int i = 0; i < maxBalls; i++) {
-				balls[i].pause();
-			}
+			for (int i = 0; i < maxBalls; i++) balls[i].pause();
 		}
 
 		// check if game over animation has ended
@@ -159,10 +151,7 @@ void ofApp::update(){
 		else {
 			// kill all objects
 			this->qbert->isDead = true;
-			
-			for (int i = 0; i < maxBalls; i++) {
-				balls[i].isDead = true;
-			}
+			for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
 		}
 
 	}
@@ -179,10 +168,7 @@ void ofApp::update(){
 			drawQbert = true;
 
 			// pause all balls
-			for (int i = 0; i < maxBalls; i++) {
-				balls[i].pause();
-			}
-			cout << "ofApp: Ball Collision Animation started!" << endl;
+			for (int i = 0; i < maxBalls; i++) balls[i].pause();
 		}
 
 		if (currentTime - ballCollisionTime < ballCollisionDuration) {
@@ -190,15 +176,12 @@ void ofApp::update(){
 			if (currentTime - lastQbertFlashTime >= 0.08) {
 				lastQbertFlashTime = currentTime;
 				drawQbert = !drawQbert;
-				cout << "draw qbert = " << drawQbert << endl;
 			}
 			//cout << "\t\tBALL ANIMATION\n";
 		}
 		else {
-			cout << "End of ball collision animation\n";
 			// end of collision animation
 			ballCollisionTime = -1;
-			//qbert->ballCollision = false;
 			drawQbert = true;
 			qbert->isDead = true;
 			qbert->ballCollision = false;
@@ -221,7 +204,6 @@ void ofApp::update(){
 
 	// game running
 	qbert->update();
-
 	pyramid->update();
 
 	if (enemyActivated) {
@@ -235,7 +217,6 @@ void ofApp::update(){
 				balls[lastActiveBallIndex].activate(getBallSpawnPoint());
 		}
 
-		
 		// activate new ball if the time interval has passed
 		if (currentTime - lastBallSpawnTime >= ballSpawnInterval) {
 			ballSpawnInterval = getRandomFloat(0.5, 3);
@@ -250,9 +231,7 @@ void ofApp::update(){
 		}
 
 		// update all balls (if they are not active nothing happens)
-		for (int i = 0; i < maxBalls; i++) {
-			balls[i].update();
-		}
+		for (int i = 0; i < maxBalls; i++) balls[i].update();
 
 		// only check collisions if balls are active (spare resources)
 		checkBallCollision();
@@ -260,7 +239,52 @@ void ofApp::update(){
 
 	checkPyramidCollision();
 
+
 	/* UPDATE CAMERA VARIABLES */
+	// first person view
+	fpCamX = qbert->currentPosition.x;
+	fpCamY = qbert->currentPosition.y;
+	fpCamZ = qbert->currentPosition.z;
+
+	fpTargetX = fpTargetY = fpTargetZ = 0;
+
+	switch (qbert->orientation) {
+	case Orientation::LEFT_DOWN:
+		fpCamY += qbert->size * 3;
+		fpCamZ += qbert->size * 0.5;
+
+		fpTargetX = fpCamX;
+		fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
+		fpTargetZ = fpCamZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		break;
+
+	case Orientation::RIGHT_DOWN:
+		fpCamX += qbert->size * 0.5;
+		fpCamY += qbert->size * 3;
+
+		fpTargetX = fpCamX + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
+		fpTargetZ = fpCamZ;
+		break;
+
+	case Orientation::LEFT_UP:
+		fpCamX += qbert->size * 0.5;
+		fpCamY += qbert->size * 3;
+
+		fpTargetX = qbert->currentPosition.x - pyramid->tileSize;
+		fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+		fpTargetZ = qbert->currentPosition.z;
+		break;
+
+	case Orientation::RIGHT_UP:
+		fpCamY += qbert->size * 3;
+		fpCamZ += qbert->size * 0.5;
+
+		fpTargetX = qbert->currentPosition.x;
+		fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+		fpTargetZ = qbert->currentPosition.z - pyramid->tileSize;
+		break;
+	}
 }
 
 //--------------------------------------------------------------
@@ -283,8 +307,6 @@ void ofApp::draw(){
 		// 3D side view
 		glViewport(0, 0, gw(), gh());
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
 		perspective(lensAngle, alpha, beta);
 
 		glMatrixMode(GL_MODELVIEW);
@@ -313,53 +335,6 @@ void ofApp::draw(){
 		} glPopMatrix();
 
 		// first person view
-		fpCamX = qbert->currentPosition.x;
-		fpCamY = qbert->currentPosition.y;
-		fpCamZ = qbert->currentPosition.z;
-
-		fpTargetX = fpTargetY = fpTargetZ = 0;
-
-		if (qbert->orientation == Orientation::LEFT_UP) {
-			fpCamX += qbert->size * 0.5;
-			fpCamY += qbert->size * 3;
-			/*
-			fpTargetX = qbert->targetPosition.x;//fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.6;
-			fpTargetY = qbert->jumpStartPosition.y; //qbert->targetPosition.y;//pyramid->tileSize * pyramid->maxLevel * 0.5; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
-			fpTargetZ = fpCamZ;
-			*/
-			fpTargetX = qbert->currentPosition.x - pyramid->tileSize;
-			fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
-			fpTargetZ = qbert->currentPosition.z;
-			//if (fpTargetX <= 0) fpTargetX = pyramid->tileSize * 0.5;
-		}
-		else if (qbert->orientation == Orientation::RIGHT_DOWN) {
-			fpCamX += qbert->size * 0.5;
-			fpCamY += qbert->size * 3;
-			fpTargetX = fpCamX + pyramid->tileSize * pyramid->maxLevel * 0.5;
-			fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
-			fpTargetZ = fpCamZ;
-		}
-		else if (qbert->orientation == Orientation::RIGHT_UP) {
-			fpCamY += qbert->size * 3;
-			fpCamZ += qbert->size * 0.5;
-			/*
-			fpTargetX = fpCamX;
-			fpTargetY = qbert->jumpStartPosition.y; //qbert->targetPosition.y;//pyramid->tileSize * pyramid->maxLevel * 0.5; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
-			fpTargetZ = qbert->targetPosition.z;//fpCamZ - pyramid->tileSize * pyramid->maxLevel * 0.6;
-			*/
-			fpTargetX = qbert->currentPosition.x;
-			fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
-			fpTargetZ = qbert->currentPosition.z - pyramid->tileSize;
-		}
-		else if (qbert->orientation == Orientation::LEFT_DOWN) {
-			fpCamY += qbert->size * 3;
-			fpCamZ += qbert->size * 0.5;
-			fpTargetX = fpCamX;
-			fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
-			fpTargetZ = fpCamZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
-		}
-		
-
 		glViewport(0, 0, gw(), gh());
 
 		perspective(fpLensAngle, fpAlpha, fpBeta);
@@ -383,15 +358,12 @@ void ofApp::draw(){
 	glPushMatrix(); {
 		glRotated(pyramidShakeAngle, 1, 0, 1);
 
-		for (int i = 0; i < qbert->lives; i++) {
-			lives[i].draw();
-		}
+		for (int i = 0; i < qbert->lives; i++) lives[i].draw();
 
-		for (int i = 0; i < maxBalls; i++) {
-			balls[i].draw();
-		}
+		for (int i = 0; i < maxBalls; i++) balls[i].draw();
 
 		if (drawQbert) qbert->draw();
+
 		pyramid->draw();
 
 		glScaled(1000, 1000, 1000);
@@ -402,6 +374,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	// basic debug and view key presses
 	switch (key) {
 	case '1':
 		glDisable(GL_CULL_FACE);
@@ -456,8 +429,13 @@ void ofApp::keyPressed(int key){
 	case 'b':
 		fpBeta++;
 		break;
+
+	case 'd':
+		debug = !debug;
+		break;
 	}
 
+	// reset game
 	if (gameOver || gameWon) {
 		if (key == 'r') {
 			int curentView = viewType;
@@ -467,12 +445,14 @@ void ofApp::keyPressed(int key){
 		return;
 	}
 
+	// activate enemy when player moves
 	if (key == OF_KEY_UP || key == OF_KEY_DOWN || key == OF_KEY_LEFT || key == OF_KEY_RIGHT) {
 		enemyActivated = true;
 	}
 
+	// change key press command to match the first person view
 	if (viewType == 2) {
-		//if (qbert->orientation == Orientation::LEFT_DOWN || qbert->orientation == Orientation::RIGHT_DOWN) {
+		if (qbert->orientation == Orientation::LEFT_DOWN || qbert->orientation == Orientation::RIGHT_DOWN) {
 			if (key == OF_KEY_UP) {
 				key = OF_KEY_DOWN;
 			}
@@ -485,11 +465,10 @@ void ofApp::keyPressed(int key){
 			else if (key == OF_KEY_RIGHT) {
 				key = OF_KEY_LEFT;
 			}
-		//}
-		//else if (qbert->orientation == Orientation::LEFT_UP || qbert->orientation == Orientation::RIGHT_UP) {
+		}
+		else if (qbert->orientation == Orientation::LEFT_UP || qbert->orientation == Orientation::RIGHT_UP) {
 			// do nothing
-			// needs improvements...
-		//}
+		}
 	}
 
 	qbert->keyPressed(key);
@@ -547,6 +526,31 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 ////////////////////////////////////////////////////////////////
 
+void ofApp::printStartInstructionsConsole() {
+
+	cout << "BASIC CONTROLS:" << endl;
+	cout << "\t- 'v' to change view" << endl;
+	cout << "\t- 'r' to restart the game" << endl << endl;
+
+	cout << "GAME CONTROLS (for isometric view):" << endl;
+	cout << "\t- 'UP' to move RIGHT UP" << endl;
+	cout << "\t- 'LEFT' to move LEFT UP" << endl;
+	cout << "\t- 'RIGHT' to move RIGHT DOWN" << endl;
+	cout << "\t- 'DOWN' to move LEFT DOWN" << endl << endl;
+
+	cout << "DEBUG KEYS:" << endl;
+	cout << "\t- 'd' to enable/disable debug mode" << endl;
+	cout << "\t- '1' to disable culling" << endl;
+	cout << "\t- '2' to enable culling with back face" << endl;
+	cout << "\t- '3' to enable culling with front face" << endl;
+	cout << "\t- '4' to enable culling with front and back face" << endl;
+	cout << "\t- 'g' to change polygon mode to GL_LINE" << endl;
+	cout << "\t- 'f' to change polygon mode to GL_FILL" << endl;
+	cout << "\t- 'l' to change first person view lens angle" << endl;
+	cout << "\t- 'a' to change first person view alpha" << endl;
+	cout << "\t- 'b' to change first person view beta" << endl << endl << endl;
+}
+
 void ofApp::checkPyramidCollision() {
 	bool qbertCollision = false;
 	bool ballCollision = false;
@@ -576,18 +580,8 @@ void ofApp::checkPyramidCollision() {
 					ballCollision = true;
 				}
 			}
-			/*
-			if (ball->currentPosition.distance(tile) < ball->size * 0.5 + this->pyramid->tileSize * 0.5) {
-				this->ball->pyramidCollision = true;
-				ballCollision = true;
-			}
-			*/
 		}
 	}
-	
-
-	//this->qbert->pyramidCollision = qbertCollision;
-	//this->ball->pyramidCollision = ballCollision;
 }
 
 void ofApp::checkBallCollision() {
@@ -598,15 +592,6 @@ void ofApp::checkBallCollision() {
 			balls[i].qbertCollision = true;
 		}
 	}
-
-
-
-	/*
-	if (this->qbert->currentPosition.distance(this->ball->currentPosition) <= this->qbert->size * 0.5 + this->ball->size * 0.5) {
-		this->qbert->ballCollision = true;
-		this->ball->qbertCollision = true;
-	}
-	*/
 }
 
 ofVec3f ofApp::getBallSpawnPoint() {

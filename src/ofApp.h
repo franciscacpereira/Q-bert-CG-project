@@ -9,6 +9,7 @@
 #include "Ball.h"
 
 #include <random>
+#include <iostream>
 
 class ofApp : public ofBaseApp{
 
@@ -29,38 +30,14 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		void printStartInstructionsConsole();
 		void checkPyramidCollision();
 		void checkBallCollision();
 		ofVec3f getBallSpawnPoint();
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
-		
-		/* CAMERA AND VIEWPORT VARIABLES */
-		int viewType;
-
-		// ortho view variables
-		GLfloat isometricCameraDistance;
-		GLfloat orthoAdjust;
-		GLfloat orthoRatio;
-
-		// perspective view variables
-		GLfloat perspectiveCameraDistance;
-		GLfloat lensAngle = 75;
-		GLfloat alpha = 10;
-		GLfloat beta = 1000;
-
-		// first person view variables
-		GLfloat fpCameraDistance;
-		GLfloat fpLensAngle;
-		GLfloat fpAlpha;
-		GLfloat fpBeta;
-		GLfloat fpCamX;
-		GLfloat fpCamY;
-		GLfloat fpCamZ;
-		GLfloat fpTargetX;
-		GLfloat fpTargetY;
-		GLfloat fpTargetZ;
+		bool debug;
 
 
 		/* GAME VARIABLES */
@@ -106,4 +83,31 @@ class ofApp : public ofBaseApp{
 		bool enemyActivated;
 		bool gameOver;
 		bool gameWon;
+
+
+		/* CAMERA AND VIEWPORT VARIABLES */
+		int viewType;
+
+		// ortho view variables
+		GLfloat isometricCameraDistance;
+		GLfloat orthoAdjust;
+		GLfloat orthoRatio;
+
+		// perspective view variables
+		GLfloat perspectiveCameraDistance;
+		GLfloat lensAngle = 75;
+		GLfloat alpha = 10;
+		GLfloat beta = 1000;
+
+		// first person view variables
+		GLfloat fpCameraDistance;
+		GLfloat fpLensAngle;
+		GLfloat fpAlpha;
+		GLfloat fpBeta;
+		GLfloat fpCamX;
+		GLfloat fpCamY;
+		GLfloat fpCamZ;
+		GLfloat fpTargetX;
+		GLfloat fpTargetY;
+		GLfloat fpTargetZ;
 };

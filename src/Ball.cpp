@@ -178,7 +178,6 @@ void Ball::startJump(ofVec3f target) {
 void Ball::activate(ofVec3f position) {
 	this->startPosition = position;
 	baseSetup();
-	cout << "Ball activated\tstart position: " << position << endl;
 }
 
 void Ball::pause() {

@@ -99,7 +99,6 @@ void Qbert::update() {
 
 	// check if the player is dead
 	if (this->isDead && this->lives > 0) {
-		//baseSetup();
 		return;
 	}
 
@@ -116,7 +115,6 @@ void Qbert::update() {
 	
 	// check if the player collision with ball
 	if (this->ballCollision) {
-		cout << "Ball Collision" << endl;
 		this->isDead = true;
 		this->previousOrientation = this->orientation;
 		this->lives--;
