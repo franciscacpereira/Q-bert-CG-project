@@ -108,6 +108,7 @@ void Qbert::update() {
 		this->isDead = true;
 		this->lives--;
 		this->previousPosition = this->startPosition;	// so it spawns from the start position
+		this->previousOrientation = Orientation::LEFT_DOWN;
 		return;
 	}
 

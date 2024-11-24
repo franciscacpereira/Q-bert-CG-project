@@ -320,12 +320,17 @@ void ofApp::draw(){
 		fpTargetX = fpTargetY = fpTargetZ = 0;
 
 		if (qbert->orientation == Orientation::LEFT_UP) {
-			fpCamX -= qbert->size * 2;
+			fpCamX += qbert->size * 0.5;
 			fpCamY += qbert->size * 3;
-			fpTargetX = fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.6;
-			fpTargetY = pyramid->tileSize * pyramid->maxLevel * 0.5; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
+			/*
+			fpTargetX = qbert->targetPosition.x;//fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.6;
+			fpTargetY = qbert->jumpStartPosition.y; //qbert->targetPosition.y;//pyramid->tileSize * pyramid->maxLevel * 0.5; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
 			fpTargetZ = fpCamZ;
-
+			*/
+			fpTargetX = qbert->currentPosition.x - pyramid->tileSize;
+			fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+			fpTargetZ = qbert->currentPosition.z;
+			//if (fpTargetX <= 0) fpTargetX = pyramid->tileSize * 0.5;
 		}
 		else if (qbert->orientation == Orientation::RIGHT_DOWN) {
 			fpCamX += qbert->size * 0.5;
@@ -336,11 +341,15 @@ void ofApp::draw(){
 		}
 		else if (qbert->orientation == Orientation::RIGHT_UP) {
 			fpCamY += qbert->size * 3;
-			fpCamZ -= qbert->size * 2;
+			fpCamZ += qbert->size * 0.5;
+			/*
 			fpTargetX = fpCamX;
-			fpTargetY = pyramid->tileSize * pyramid->maxLevel * 0.6; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
-			fpTargetZ = fpCamZ - pyramid->tileSize * pyramid->maxLevel * 0.5;
-
+			fpTargetY = qbert->jumpStartPosition.y; //qbert->targetPosition.y;//pyramid->tileSize * pyramid->maxLevel * 0.5; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
+			fpTargetZ = qbert->targetPosition.z;//fpCamZ - pyramid->tileSize * pyramid->maxLevel * 0.6;
+			*/
+			fpTargetX = qbert->currentPosition.x;
+			fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+			fpTargetZ = qbert->currentPosition.z - pyramid->tileSize;
 		}
 		else if (qbert->orientation == Orientation::LEFT_DOWN) {
 			fpCamY += qbert->size * 3;
@@ -349,6 +358,7 @@ void ofApp::draw(){
 			fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
 			fpTargetZ = fpCamZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
 		}
+		
 
 		glViewport(0, 0, gw(), gh());
 
