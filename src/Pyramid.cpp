@@ -141,6 +141,15 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 
 	glTranslated(center.x, center.y, center.z);
 	glScaled(this->tileSize, this->tileSize, this->tileSize);
+
+	glPushMatrix(); {
+		setColor(Color::GREEN);
+		drawLines();
+		unitCube();
+
+	} glPopMatrix();
+
+	drawFilled();
 	glPushMatrix(); {
 		// front face
 		setColor(this->leftFaceColor);

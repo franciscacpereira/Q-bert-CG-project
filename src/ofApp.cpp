@@ -74,8 +74,8 @@ void ofApp::setup() {
 	beta = 1000;
 
 	fpCameraDistance = 0;
-	fpLensAngle = 40;
-	fpAlpha = 1;
+	fpLensAngle = 85;
+	fpAlpha = 45;
 	fpBeta = 1000;
 
 	/* INIT GAME STATE VARIABLES */
@@ -182,6 +182,7 @@ void ofApp::update(){
 			for (int i = 0; i < maxBalls; i++) {
 				balls[i].pause();
 			}
+			cout << "ofApp: Ball Collision Animation started!" << endl;
 		}
 
 		if (currentTime - ballCollisionTime < ballCollisionDuration) {
@@ -189,9 +190,12 @@ void ofApp::update(){
 			if (currentTime - lastQbertFlashTime >= 0.08) {
 				lastQbertFlashTime = currentTime;
 				drawQbert = !drawQbert;
+				cout << "draw qbert = " << drawQbert << endl;
 			}
+			//cout << "\t\tBALL ANIMATION\n";
 		}
 		else {
+			cout << "End of ball collision animation\n";
 			// end of collision animation
 			ballCollisionTime = -1;
 			//qbert->ballCollision = false;
@@ -211,6 +215,7 @@ void ofApp::update(){
 
 	// reposition qbert after death and game is running (else stays dead)
 	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
+		drawQbert = true;
 		this->qbert->activate();
 	}
 
@@ -315,10 +320,10 @@ void ofApp::draw(){
 		fpTargetX = fpTargetY = fpTargetZ = 0;
 
 		if (qbert->orientation == Orientation::LEFT_UP) {
-			fpCamX -= qbert->size * 0.5;
-			//fpCamY += qbert->size * 3;
-			fpTargetX = fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.5;
-			fpTargetY = fpCamY + pyramid->tileSize * pyramid->maxLevel;
+			fpCamX -= qbert->size * 2;
+			fpCamY += qbert->size * 3;
+			fpTargetX = fpCamX - pyramid->tileSize * pyramid->maxLevel * 0.6;
+			fpTargetY = pyramid->tileSize * pyramid->maxLevel * 0.5; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
 			fpTargetZ = fpCamZ;
 
 		}
@@ -330,11 +335,11 @@ void ofApp::draw(){
 			fpTargetZ = fpCamZ;
 		}
 		else if (qbert->orientation == Orientation::RIGHT_UP) {
-			//fpCamY += qbert->size * 3;
-			fpCamZ -= qbert->size * 0.5;
+			fpCamY += qbert->size * 3;
+			fpCamZ -= qbert->size * 2;
 			fpTargetX = fpCamX;
+			fpTargetY = pyramid->tileSize * pyramid->maxLevel * 0.6; //fpCamY + pyramid->tileSize; // *pyramid->maxLevel * 0.25;
 			fpTargetZ = fpCamZ - pyramid->tileSize * pyramid->maxLevel * 0.5;
-			fpTargetY = fpCamY + pyramid->tileSize * pyramid->maxLevel;
 
 		}
 		else if (qbert->orientation == Orientation::LEFT_DOWN) {
