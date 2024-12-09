@@ -17,7 +17,7 @@ void ofApp::setup() {
 	currentLives = maxLives;
 
 	// pyramid
-	pyramid = new Pyramid(7, 50);
+	pyramid = new Pyramid(20, 50);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	pyramidShakeAngle = 0;
@@ -65,9 +65,9 @@ void ofApp::setup() {
 	/* INIT CAMERA VARIABLES */
 	viewType = 0;
 
-	isometricCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (pyramid->tileSize * pyramid->maxLevel);
+	isometricCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
 	orthoAdjust = 200;
-	orthoRatio = pyramid->tileSize * 0.35 / 50;
+	orthoRatio = pyramid->maxLevel * (pyramid->tileSize / 1000); //1; //pyramid->tileSize * 0.35 / 50;
 
 	perspectiveCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (pyramid->tileSize * pyramid->maxLevel * 1.5);
 	lensAngle = 75;
@@ -298,7 +298,7 @@ void ofApp::draw(){
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
-
+		
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);

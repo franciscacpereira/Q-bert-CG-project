@@ -26,6 +26,8 @@ void drawLines();
 void drawPoint();
 void draw3DAxis();
 void unitSquare();
+void unitCircle();
+void drawCircle(GLfloat, GLint);
 void unitCube();
 void unitSphere();
 void drawSphere(GLint, GLint, GLfloat);

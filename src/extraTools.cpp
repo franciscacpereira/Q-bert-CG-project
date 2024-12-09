@@ -114,6 +114,37 @@ void unitSquare() {
 	glEnd();
 }
 
+// function to draw a unit circle
+void unitCircle() {
+	GLint nbrFaces = 30;
+	GLfloat radius = 0.5;
+	GLfloat angle = (2 * PI) / nbrFaces;
+	ofVec3f center = ofVec3f(0, 0, 0);
+
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < nbrFaces; i++) {
+		GLfloat xCircle = center[0] + radius * cos(angle * i);
+		GLfloat zCircle = center[2] + radius * sin(angle * i);
+		glVertex3f(xCircle, center[1], zCircle);
+	}
+	glEnd();
+}
+
+// function to draw a circle in the center (0, 0, 0)
+// parameters: radius and number of faces
+void drawCircle(GLfloat radius, GLint nbrFaces) {
+	GLfloat angle = (2 * PI) / nbrFaces;
+	ofVec3f center = ofVec3f(0, 0, 0);
+
+	glBegin(GL_POLYGON);
+	for (int i = 0; i < nbrFaces; i++) {
+		GLfloat xCircle = center[0] + radius * cos(angle * i);
+		GLfloat zCircle = center[2] + radius * sin(angle * i);
+		glVertex3f(xCircle, center[1], zCircle);
+	}
+	glEnd();
+}
+
 // function to draw a unit cube
 // cube visualization:
 //         8 ------- 5
@@ -287,12 +318,12 @@ void drawSphere(GLint m, GLint n, GLfloat radius) {
 }
 
 
-void drawCylinder(float bottomRadius, float topRadius, float height, int segments) {
+void drawCylinder(float bottomRadius, float topRadius, float height, int nbrFaces) {
 	// calculate the angle increment for each segment
-	float angleIncrement = 2.0 * PI / segments;
+	float angleIncrement = 2.0 * PI / nbrFaces;
 
 	glBegin(GL_TRIANGLE_STRIP);
-	for (int i = 0; i <= segments; i++) {
+	for (int i = 0; i <= nbrFaces; i++) {
 		// calculate angle for this segment
 		float angle = i * angleIncrement;
 
@@ -310,9 +341,22 @@ void drawCylinder(float bottomRadius, float topRadius, float height, int segment
 	}
 	glEnd();
 
+	// bottom base
+	glPushMatrix(); {
+		glTranslated(0, 0, 0);
+		drawCircle(bottomRadius, nbrFaces);
+	} glPopMatrix();
+
+	// top base
+	glPushMatrix(); {
+		glTranslated(0, height, 0);
+		drawCircle(topRadius, nbrFaces);
+	} glPopMatrix();
+
+	/*
 	// draw the bottom base
 	glBegin(GL_TRIANGLE_FAN);
-	glVertex3f(0.0, 0.0f, 0.0);   // center of bottom base
+	glVertex3f(0, 0, 0);   // center of bottom base
 	for (int i = 0; i <= segments; i++) {
 		float angle = i * angleIncrement;
 		float x = bottomRadius * cos(angle);
@@ -323,7 +367,7 @@ void drawCylinder(float bottomRadius, float topRadius, float height, int segment
 
 	// draw the top base
 	glBegin(GL_TRIANGLE_FAN);
-	glVertex3f(0.0, height, 0.0); // center of top base
+	glVertex3f(0, height, 0); // center of top base
 	for (int i = 0; i <= segments; i++) {
 		float angle = i * angleIncrement;
 		float x = topRadius * cos(angle);
@@ -331,4 +375,5 @@ void drawCylinder(float bottomRadius, float topRadius, float height, int segment
 		glVertex3f(x, height, z);
 	}
 	glEnd();
+	*/
 }
