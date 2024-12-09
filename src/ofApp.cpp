@@ -17,7 +17,7 @@ void ofApp::setup() {
 	currentLives = maxLives;
 
 	// pyramid
-	pyramid = new Pyramid(20, 50);
+	pyramid = new Pyramid(7, 50);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	pyramidShakeAngle = 0;
@@ -242,47 +242,47 @@ void ofApp::update(){
 
 	/* UPDATE CAMERA VARIABLES */
 	// first person view
-	fpCamX = qbert->currentPosition.x;
-	fpCamY = qbert->currentPosition.y;
-	fpCamZ = qbert->currentPosition.z;
+	fpCamera.x = qbert->currentPosition.x;
+	fpCamera.y = qbert->currentPosition.y;
+	fpCamera.z = qbert->currentPosition.z;
 
-	fpTargetX = fpTargetY = fpTargetZ = 0;
+	fpTarget.x = fpTarget.y = fpTarget.z = 0;
 
 	switch (qbert->orientation) {
 	case Orientation::LEFT_DOWN:
-		fpCamY += qbert->size * 3;
-		fpCamZ += qbert->size * 0.5;
+		fpCamera.y += qbert->size * 3;
+		fpCamera.z += qbert->size * 0.5;
 
-		fpTargetX = fpCamX;
-		fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
-		fpTargetZ = fpCamZ + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		fpTarget.x = fpCamera.x;
+		fpTarget.y = fpCamera.y - pyramid->tileSize * pyramid->maxLevel;
+		fpTarget.z = fpCamera.z + pyramid->tileSize * pyramid->maxLevel * 0.5;
 		break;
 
 	case Orientation::RIGHT_DOWN:
-		fpCamX += qbert->size * 0.5;
-		fpCamY += qbert->size * 3;
+		fpCamera.x += qbert->size * 0.5;
+		fpCamera.y += qbert->size * 3;
 
-		fpTargetX = fpCamX + pyramid->tileSize * pyramid->maxLevel * 0.5;
-		fpTargetY = fpCamY - pyramid->tileSize * pyramid->maxLevel;
-		fpTargetZ = fpCamZ;
+		fpTarget.x = fpCamera.x + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		fpTarget.y = fpCamera.y - pyramid->tileSize * pyramid->maxLevel;
+		fpTarget.z = fpCamera.z;
 		break;
 
 	case Orientation::LEFT_UP:
-		fpCamX += qbert->size * 0.5;
-		fpCamY += qbert->size * 3;
+		fpCamera.x += qbert->size * 0.5;
+		fpCamera.y += qbert->size * 3;
 
-		fpTargetX = qbert->currentPosition.x - pyramid->tileSize;
-		fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
-		fpTargetZ = qbert->currentPosition.z;
+		fpTarget.x = qbert->currentPosition.x - pyramid->tileSize;
+		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+		fpTarget.z = qbert->currentPosition.z;
 		break;
 
 	case Orientation::RIGHT_UP:
-		fpCamY += qbert->size * 3;
-		fpCamZ += qbert->size * 0.5;
+		fpCamera.y += qbert->size * 3;
+		fpCamera.z += qbert->size * 0.5;
 
-		fpTargetX = qbert->currentPosition.x;
-		fpTargetY = qbert->currentPosition.y + pyramid->tileSize * 0.5;
-		fpTargetZ = qbert->currentPosition.z - pyramid->tileSize;
+		fpTarget.x = qbert->currentPosition.x;
+		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+		fpTarget.z = qbert->currentPosition.z - pyramid->tileSize;
 		break;
 	}
 }
@@ -341,7 +341,7 @@ void ofApp::draw(){
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		lookat(fpCamX, fpCamY, fpCamZ, fpTargetX, fpTargetY, fpTargetZ, 0, 1, 0);
+		lookat(fpCamera.x, fpCamera.y, fpCamera.z, fpTarget.x, fpTarget.y, fpTarget.z, 0, 1, 0);
 		break;
 	case 3:
 		// random tests

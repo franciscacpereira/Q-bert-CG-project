@@ -104,10 +104,7 @@ class ofApp : public ofBaseApp{
 		GLfloat fpLensAngle;
 		GLfloat fpAlpha;
 		GLfloat fpBeta;
-		GLfloat fpCamX;
-		GLfloat fpCamY;
-		GLfloat fpCamZ;
-		GLfloat fpTargetX;
-		GLfloat fpTargetY;
-		GLfloat fpTargetZ;
+
+		ofVec3f fpCamera;
+		ofVec3f fpTarget;
 };
