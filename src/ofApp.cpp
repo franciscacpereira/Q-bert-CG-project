@@ -13,11 +13,15 @@ void ofApp::setup() {
 	debug = false;
 
 	/* INIT GAME VARIABLES */
+	currentGameLevel = 1;
+	maxGameLevel = 3;
 	maxLives = 3;
 	currentLives = maxLives;
 
 	// pyramid
-	pyramid = new Pyramid(7, 50);
+	pyramidCubeSize = 50;
+	currentPyramidLevel = 7;
+	pyramid = new Pyramid(currentPyramidLevel, pyramidCubeSize);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	pyramidShakeAngle = 0;
@@ -90,12 +94,6 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	/* UPDATE DEBUG VARIABLES */
-	debugRotationX += 0.5;
-	debugRotationY += 0.5;
-	debugRotationZ += 1;
-
-
 	/* UPDATE GAME VARIABLES */
 	// calculate time per frame (delta_t)
 	float currentTime = getTime();
@@ -105,6 +103,7 @@ void ofApp::update(){
 	// game won
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
 
+		// start win rainbow animation
 		if (!gameWon) {
 			gameWon = true;
 			enemyActivated = false;
@@ -118,14 +117,17 @@ void ofApp::update(){
 			gameWonTime = currentTime;
 		}
 
+		// end win rainbow animation
 		if (currentTime - gameWonTime >= gameWonDuration) {
-			// end rainbow animation
 			pyramid->rainbowAnimation = false;
 
 			// kill all objects
 			this->qbert->isDead = true;
 			for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
 			//for (int i = 0; i < maxLives; i++) lives[i].isDead = true;
+
+			// reset game
+			levelUp();
 		}
 	}
 
@@ -241,6 +243,17 @@ void ofApp::update(){
 
 
 	/* UPDATE CAMERA VARIABLES */
+	// ortho view
+	isometricCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
+	orthoAdjust = 200;
+	orthoRatio = pyramid->maxLevel * (pyramid->tileSize / 1000); //1; //pyramid->tileSize * 0.35 / 50;
+
+	// 3d view
+	perspectiveCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (pyramid->tileSize * pyramid->maxLevel * 1.5);
+	lensAngle = 75;
+	alpha = 10;
+	beta = 1000;
+
 	// first person view
 	fpCamera.x = qbert->currentPosition.x;
 	fpCamera.y = qbert->currentPosition.y;
@@ -284,6 +297,15 @@ void ofApp::update(){
 		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
 		fpTarget.z = qbert->currentPosition.z - pyramid->tileSize;
 		break;
+	}
+
+	/* UPDATE DEBUG VARIABLES */
+	debugRotationX += 0.5;
+	debugRotationY += 0.5;
+	debugRotationZ += 1;
+
+	if (debug) {
+		enemyActivated = false;
 	}
 }
 
@@ -525,6 +547,25 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 ////////////////////////////////////////////////////////////////
+
+void ofApp::levelUp() {
+	currentGameLevel++;
+
+	if (currentGameLevel > maxGameLevel) {
+		// GAME WON ANIMATION (FINAL)
+	}
+
+	// reset qbert position and tiles
+	gameWon = false;
+
+	currentPyramidLevel++;
+	pyramid = new Pyramid(currentPyramidLevel, pyramidCubeSize);
+
+	qbert->isDead = true;
+	qbert->previousPosition = qbert->startPosition = qbert->currentPosition = pyramid->coords[0][0];
+	qbert->previousPosition.y += pyramid->tileSize * 0.5 + qbert->size * 0.5;
+	
+}
 
 void ofApp::printStartInstructionsConsole() {
 

@@ -29,7 +29,8 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-
+		
+		void levelUp();
 		void printStartInstructionsConsole();
 		void checkPyramidCollision();
 		void checkBallCollision();
@@ -46,10 +47,14 @@ class ofApp : public ofBaseApp{
 		vector<Qbert> lives;
 		vector<Ball> balls;
 
+		int currentPyramidLevel;
+		int currentGameLevel;
+		int maxGameLevel;
 		int maxLives;
 		int currentLives;
 		int maxBalls;
 		GLfloat ballSize;
+		GLfloat pyramidCubeSize;
 
 		// ball spawn variables
 		float ballSpawnInterval;
