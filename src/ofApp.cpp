@@ -6,11 +6,15 @@ void ofApp::setup() {
 	ofBackground(18, 18, 23);
 	glLineWidth(5);
 
+
+
 	/* INIT DEBUG VARIABLES */
 	debugRotationX = 0;
 	debugRotationY = 0;
 	debugRotationZ = 0;
 	debug = false;
+
+
 
 	/* INIT GAME VARIABLES */
 	currentGameLevel = 1;
@@ -31,8 +35,8 @@ void ofApp::setup() {
 	gameOverTime = 0;
 	gameOverDuration = 2;
 
-	gameWonTime = 0;
-	gameWonDuration = gameOverDuration;
+	victoryAnimationTime = 0;
+	victoryAnimationDuration = gameOverDuration;
 
 	// qbert
 	drawQbert = true;
@@ -66,6 +70,8 @@ void ofApp::setup() {
 		lives.push_back(Qbert(startPos, qbertSize, 0, 0, 0, maxLives));
 	}
 
+
+
 	/* INIT CAMERA VARIABLES */
 	viewType = 0;
 
@@ -83,10 +89,14 @@ void ofApp::setup() {
 	fpAlpha = 45;
 	fpBeta = 1000;
 
+
+
 	/* INIT GAME STATE VARIABLES */
 	enemyActivated = false;
 	gameOver = false;
 	gameWon = false;
+	gameStart = true;
+
 
 	/* PRINT START INSTRUCTION IN CONSOLE */
 	printStartInstructionsConsole();
@@ -114,11 +124,11 @@ void ofApp::update(){
 
 			// start rainbow animation
 			pyramid->rainbowAnimation = true;
-			gameWonTime = currentTime;
+			victoryAnimationTime = currentTime;
 		}
 
 		// end win rainbow animation
-		if (currentTime - gameWonTime >= gameWonDuration) {
+		if (currentTime - victoryAnimationTime >= victoryAnimationDuration) {
 			pyramid->rainbowAnimation = false;
 
 			// kill all objects
@@ -130,6 +140,7 @@ void ofApp::update(){
 			levelUp();
 		}
 	}
+
 
 	// game over
 	if (this->qbert->lives <= 0 && !gameWon) {
@@ -158,8 +169,10 @@ void ofApp::update(){
 
 	}
 
+
 	// ball collision animation
 	if (qbert->ballCollision) {
+
 		// start of collision animation
 		if (ballCollisionTime == -1) {
 			ballCollisionTime = currentTime;
@@ -179,7 +192,6 @@ void ofApp::update(){
 				lastQbertFlashTime = currentTime;
 				drawQbert = !drawQbert;
 			}
-			//cout << "\t\tBALL ANIMATION\n";
 		}
 		else {
 			// end of collision animation
@@ -190,6 +202,7 @@ void ofApp::update(){
 		}
 	}
 
+
 	// deactivate all balls when Qbert hasn´t started moving yet (usually after losing a life)
 	if (qbert->isDead) {
 		enemyActivated = false;
@@ -198,11 +211,13 @@ void ofApp::update(){
 		}
 	}
 
+
 	// reposition qbert after death and game is running (else stays dead)
 	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
 		drawQbert = true;
 		this->qbert->activate();
 	}
+
 
 	// game running
 	qbert->update();
@@ -377,21 +392,48 @@ void ofApp::draw(){
 	}
 
 	/* DRAW THE GAME */
-	glPushMatrix(); {
-		glRotated(pyramidShakeAngle, 1, 0, 1);
 
-		for (int i = 0; i < qbert->lives; i++) lives[i].draw();
+	if (gameStart) {
+		// draw the start screen
+		glPushMatrix(); {
+			GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+			glTranslated(pyramidSide * sqrt(2) / 3, pyramidSide * 2 /3, pyramidSide * sqrt(2) / 3);
+			glRotated(45, 0, 1, 0);
+			glScaled(200, 100, 10);
 
-		for (int i = 0; i < maxBalls; i++) balls[i].draw();
+			drawLines();
+			setColor(Color::GREEN);
+			unitCube();
 
-		if (drawQbert) qbert->draw();
+			drawFilled();
+			setColor(Color::WHITE);
+			unitCube();
+
+		} glPopMatrix();
 
 		pyramid->draw();
 
 		glScaled(1000, 1000, 1000);
 		draw3DAxis();
+	}
+	else {
+		// draw the game
+		glPushMatrix(); {
+			glRotated(pyramidShakeAngle, 1, 0, 1);
 
-	} glPopMatrix();
+			for (int i = 0; i < qbert->lives; i++) lives[i].draw();
+
+			for (int i = 0; i < maxBalls; i++) balls[i].draw();
+
+			if (drawQbert) qbert->draw();
+
+			pyramid->draw();
+
+			glScaled(1000, 1000, 1000);
+			draw3DAxis();
+
+		} glPopMatrix();
+	}
 }
 
 //--------------------------------------------------------------
@@ -455,6 +497,13 @@ void ofApp::keyPressed(int key){
 	case 'd':
 		debug = !debug;
 		break;
+	}
+
+	if (gameStart) {
+		if (key == ' ') {
+			gameStart = false;
+		}
+		return;
 	}
 
 	// reset game
@@ -555,16 +604,16 @@ void ofApp::levelUp() {
 		// GAME WON ANIMATION (FINAL)
 	}
 
-	// reset qbert position and tiles
 	gameWon = false;
 
+	// reset the pyramid for the new level
 	currentPyramidLevel++;
 	pyramid = new Pyramid(currentPyramidLevel, pyramidCubeSize);
 
+	// reset qbert position
 	qbert->isDead = true;
 	qbert->previousPosition = qbert->startPosition = qbert->currentPosition = pyramid->coords[0][0];
 	qbert->previousPosition.y += pyramid->tileSize * 0.5 + qbert->size * 0.5;
-	
 }
 
 void ofApp::printStartInstructionsConsole() {

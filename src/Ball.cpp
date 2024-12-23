@@ -183,3 +183,7 @@ void Ball::activate(ofVec3f position) {
 void Ball::pause() {
 	this->isWaiting = true;
 }
+
+void Ball::resume() {
+	this->isWaiting = false;
+}

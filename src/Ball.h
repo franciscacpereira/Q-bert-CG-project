@@ -24,6 +24,7 @@ public:
 	void startJump(ofVec3f);
 	void activate(ofVec3f);
 	void pause();
+	void resume();
 
 	// position variables
 	ofVec3f startPosition;

@@ -74,8 +74,8 @@ class ofApp : public ofBaseApp{
 		float gameOverDuration;
 
 		// rainbow animation variables
-		float gameWonTime;
-		float gameWonDuration;
+		float victoryAnimationTime;
+		float victoryAnimationDuration;
 
 		// ball collision animation variables
 		float ballCollisionTime;
@@ -88,6 +88,7 @@ class ofApp : public ofBaseApp{
 		bool enemyActivated;
 		bool gameOver;
 		bool gameWon;
+		bool gameStart;
 
 
 		/* CAMERA AND VIEWPORT VARIABLES */
