@@ -18,7 +18,7 @@ void ofApp::setup() {
 
 	/* INIT GAME VARIABLES */
 	currentGameLevel = 1;
-	maxGameLevel = 3;
+	maxGameLevel = 10;
 	maxLives = 3;
 	currentLives = maxLives;
 
@@ -28,6 +28,7 @@ void ofApp::setup() {
 	pyramid = new Pyramid(currentPyramidLevel, pyramidCubeSize);
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
 
+	// animations
 	pyramidShakeAngle = 0;
 	shakeAmplitude = 1.5;
 	shakeFrequency = 10;
@@ -41,6 +42,9 @@ void ofApp::setup() {
 	luAnimationTime = 0;
 	luAnimationDuration = 2;
 	luAnimationStillTime = luAnimationDuration * 0.5;
+
+	endAnimationTime = 0;
+	endAnimationDuration = 2;
 
 	// qbert
 	drawQbert = true;
@@ -115,8 +119,8 @@ void ofApp::update(){
 	this->timePerFrame = currentTime - this->previousTime;
 	this->previousTime = currentTime;
 
-	// game won
-	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles && !luAnimation) {
+	// game won (could be any level, does not mean end of game)
+	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles && !luAnimation && !gameEnd) {
 
 		// start win rainbow animation
 		if (!gameWon) {
@@ -136,11 +140,17 @@ void ofApp::update(){
 		if (currentTime - victoryAnimationTime >= victoryAnimationDuration) {
 			
 			pyramid->rainbowAnimation = false;
+			currentGameLevel++;
 
-			// start level up animation
-			luAnimation = true;
+			if (currentGameLevel > maxGameLevel) {
+				// start end of game animation
+				gameEnd = true;
+			}
+			else {
+				// start level up animation
+				luAnimation = true;
+			}
 		}
-
 	}
 
 	// level up animation
@@ -184,8 +194,21 @@ void ofApp::update(){
 			// kill all objects
 			this->qbert->isDead = true;
 			for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
+			gameEnd = true;
+		}
+	}
+
+	// end of game animation
+	if (gameEnd) {
+
+		// start end of game animation
+		if (endAnimationTime == 0) {
+			endAnimationTime = currentTime;
 		}
 
+		if (currentTime - endAnimationTime < endAnimationDuration) {
+			// update text position
+		}
 	}
 
 
@@ -412,16 +435,30 @@ void ofApp::draw(){
 
 	/* DRAW THE GAME */
 
-	if (gameStart || luAnimation) {
+	if (gameStart) {
 		// draw the start screen
 		printText("QBERT 3D");
-
-		pyramid->draw();
 
 		glScaled(1000, 1000, 1000);
 		draw3DAxis();
 	}
 	else {
+		// draw animation text (for level up or game over)
+		glPushMatrix(); {
+			if (gameEnd) {
+				if (qbert->lives <= 0) {
+					printText("GAME OVER");
+				}
+				else {
+					printText("YOU WON");
+				}
+			}
+			else if (luAnimation) {
+				printText("NEXT LEVEL");
+			}
+		} glPopMatrix();
+
+
 		// draw the game
 		glPushMatrix(); {
 			glRotated(pyramidShakeAngle, 1, 0, 1);
@@ -502,8 +539,19 @@ void ofApp::keyPressed(int key){
 	case 'd':
 		debug = !debug;
 		break;
+
+	case 'w':
+		cheatGame();
+		return;
+
+	default:
+		break;
 	}
 
+	// deactivate key press while level up animation is running
+	if (luAnimation) {
+		return;
+	}
 
 	// start game menu exit
 	if (gameStart) {
@@ -514,17 +562,12 @@ void ofApp::keyPressed(int key){
 	}
 
 	// reset game
-	if (gameOver || gameWon) {
+	if (gameOver || gameWon || gameEnd) {
 		if (key == 'r') {
 			int curentView = viewType;
 			setup();
 			viewType = curentView;
 		}
-		return;
-	}
-
-	// deactivate key press while level up animation is running
-	if (luAnimation) {
 		return;
 	}
 
@@ -610,13 +653,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 ////////////////////////////////////////////////////////////////
 
 void ofApp::levelUp() {
-	currentGameLevel++;
-
-	if (currentGameLevel > maxGameLevel) {
-		// GAME WON ANIMATION (FINAL)
-		gameEnd = true;
-	}
-
 	// reset game variables
 	gameWon = false;
 	luAnimationTime = 0;
@@ -660,7 +696,8 @@ void ofApp::printStartInstructionsConsole() {
 	cout << "\t- 'f' to change polygon mode to GL_FILL" << endl;
 	cout << "\t- 'l' to change first person view lens angle" << endl;
 	cout << "\t- 'a' to change first person view alpha" << endl;
-	cout << "\t- 'b' to change first person view beta" << endl << endl << endl;
+	cout << "\t- 'b' to change first person view beta" << endl;
+	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
 }
 
 void ofApp::printText(char* text) {
@@ -765,4 +802,9 @@ ofVec3f ofApp::getBallSpawnPoint() {
 	}
 	
 	return spawnPoint;
+}
+
+void ofApp::cheatGame() {
+	// win level imeadiately (for debug purposes)
+	pyramid->nbrFlippedTiles = pyramid->nbrTotalTiles;
 }

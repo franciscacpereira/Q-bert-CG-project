@@ -37,6 +37,7 @@ class ofApp : public ofBaseApp{
 		void checkPyramidCollision();
 		void checkBallCollision();
 		ofVec3f getBallSpawnPoint();
+		void cheatGame();
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
@@ -89,6 +90,10 @@ class ofApp : public ofBaseApp{
 		float luAnimationTime;
 		float luAnimationDuration;
 		float luAnimationStillTime;
+
+		// end of game animation variables
+		float endAnimationTime;
+		float endAnimationDuration;
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;
