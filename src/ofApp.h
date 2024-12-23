@@ -32,6 +32,7 @@ class ofApp : public ofBaseApp{
 		
 		void levelUp();
 		void printStartInstructionsConsole();
+		void printText(char* text);
 		void setTextPosition(bool isSlanted);
 		void checkPyramidCollision();
 		void checkBallCollision();
@@ -84,12 +85,18 @@ class ofApp : public ofBaseApp{
 		float lastQbertFlashTime;
 		bool drawQbert;
 
+		// level up animation variables
+		float luAnimationTime;
+		float luAnimationDuration;
+		float luAnimationStillTime;
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;
 		bool gameOver;
 		bool gameWon;
 		bool gameStart;
+		bool gameEnd;
+		bool luAnimation;
 
 
 		/* CAMERA AND VIEWPORT VARIABLES */

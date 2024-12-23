@@ -38,6 +38,10 @@ void ofApp::setup() {
 	victoryAnimationTime = 0;
 	victoryAnimationDuration = gameOverDuration;
 
+	luAnimationTime = 0;
+	luAnimationDuration = 2;
+	luAnimationStillTime = luAnimationDuration * 0.5;
+
 	// qbert
 	drawQbert = true;
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
@@ -96,7 +100,8 @@ void ofApp::setup() {
 	gameOver = false;
 	gameWon = false;
 	gameStart = true;
-
+	gameEnd = false;
+	luAnimation = false;
 
 	/* PRINT START INSTRUCTION IN CONSOLE */
 	printStartInstructionsConsole();
@@ -111,7 +116,7 @@ void ofApp::update(){
 	this->previousTime = currentTime;
 
 	// game won
-	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles) {
+	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles && !luAnimation) {
 
 		// start win rainbow animation
 		if (!gameWon) {
@@ -129,14 +134,28 @@ void ofApp::update(){
 
 		// end win rainbow animation
 		if (currentTime - victoryAnimationTime >= victoryAnimationDuration) {
+			
 			pyramid->rainbowAnimation = false;
 
-			// kill all objects
-			this->qbert->isDead = true;
-			for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
-			//for (int i = 0; i < maxLives; i++) lives[i].isDead = true;
+			// start level up animation
+			luAnimation = true;
+		}
 
-			// reset game
+	}
+
+	// level up animation
+	if (luAnimation) {
+
+		// start level up animation
+		if (luAnimationTime == 0) {
+			luAnimationTime = currentTime;
+		}
+
+		if (currentTime - luAnimationTime < luAnimationDuration) {
+			// update text position
+		}
+		else {
+			// end level up animation
 			levelUp();
 		}
 	}
@@ -393,21 +412,9 @@ void ofApp::draw(){
 
 	/* DRAW THE GAME */
 
-	if (gameStart) {
+	if (gameStart || luAnimation) {
 		// draw the start screen
-		glPushMatrix(); {
-			setTextPosition(true);
-
-			glScaled(200, 100, 10);
-			drawLines();
-			setColor(Color::GREEN);
-			unitCube();
-
-			drawFilled();
-			setColor(Color::WHITE);
-			unitCube();
-
-		} glPopMatrix();
+		printText("QBERT 3D");
 
 		pyramid->draw();
 
@@ -497,6 +504,7 @@ void ofApp::keyPressed(int key){
 		break;
 	}
 
+
 	// start game menu exit
 	if (gameStart) {
 		if (key == ' ') {
@@ -512,6 +520,11 @@ void ofApp::keyPressed(int key){
 			setup();
 			viewType = curentView;
 		}
+		return;
+	}
+
+	// deactivate key press while level up animation is running
+	if (luAnimation) {
 		return;
 	}
 
@@ -601,9 +614,13 @@ void ofApp::levelUp() {
 
 	if (currentGameLevel > maxGameLevel) {
 		// GAME WON ANIMATION (FINAL)
+		gameEnd = true;
 	}
 
+	// reset game variables
 	gameWon = false;
+	luAnimationTime = 0;
+	luAnimation = false;
 
 	// reset the pyramid for the new level
 	currentPyramidLevel++;
@@ -613,6 +630,12 @@ void ofApp::levelUp() {
 	qbert->isDead = true;
 	qbert->previousPosition = qbert->startPosition = qbert->currentPosition = pyramid->coords[0][0];
 	qbert->previousPosition.y += pyramid->tileSize * 0.5 + qbert->size * 0.5;
+	qbert->jumpStartPosition = qbert->previousPosition;
+	qbert->previousOrientation = Orientation::LEFT_DOWN;
+
+	// kill all objects
+	for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
+	//for (int i = 0; i < maxLives; i++) lives[i].isDead = true;
 }
 
 void ofApp::printStartInstructionsConsole() {
@@ -638,6 +661,23 @@ void ofApp::printStartInstructionsConsole() {
 	cout << "\t- 'l' to change first person view lens angle" << endl;
 	cout << "\t- 'a' to change first person view alpha" << endl;
 	cout << "\t- 'b' to change first person view beta" << endl << endl << endl;
+}
+
+void ofApp::printText(char* text) {
+	//cout << text << endl;
+
+	glPushMatrix(); {
+		setTextPosition(true);
+
+		glScaled(200, 100, 10);
+		drawLines();
+		setColor(Color::GREEN);
+		unitCube();
+
+		drawFilled();
+		setColor(Color::WHITE);
+		unitCube();
+	} glPopMatrix();
 }
 
 void ofApp::setTextPosition(bool isSlanted) {
