@@ -32,6 +32,7 @@ class ofApp : public ofBaseApp{
 		
 		void levelUp();
 		void printStartInstructionsConsole();
+		void setTextPosition(bool isSlanted);
 		void checkPyramidCollision();
 		void checkBallCollision();
 		ofVec3f getBallSpawnPoint();

@@ -396,11 +396,9 @@ void ofApp::draw(){
 	if (gameStart) {
 		// draw the start screen
 		glPushMatrix(); {
-			GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
-			glTranslated(pyramidSide * sqrt(2) / 3, pyramidSide * 2 /3, pyramidSide * sqrt(2) / 3);
-			glRotated(45, 0, 1, 0);
-			glScaled(200, 100, 10);
+			setTextPosition(true);
 
+			glScaled(200, 100, 10);
 			drawLines();
 			setColor(Color::GREEN);
 			unitCube();
@@ -499,6 +497,7 @@ void ofApp::keyPressed(int key){
 		break;
 	}
 
+	// start game menu exit
 	if (gameStart) {
 		if (key == ' ') {
 			gameStart = false;
@@ -639,6 +638,24 @@ void ofApp::printStartInstructionsConsole() {
 	cout << "\t- 'l' to change first person view lens angle" << endl;
 	cout << "\t- 'a' to change first person view alpha" << endl;
 	cout << "\t- 'b' to change first person view beta" << endl << endl << endl;
+}
+
+void ofApp::setTextPosition(bool isSlanted) {
+	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+
+	GLfloat sideDist = pyramidSide * sqrt(2) / 3;
+	GLfloat heightDist = pyramidSide * 2 / 3;
+
+	GLfloat slope = atan(sideDist / heightDist) * 180 / PI;
+
+	glTranslated(sideDist, heightDist, sideDist);
+	glRotated(45, 0, 1, 0);
+	
+	if (isSlanted) {
+		glRotated(-90, 0, 1, 0);
+		glRotated(slope, 0, 0, 1);
+		glRotated(90, 0, 1, 0);
+	}
 }
 
 void ofApp::checkPyramidCollision() {
