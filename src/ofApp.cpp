@@ -7,7 +7,6 @@ void ofApp::setup() {
 	glLineWidth(5);
 
 
-
 	/* INIT DEBUG VARIABLES */
 	debugRotationX = 0;
 	debugRotationY = 0;
@@ -17,7 +16,7 @@ void ofApp::setup() {
 
 
 	/* INIT GAME VARIABLES */
-	currentGameLevel = 0;
+	currentGameLevel = 1;
 	maxGameLevel = 3;
 	maxLives = 3;
 	currentLives = maxLives;
@@ -45,6 +44,12 @@ void ofApp::setup() {
 
 	endAnimationTime = 0;
 	endAnimationDuration = 2;
+
+	ofVec3f initValues = ofVec3f(0, 0, 0);
+	textStartPosition = textTargetPosition = textCurrentPosition = initValues;
+	textScaleStart = textScaleTarget = textScaleCurrent = initValues;
+	mainText = subText = "";
+	textAnimationStage = TextAnimationStage::DEACTIVATED;
 
 	// qbert
 	drawQbert = true;
@@ -119,6 +124,14 @@ void ofApp::update(){
 	this->timePerFrame = currentTime - this->previousTime;
 	this->previousTime = currentTime;
 
+
+	// update text vectors
+	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+	textTranslation = ofVec3f(pyramidSide * sqrt(2) / 3, pyramidSide * 2 / 3, pyramidSide * sqrt(2) / 3);
+	textScale = ofVec3f(pyramidSide * sqrt(2) * 0.8, pyramidSide * 0.4, pyramid->tileSize);
+	textRotation = atan(textTranslation.x / textTranslation.y) * 180 / PI;
+
+
 	// game won (could be any level, does not mean end of game)
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles && !luAnimation && !gameEnd) {
 
@@ -140,47 +153,24 @@ void ofApp::update(){
 		if (currentTime - victoryAnimationTime >= victoryAnimationDuration) {
 			
 			pyramid->rainbowAnimation = false;
-			currentGameLevel++;
+
+			// activate text animation
+			textAnimationStage = TextAnimationStage::START;
 
 			if (currentGameLevel > maxGameLevel) {
-				// start end of game animation
+				// end of game animation
 				gameEnd = true;
 			}
 			else {
-				// start level up animation
+				// level up animation
 				luAnimation = true;
+				currentPyramidLevel++;
 			}
 		}
 	}
-
-	// level up animation
-	if (luAnimation) {
-
-		// start level up animation
-		if (luAnimationTime == 0) {
-			luAnimationTime = currentTime;
-		}
-
-		if (currentTime - luAnimationTime < luAnimationDuration) {
-			// update text position
-		}
-		else {
-			// end level up animation
-			if (currentGameLevel == 0) {
-				// means that it is the first level animation (no need to increase pyramid level)
-				currentGameLevel++;
-				luAnimationTime = 0;
-				luAnimation = false;
-			}
-			else {
-				levelUp();
-			}
-		}
-	}
-
 
 	// game over
-	if (this->qbert->lives <= 0 && !gameWon) {
+	if (this->qbert->lives <= 0 && !gameWon && !gameEnd) {
 		gameOver = true;
 		enemyActivated = false;
 
@@ -200,22 +190,104 @@ void ofApp::update(){
 		}
 		else {
 			// kill all objects
-			this->qbert->isDead = true;
-			for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
+			//this->qbert->isDead = true;
+			//for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
+			textAnimationStage = TextAnimationStage::START;
 			gameEnd = true;
 		}
 	}
 
-	// end of game animation
-	if (gameEnd) {
 
-		// start end of game animation
-		if (endAnimationTime == 0) {
-			endAnimationTime = currentTime;
-		}
+	// text animation
+	if (textAnimationStage != TextAnimationStage::DEACTIVATED) {
 
-		if (currentTime - endAnimationTime < endAnimationDuration) {
-			// update text position
+		switch (textAnimationStage) {
+		case TextAnimationStage::START:
+
+			// define type of animation to execute
+			if (gameEnd && gameOver) {
+				setupTextAnimation("GAME OVER", "Press 'R' to restart game", ofVec3f(0, 0, 0), textTranslation, ofVec3f(0, 0, 0), textScale);
+			}
+			else if (gameEnd && gameWon) {
+				setupTextAnimation("YOU WON", "Press 'R' to restart game", ofVec3f(0, 0, 0), textTranslation, ofVec3f(0, 0, 0), textScale);
+			}
+			else if (luAnimation) {
+				char text[20];
+				sprintf(text, "LEVEL %d", currentGameLevel);
+				setupTextAnimation(text, "", ofVec3f(0, 0, 0), textTranslation, ofVec3f(0, 0, 0), textScale);
+			}
+
+			textAnimationStage = TextAnimationStage::SHOW;
+			break;
+
+		case TextAnimationStage::SHOW:
+			if (textAnimationProgress >= 1) {
+				// target position has been reached
+				textCurrentPosition = textTargetPosition;
+				textScaleCurrent = textScaleTarget;
+
+				// move up to next stage
+				textAnimationDuration = 2;
+				textAnimationTime = currentTime;
+				textAnimationStage = TextAnimationStage::STAY;
+			}
+			else {
+				// update text position and scale
+				textAnimationProgress += timePerFrame * 1.5;
+
+				ofVec3f newPosition = textStartPosition.getInterpolated(textTargetPosition, textAnimationProgress);
+				textCurrentPosition = newPosition;
+
+				ofVec3f newScale = textScaleStart.getInterpolated(textScaleTarget, textAnimationProgress);
+				textScaleCurrent = newScale;
+			}
+
+			break;
+
+		case TextAnimationStage::STAY:
+			if (!gameEnd) {
+				if (currentTime - textAnimationTime >= textAnimationDuration) {
+					// move up to next stage
+					textAnimationStage = TextAnimationStage::EXIT;
+
+					ofVec3f camera = ofVec3f(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2);
+					setupTextAnimation(mainText, subText, textTranslation, camera, textScale, 10 * textScale);
+				}
+			}
+
+			break;
+
+		case TextAnimationStage::EXIT:
+			if (textAnimationProgress >= 1) {
+				// target position has been reached
+				textCurrentPosition = textTargetPosition;
+				textScaleCurrent = textScaleTarget;
+
+				textAnimationStage = TextAnimationStage::DEACTIVATED;
+				textAnimationProgress = 0;
+				luAnimation = false;
+
+				// alter pyramid (if necessary)
+				if (luAnimation && !gameWon) {
+					// means that it is the first level animation (no need to increase pyramid level)
+					luAnimationTime = 0;
+				}
+				else {
+					levelUp();
+				}
+			}
+			else {
+				// update text position and scale
+				textAnimationProgress += timePerFrame * 1.5;
+
+				ofVec3f newPosition = textStartPosition.getInterpolated(textTargetPosition, textAnimationProgress);
+				textCurrentPosition = newPosition;
+
+				ofVec3f newScale = textScaleStart.getInterpolated(textScaleTarget, textAnimationProgress);
+				textScaleCurrent = newScale;
+			}
+
+			break;
 		}
 	}
 
@@ -445,7 +517,8 @@ void ofApp::draw(){
 
 	if (gameStart) {
 		// draw the start screen
-		printText("QBERT 3D");
+
+		// to be implemented ...
 
 		glScaled(1000, 1000, 1000);
 		draw3DAxis();
@@ -567,7 +640,10 @@ void ofApp::keyPressed(int key){
 	if (gameStart) {
 		if (key == ' ') {
 			gameStart = false;
+
 			luAnimation = true;
+			textAnimationStage = TextAnimationStage::START;
+			//setupTextAnimation("LEVEL 1", "");
 		}
 		return;
 	}
@@ -663,6 +739,8 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 ////////////////////////////////////////////////////////////////
 
+/////////////////////// GAME DYNAMICS //////////////////////////
+
 void ofApp::levelUp() {
 	// reset game variables
 	gameWon = false;
@@ -670,7 +748,6 @@ void ofApp::levelUp() {
 	luAnimation = false;
 
 	// reset the pyramid for the new level
-	currentPyramidLevel++;
 	pyramid = new Pyramid(currentPyramidLevel, pyramidCubeSize);
 
 	// reset qbert position
@@ -694,67 +771,6 @@ void ofApp::levelUp() {
 	// kill all objects
 	for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
 	//for (int i = 0; i < maxLives; i++) lives[i].isDead = true;
-}
-
-void ofApp::printStartInstructionsConsole() {
-
-	cout << "BASIC CONTROLS:" << endl;
-	cout << "\t- 'v' to change view" << endl;
-	cout << "\t- 'r' to restart the game" << endl << endl;
-
-	cout << "GAME CONTROLS (for isometric view):" << endl;
-	cout << "\t- 'UP' to move RIGHT UP" << endl;
-	cout << "\t- 'LEFT' to move LEFT UP" << endl;
-	cout << "\t- 'RIGHT' to move RIGHT DOWN" << endl;
-	cout << "\t- 'DOWN' to move LEFT DOWN" << endl << endl;
-
-	cout << "DEBUG KEYS:" << endl;
-	cout << "\t- 'd' to enable/disable debug mode" << endl;
-	cout << "\t- '1' to disable culling" << endl;
-	cout << "\t- '2' to enable culling with back face" << endl;
-	cout << "\t- '3' to enable culling with front face" << endl;
-	cout << "\t- '4' to enable culling with front and back face" << endl;
-	cout << "\t- 'g' to change polygon mode to GL_LINE" << endl;
-	cout << "\t- 'f' to change polygon mode to GL_FILL" << endl;
-	cout << "\t- 'l' to change first person view lens angle" << endl;
-	cout << "\t- 'a' to change first person view alpha" << endl;
-	cout << "\t- 'b' to change first person view beta" << endl;
-	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
-}
-
-void ofApp::printText(char* text) {
-	cout << text << endl;
-
-	glPushMatrix(); {
-		setTextPosition(true);
-
-		glScaled(200, 100, 10);
-		drawLines();
-		setColor(Color::GREEN);
-		unitCube();
-
-		drawFilled();
-		setColor(Color::WHITE);
-		unitCube();
-	} glPopMatrix();
-}
-
-void ofApp::setTextPosition(bool isSlanted) {
-	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
-
-	GLfloat sideDist = pyramidSide * sqrt(2) / 3;
-	GLfloat heightDist = pyramidSide * 2 / 3;
-
-	GLfloat slope = atan(sideDist / heightDist) * 180 / PI;
-
-	glTranslated(sideDist, heightDist, sideDist);
-	glRotated(45, 0, 1, 0);
-	
-	if (isSlanted) {
-		glRotated(-90, 0, 1, 0);
-		glRotated(slope, 0, 0, 1);
-		glRotated(90, 0, 1, 0);
-	}
 }
 
 void ofApp::checkPyramidCollision() {
@@ -822,11 +838,160 @@ ofVec3f ofApp::getBallSpawnPoint() {
 			validSpawnPoint = true;
 		}
 	}
-	
+
 	return spawnPoint;
 }
 
 void ofApp::cheatGame() {
 	// win level imeadiately (for debug purposes)
 	pyramid->nbrFlippedTiles = pyramid->nbrTotalTiles;
+}
+
+///////////////////// GAME ANIMATIONS //////////////////////////
+
+void ofApp::printStartInstructionsConsole() {
+
+	cout << "BASIC CONTROLS:" << endl;
+	cout << "\t- 'v' to change view" << endl;
+	cout << "\t- 'r' to restart the game" << endl << endl;
+
+	cout << "GAME CONTROLS (for isometric view):" << endl;
+	cout << "\t- 'UP' to move RIGHT UP" << endl;
+	cout << "\t- 'LEFT' to move LEFT UP" << endl;
+	cout << "\t- 'RIGHT' to move RIGHT DOWN" << endl;
+	cout << "\t- 'DOWN' to move LEFT DOWN" << endl << endl;
+
+	cout << "DEBUG KEYS:" << endl;
+	cout << "\t- 'd' to enable/disable debug mode" << endl;
+	cout << "\t- '1' to disable culling" << endl;
+	cout << "\t- '2' to enable culling with back face" << endl;
+	cout << "\t- '3' to enable culling with front face" << endl;
+	cout << "\t- '4' to enable culling with front and back face" << endl;
+	cout << "\t- 'g' to change polygon mode to GL_LINE" << endl;
+	cout << "\t- 'f' to change polygon mode to GL_FILL" << endl;
+	cout << "\t- 'l' to change first person view lens angle" << endl;
+	cout << "\t- 'a' to change first person view alpha" << endl;
+	cout << "\t- 'b' to change first person view beta" << endl;
+	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
+}
+
+void ofApp::printText(char* text) {
+	glPushMatrix(); {
+		setTextPosition(true);
+
+		glScaled(textScaleCurrent.x, textScaleCurrent.y, textScaleCurrent.z);
+
+		drawLines();
+		setColor(Color::GREEN);
+		unitCube();
+
+		drawFilled();
+		setColor(Color::WHITE);
+		unitCube();
+	} glPopMatrix();
+
+	/*
+	cout << text << endl;
+
+	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+
+	GLfloat scaleX = pyramidSide * sqrt(2) * 0.8;
+	GLfloat scaleY = pyramidSide * 0.4;
+	GLfloat scaleZ = pyramidCubeSize;
+
+	glPushMatrix(); {
+		setTextPosition(true);
+
+		glScaled(scaleX, scaleY, scaleZ);
+		drawLines();
+		setColor(Color::GREEN);
+		unitCube();
+
+		drawFilled();
+		setColor(Color::WHITE);
+		unitCube();
+	} glPopMatrix();
+	*/
+}
+
+void ofApp::setTextPosition(bool isSlanted) {
+	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+	GLfloat sideDist = pyramidSide * sqrt(2) / 3;
+	GLfloat heightDist = pyramidSide * 2 / 3;
+	GLfloat slope = atan(sideDist / heightDist) * 180 / PI;
+
+	//glTranslated(sideDist, heightDist, sideDist);
+	glTranslated(textCurrentPosition.x, textCurrentPosition.y, textCurrentPosition.z);
+	glRotated(45, 0, 1, 0);
+	glRotated(-slope, 1, 0, 0);
+	/*
+	if (isSlanted) {
+		glRotated(-90, 0, 1, 0);
+		glRotated(slope, 0, 0, 1);
+		glRotated(90, 0, 1, 0);
+	}
+	*/
+}
+
+void ofApp::setupTextAnimation(char* mainText, char* subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale) {
+	// define interpolation variables
+	textAnimationProgress = 0;
+
+	// define start position and scale
+	textStartPosition = textCurrentPosition = originPos;
+	textScaleStart = textScaleCurrent = originScale;
+
+	// define target position and scale
+	textTargetPosition = targetPos;
+	textScaleTarget = targetScale;
+
+	/*
+	cout << mainText << endl;
+	cout << subText << endl << endl;
+
+	// define text 
+	this->mainText = mainText;
+	this->subText = subText;
+
+	cout << mainText << endl;
+	cout << subText << endl << endl;
+
+	cout << mulFactors[0] << endl;
+	cout << mulFactors[1] << endl;
+
+	// define interpolation variables
+	textAnimationProgress = 0;
+
+	// vectors for text position and scale
+	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+	ofVec3f translation = ofVec3f(sqrt(2) / 3, 0.666, sqrt(2) / 3);
+	ofVec3f scale = ofVec3f(sqrt(2) * 0.8, 0.4, pyramidCubeSize / pyramidSide);
+
+	// define start position and scale
+	textStartPosition = textCurrentPosition = mulFactors[0] * translation;
+	cout <<  "start position: " << textStartPosition << endl;
+	textScaleStart = textScaleCurrent = mulFactors[0] * scale;
+
+	// define target position and scale
+	textTargetPosition = mulFactors[1] * translation;
+	textScaleTarget = mulFactors[1] * scale;
+	*/
+	/*
+	// final position of the text
+	GLfloat sideDist = pyramidSide * sqrt(2) / 3;
+	GLfloat heightDist = pyramidSide * 2 / 3;
+
+	// final scale of the text
+	GLfloat scaleX = pyramidSide * sqrt(2) * 0.8;
+	GLfloat scaleY = pyramidSide * 0.4;
+	GLfloat scaleZ = pyramidCubeSize;
+
+	// define text translation values for interpolation
+	textStartPosition = textCurrentPosition = ofVec3f(0, 0, 0);
+	textTargetPosition = ofVec3f(sideDist, heightDist, sideDist);
+
+	// define text scale values for interpolation
+	textScaleStart = textScaleCurrent = ofVec3f(0, 0, 0);
+	textScaleTarget = ofVec3f(scaleX, scaleY, scaleZ);
+	*/
 }

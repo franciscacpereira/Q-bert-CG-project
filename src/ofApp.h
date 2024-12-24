@@ -11,6 +11,8 @@
 #include <random>
 #include <iostream>
 
+enum class TextAnimationStage { DEACTIVATED, START, SHOW, STAY, EXIT};
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -31,13 +33,15 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		void levelUp();
-		void printStartInstructionsConsole();
-		void printText(char* text);
-		void setTextPosition(bool isSlanted);
 		void checkPyramidCollision();
 		void checkBallCollision();
 		ofVec3f getBallSpawnPoint();
 		void cheatGame();
+
+		void printStartInstructionsConsole();
+		void printText(char* text);
+		void setTextPosition(bool isSlanted);
+		void setupTextAnimation(char* mainText, char* subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
@@ -94,6 +98,25 @@ class ofApp : public ofBaseApp{
 		// end of game animation variables
 		float endAnimationTime;
 		float endAnimationDuration;
+
+		// text animation variables
+		ofVec3f textStartPosition;
+		ofVec3f textTargetPosition;
+		ofVec3f textCurrentPosition;
+		ofVec3f textScaleStart;
+		ofVec3f textScaleTarget;
+		ofVec3f textScaleCurrent;
+		float textAnimationProgress;
+		float textAnimationTime;
+		float textAnimationDuration;
+		char* mainText;
+		char* subText;
+		TextAnimationStage textAnimationStage;
+
+		// text variables 
+		ofVec3f textTranslation;
+		ofVec3f textScale;
+		float textRotation;
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;
