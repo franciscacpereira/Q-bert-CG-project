@@ -17,8 +17,8 @@ void ofApp::setup() {
 
 
 	/* INIT GAME VARIABLES */
-	currentGameLevel = 1;
-	maxGameLevel = 10;
+	currentGameLevel = 0;
+	maxGameLevel = 3;
 	maxLives = 3;
 	currentLives = maxLives;
 
@@ -166,7 +166,15 @@ void ofApp::update(){
 		}
 		else {
 			// end level up animation
-			levelUp();
+			if (currentGameLevel == 0) {
+				// means that it is the first level animation (no need to increase pyramid level)
+				currentGameLevel++;
+				luAnimationTime = 0;
+				luAnimation = false;
+			}
+			else {
+				levelUp();
+			}
 		}
 	}
 
@@ -444,6 +452,7 @@ void ofApp::draw(){
 	}
 	else {
 		// draw animation text (for level up or game over)
+		char text[100];
 		glPushMatrix(); {
 			if (gameEnd) {
 				if (qbert->lives <= 0) {
@@ -454,7 +463,8 @@ void ofApp::draw(){
 				}
 			}
 			else if (luAnimation) {
-				printText("NEXT LEVEL");
+				sprintf(text, "LEVEL %d", currentGameLevel);
+				printText(text);
 			}
 		} glPopMatrix();
 
@@ -557,6 +567,7 @@ void ofApp::keyPressed(int key){
 	if (gameStart) {
 		if (key == ' ') {
 			gameStart = false;
+			luAnimation = true;
 		}
 		return;
 	}
@@ -664,10 +675,21 @@ void ofApp::levelUp() {
 
 	// reset qbert position
 	qbert->isDead = true;
-	qbert->previousPosition = qbert->startPosition = qbert->currentPosition = pyramid->coords[0][0];
+	qbert->previousPosition = pyramid->coords[0][0];
 	qbert->previousPosition.y += pyramid->tileSize * 0.5 + qbert->size * 0.5;
+	qbert->startPosition = qbert->currentPosition = qbert->previousPosition;
 	qbert->jumpStartPosition = qbert->previousPosition;
 	qbert->previousOrientation = Orientation::LEFT_DOWN;
+
+	// reset lives position
+	//lives.clear();
+	GLfloat startZ = pyramid->tileSize * pyramid->maxLevel * 0.5;
+	GLfloat livesDistance = qbert->size;
+	for (int i = 0; i < maxLives; i++) {
+		ofVec3f startPos = ofVec3f(-startZ + i * livesDistance, pyramid->tileSize * pyramid->maxLevel, startZ - i * livesDistance);
+		//lives.push_back(Qbert(startPos, qbert->size, 0, 0, 0, maxLives));
+		lives[i].startPosition = lives[i].previousPosition = lives[i].currentPosition = lives[i].previousPosition = startPos;
+	}
 
 	// kill all objects
 	for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
@@ -701,7 +723,7 @@ void ofApp::printStartInstructionsConsole() {
 }
 
 void ofApp::printText(char* text) {
-	//cout << text << endl;
+	cout << text << endl;
 
 	glPushMatrix(); {
 		setTextPosition(true);
