@@ -40,7 +40,6 @@ class ofApp : public ofBaseApp{
 
 		void printStartInstructionsConsole();
 		void printText(char* text);
-		void setTextPosition(bool isSlanted);
 		void setupTextAnimation(char* mainText, char* subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
 
 		/* DEBUG VARIALES */

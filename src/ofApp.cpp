@@ -877,10 +877,12 @@ void ofApp::printStartInstructionsConsole() {
 
 void ofApp::printText(char* text) {
 	glPushMatrix(); {
-		setTextPosition(true);
-
+		glTranslated(textCurrentPosition.x, textCurrentPosition.y, textCurrentPosition.z);
+		glRotated(45, 0, 1, 0);
+		glRotated(-textRotation, 1, 0, 0);
 		glScaled(textScaleCurrent.x, textScaleCurrent.y, textScaleCurrent.z);
-
+		
+		/////////////////////////////
 		drawLines();
 		setColor(Color::GREEN);
 		unitCube();
@@ -888,49 +890,9 @@ void ofApp::printText(char* text) {
 		drawFilled();
 		setColor(Color::WHITE);
 		unitCube();
+		////////////////////////////
+
 	} glPopMatrix();
-
-	/*
-	cout << text << endl;
-
-	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
-
-	GLfloat scaleX = pyramidSide * sqrt(2) * 0.8;
-	GLfloat scaleY = pyramidSide * 0.4;
-	GLfloat scaleZ = pyramidCubeSize;
-
-	glPushMatrix(); {
-		setTextPosition(true);
-
-		glScaled(scaleX, scaleY, scaleZ);
-		drawLines();
-		setColor(Color::GREEN);
-		unitCube();
-
-		drawFilled();
-		setColor(Color::WHITE);
-		unitCube();
-	} glPopMatrix();
-	*/
-}
-
-void ofApp::setTextPosition(bool isSlanted) {
-	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
-	GLfloat sideDist = pyramidSide * sqrt(2) / 3;
-	GLfloat heightDist = pyramidSide * 2 / 3;
-	GLfloat slope = atan(sideDist / heightDist) * 180 / PI;
-
-	//glTranslated(sideDist, heightDist, sideDist);
-	glTranslated(textCurrentPosition.x, textCurrentPosition.y, textCurrentPosition.z);
-	glRotated(45, 0, 1, 0);
-	glRotated(-slope, 1, 0, 0);
-	/*
-	if (isSlanted) {
-		glRotated(-90, 0, 1, 0);
-		glRotated(slope, 0, 0, 1);
-		glRotated(90, 0, 1, 0);
-	}
-	*/
 }
 
 void ofApp::setupTextAnimation(char* mainText, char* subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale) {
@@ -944,54 +906,4 @@ void ofApp::setupTextAnimation(char* mainText, char* subText, ofVec3f originPos,
 	// define target position and scale
 	textTargetPosition = targetPos;
 	textScaleTarget = targetScale;
-
-	/*
-	cout << mainText << endl;
-	cout << subText << endl << endl;
-
-	// define text 
-	this->mainText = mainText;
-	this->subText = subText;
-
-	cout << mainText << endl;
-	cout << subText << endl << endl;
-
-	cout << mulFactors[0] << endl;
-	cout << mulFactors[1] << endl;
-
-	// define interpolation variables
-	textAnimationProgress = 0;
-
-	// vectors for text position and scale
-	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
-	ofVec3f translation = ofVec3f(sqrt(2) / 3, 0.666, sqrt(2) / 3);
-	ofVec3f scale = ofVec3f(sqrt(2) * 0.8, 0.4, pyramidCubeSize / pyramidSide);
-
-	// define start position and scale
-	textStartPosition = textCurrentPosition = mulFactors[0] * translation;
-	cout <<  "start position: " << textStartPosition << endl;
-	textScaleStart = textScaleCurrent = mulFactors[0] * scale;
-
-	// define target position and scale
-	textTargetPosition = mulFactors[1] * translation;
-	textScaleTarget = mulFactors[1] * scale;
-	*/
-	/*
-	// final position of the text
-	GLfloat sideDist = pyramidSide * sqrt(2) / 3;
-	GLfloat heightDist = pyramidSide * 2 / 3;
-
-	// final scale of the text
-	GLfloat scaleX = pyramidSide * sqrt(2) * 0.8;
-	GLfloat scaleY = pyramidSide * 0.4;
-	GLfloat scaleZ = pyramidCubeSize;
-
-	// define text translation values for interpolation
-	textStartPosition = textCurrentPosition = ofVec3f(0, 0, 0);
-	textTargetPosition = ofVec3f(sideDist, heightDist, sideDist);
-
-	// define text scale values for interpolation
-	textScaleStart = textScaleCurrent = ofVec3f(0, 0, 0);
-	textScaleTarget = ofVec3f(scaleX, scaleY, scaleZ);
-	*/
 }
