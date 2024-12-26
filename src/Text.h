@@ -30,6 +30,7 @@ public:
 	vector<vector<bool>> characterMatrix;
 	int textLength;
 	int textUnitLength;
+	int textUnitHeight;
 	int characterUnitHeight = 6;
 };
 

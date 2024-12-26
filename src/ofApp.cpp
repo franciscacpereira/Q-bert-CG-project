@@ -133,7 +133,7 @@ void ofApp::update(){
 	// update text vectors
 	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
 	textTranslation = ofVec3f(pyramidSide * sqrt(2) / 3, pyramidSide * 2 / 3, pyramidSide * sqrt(2) / 3);
-	textScale = ofVec3f(pyramidCubeSize * 0.3, pyramidCubeSize * 0.3, pyramidCubeSize * 0.3);
+	textScale = ofVec3f(pyramidSide * 0.03, pyramidSide * 0.03, pyramidSide * 0.03);
 	textRotation = atan(textTranslation.x / textTranslation.y) * 180 / PI;
 
 

@@ -11,34 +11,34 @@ Text::Text() {
 	this->textLength = 0;
 	this->characterMatrix = {};
 	this->textUnitLength = 0;
+	this->textUnitHeight = 0;
 }
 
 Text::Text(string text) {
 	this->text = text;
 	this->textLength = text.length();
 	this->characterMatrix = {};
-	this->textUnitLength = -1;
+	getTextUnitLength();
+	this->textUnitHeight = this->characterUnitHeight;
 }
 
 void Text::setText(string text) {
 	this->text = text;
 	this->textLength = text.length();
+	this->characterMatrix = {};
+	getTextUnitLength();
+	this->textUnitHeight = this->characterUnitHeight;
 }
 
 void Text::draw() {
 	float unit = 1;			// used for the size of each character and blank space
 	int nbrCharUnits = 0;	// used to calculate the total length of the text
-	int textOffset = 0;		// used to translate the characters to the right of the text
+	int xOffset = 0;		// used to translate the characters to the right of the text
 	char character;
-
-	// get the total length of the text
-	if (this->textUnitLength == -1) {
-		getTextUnitLength();
-	}
 
 	glPushMatrix(); {
 		// center text in the origin
-		glTranslatef(-this->textUnitLength / 2, 3 * unit, 0);
+		glTranslatef(-this->textUnitLength / 2, (this->textUnitHeight / 2) * unit, 0);
 
 		// flip the whole text vertically with the y-axis
 		glScalef(1, -1, 1);
@@ -55,22 +55,22 @@ void Text::draw() {
 			glPushMatrix(); {
 				if (character == ' ') {
 					// draw a blank space
-					glTranslatef(textOffset, 0, 0);
-					textOffset += unit;
+					glTranslatef(xOffset, 0, 0);
+					xOffset += unit;
 				}
 				else {
 					// draw the character
-					glTranslatef(textOffset, 0, 0);
+					glTranslatef(xOffset, 0, 0);
 					nbrCharUnits = unitCharacter(character);
-					textOffset += nbrCharUnits;
+					xOffset += nbrCharUnits;
 				}
 
-				textOffset += unit;		// add an extra blank space after each character
+				xOffset += unit;		// add an extra blank space after each character
 			} glPopMatrix();
 		}
 
-		textOffset -= unit;				// remove the last extra blank space (every character has an extra blank space)
-		this->textUnitLength = textOffset;
+		xOffset -= unit;				// remove the last extra blank space (every character has an extra blank space)
+		this->textUnitLength = xOffset;
 
 	} glPopMatrix();
 
