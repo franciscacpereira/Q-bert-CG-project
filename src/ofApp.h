@@ -43,6 +43,7 @@ class ofApp : public ofBaseApp{
 		void printStartInstructionsConsole();
 		void printText();
 		void setupTextAnimation(string mainText, string subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
+		void drawOpeningScreen();
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
@@ -91,15 +92,6 @@ class ofApp : public ofBaseApp{
 		float lastQbertFlashTime;
 		bool drawQbert;
 
-		// level up animation variables
-		float luAnimationTime;
-		float luAnimationDuration;
-		float luAnimationStillTime;
-
-		// end of game animation variables
-		float endAnimationTime;
-		float endAnimationDuration;
-
 		// text animation variables
 		ofVec3f textStartPosition;
 		ofVec3f textTargetPosition;
@@ -121,8 +113,7 @@ class ofApp : public ofBaseApp{
 
 		Text* dynamicMainText;
 		Text* dynamicSubText;
-		Text* gameStartText;
-		Text* gameStartInstructions;
+		vector<Text> gameStartText;
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;

@@ -38,13 +38,6 @@ void ofApp::setup() {
 	victoryAnimationTime = 0;
 	victoryAnimationDuration = gameOverDuration;
 
-	luAnimationTime = 0;
-	luAnimationDuration = 2;
-	luAnimationStillTime = luAnimationDuration * 0.5;
-
-	endAnimationTime = 0;
-	endAnimationDuration = 2;
-
 	ofVec3f initValues = ofVec3f(0, 0, 0);
 	textStartPosition = textTargetPosition = textCurrentPosition = initValues;
 	textScaleStart = textScaleTarget = textScaleCurrent = initValues;
@@ -53,8 +46,10 @@ void ofApp::setup() {
 
 	dynamicMainText = new Text();
 	dynamicSubText = new Text();
-	gameStartText = new Text("Q*BERT");
-	gameStartInstructions = new Text("Press         to start");
+	gameStartText = vector<Text>(3);
+	gameStartText[0].setText("Use                  to move");
+	gameStartText[1].setText("Don't fall off the pyramid!");
+	gameStartText[2].setText("Press                    to start the game");
 
 	// qbert
 	drawQbert = true;
@@ -276,11 +271,7 @@ void ofApp::update(){
 				luAnimation = false;
 
 				// alter pyramid (if necessary)
-				if (luAnimation && !gameWon) {
-					// means that it is the first level animation (no need to increase pyramid level)
-					luAnimationTime = 0;
-				}
-				else {
+				if (!luAnimation || gameWon) {
 					levelUp();
 				}
 			}
@@ -465,30 +456,7 @@ void ofApp::update(){
 void ofApp::draw(){
 	if (gameStart) {
 		// game start screen
-		glPushMatrix(); {
-			glTranslatef(gw() / 2, gh() / 2, 0);
-			glScaled(20, 20, 20);
-
-			// logo
-
-			// main text
-			glPushMatrix(); {
-				glScaled(1, -1, 1);
-				gameStartText->draw();
-			} glPopMatrix();
-
-			// instructions
-			glPushMatrix(); {
-				glTranslated(0, ((gameStartText->characterUnitHeight / 2) + 2), 0);
-				glScalef(0.3, 0.3, 0.3);
-				glScaled(1, -1, 1);
-				gameStartInstructions->draw();
-			} glPopMatrix();
-
-			glScaled(1000, 1000, 1000);
-			draw3DAxis();
-
-		} glPopMatrix();
+		drawOpeningScreen();
 	}
 	else {
 		/* DRAW THE SCENE */
@@ -768,7 +736,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 void ofApp::levelUp() {
 	// reset game variables
 	gameWon = false;
-	luAnimationTime = 0;
 	luAnimation = false;
 
 	// reset the pyramid for the new level
@@ -936,4 +903,73 @@ void ofApp::setupTextAnimation(string mainText, string subText, ofVec3f originPo
 	// define target position and scale
 	textTargetPosition = targetPos;
 	textScaleTarget = targetScale;
+}
+
+void ofApp::drawOpeningScreen() {
+	float logoHeight = 200;
+	float logoWidth = 600;
+	float textSize = 5;
+
+	float textHeight = textSize * this->gameStartText[0].characterUnitHeight;
+
+	float textOffset = 0;
+	float textSpacing = textHeight * 2.5;
+
+	glPushMatrix(); {
+		glTranslatef(gw() / 2, gh() / 2, 0);
+		//glScaled(20, 20, 20);
+
+		// logo
+		glPushMatrix(); {
+			glTranslatef(0, -logoHeight, 0);		// move the logo to sit above the middle of the screen line
+			glScaled(1, -1, 1);		// flip upside down (because there is no glOrtho)
+			glScalef(logoWidth, logoHeight, textSize);
+			unitCube();
+		} glPopMatrix();
+
+		// text
+		glPushMatrix(); {
+			//glTranslatef(0, logoHeight * 0.3, 0);		// move the text to sit above the logo
+
+			// text
+			for (int i = 0; i < this->gameStartText.size(); i++) {
+				glPushMatrix(); {
+					glTranslated(0, textOffset, 0);
+					glScalef(textSize, textSize, textSize);
+					glScaled(1, -1, 1);		// flip upside down (because there is no glOrtho)
+
+					this->gameStartText[i].draw();
+				} glPopMatrix();
+
+				if (i == 0) {
+					// space key image
+					glPushMatrix(); {
+						glTranslated(-textHeight * 1.5, textOffset, 0);
+						glScalef(textHeight * 5, textHeight * 3, textSize);
+						glScaled(1, -1, 1);		// flip upside down (because there is no glOrtho)
+
+						unitCube();
+					} glPopMatrix();
+				} 
+				else if (i == 2) {
+					// controls image
+					glPushMatrix(); {
+						glTranslated(-textHeight * 4.5, textOffset, 0);
+						glScalef(textHeight * 5, textHeight * 2, textSize);
+						glScaled(1, -1, 1);		// flip upside down (because there is no glOrtho)
+
+						unitCube();
+					} glPopMatrix();
+				}
+
+				textOffset += textSpacing + textHeight;
+			}
+
+		} glPopMatrix();
+
+		// debug axis
+		glScaled(1000, 1000, 1000);
+		draw3DAxis();
+
+	} glPopMatrix();
 }
