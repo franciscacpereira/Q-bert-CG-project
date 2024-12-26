@@ -538,7 +538,6 @@ void ofApp::draw(){
 
 		// draw the game pieces
 		glPushMatrix(); {
-			drawOpeningScreen_2();
 
 			glRotated(pyramidShakeAngle, 1, 0, 1);
 
@@ -982,12 +981,14 @@ void ofApp::drawOpeningScreen() {
 void ofApp::drawOpeningScreen_2() {
 	// everything is drawn in the center of the screen
 	// all letters have a height of 6 units (because they have a height of 6 cube that form each character)
-	float logoHeight = 40;
-	float logoWidth = 150;
-	
 	float textHeight = this->gameStartText[0].characterUnitHeight;
+	float charLength = this->gameStartText[0].textUnitLength / this->gameStartText[0].textLength;
 	float textOffset = 0;
 	float textSpacing = textHeight * 2.5;
+
+
+	float logoHeight = textHeight * 7;
+	float logoWidth = charLength * 45;
 
 	glPushMatrix(); {
 		// set the text position right
