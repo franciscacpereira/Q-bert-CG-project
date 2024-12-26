@@ -544,6 +544,17 @@ int Text::getCharacterMatrix(char character) {
 		};
 		break;
 
+	case '*':
+		characterMatrix = {
+			{0, 1, 0},
+			{1, 1, 1},
+			{0, 1, 0},
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0}
+		};
+		break;
+
 	case '#':
 		characterMatrix = {
 			{1, 1, 1, 1, 1, 1, 1, 1, 1, 1},

@@ -122,6 +122,7 @@ class ofApp : public ofBaseApp{
 		Text* dynamicMainText;
 		Text* dynamicSubText;
 		Text* gameStartText;
+		Text* gameStartInstructions;
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;

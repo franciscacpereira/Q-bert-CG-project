@@ -53,7 +53,8 @@ void ofApp::setup() {
 
 	dynamicMainText = new Text();
 	dynamicSubText = new Text();
-	gameStartText = new Text("QBERT");
+	gameStartText = new Text("Q*BERT");
+	gameStartInstructions = new Text("Press         to start");
 
 	// qbert
 	drawQbert = true;
@@ -462,87 +463,101 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	/* DRAW THE SCENE */
-	switch (viewType) {
-	case 0:
-		// 2D isometric front view
-		glViewport(0, 0, gw(), gh());
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
-		
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
-		break;
-	case 1:
-		// 3D side view
-		glViewport(0, 0, gw(), gh());
-
-		perspective(lensAngle, alpha, beta);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 3), 0, 0, 1, 0);
-		break;
-	case 2:
-		// create small viewport off whole matrix to make first person view more easy to play
-		glViewport(gw() - gw() * 0.3, gh() - gh() * 0.3, gw() * 0.25, gh() * 0.25);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
-
-		glPushMatrix(); {
-			for (int i = 0; i < maxBalls; i++) {
-				balls[i].draw();
-			}
-
-			if (drawQbert) qbert->draw();
-			pyramid->draw();
-		} glPopMatrix();
-
-		// first person view
-		glViewport(0, 0, gw(), gh());
-
-		perspective(fpLensAngle, fpAlpha, fpBeta);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		lookat(fpCamera.x, fpCamera.y, fpCamera.z, fpTarget.x, fpTarget.y, fpTarget.z, 0, 1, 0);
-		break;
-	case 3:
-		// random tests
-		//glViewport(0, 0, gw(), gh());
-
-		glTranslated(gw() / 2, gh() / 2, 0);
-		glRotated(debugRotationX, 1, 0, 0);
-		glRotated(debugRotationY, 0, 1, 0);
-		glRotated(debugRotationZ, 0, 0, 1);
-		break;
-
-	}
-
-	/* DRAW THE GAME */
-
 	if (gameStart) {
-		// draw the start screen
+		// game start screen
 		glPushMatrix(); {
-			glScaled(50, 50, 50);
-			gameStartText->draw();
-		} glPopMatrix();
+			glTranslatef(gw() / 2, gh() / 2, 0);
+			glScaled(20, 20, 20);
 
-		glScaled(1000, 1000, 1000);
-		draw3DAxis();
+			// logo
+
+			// main text
+			glPushMatrix(); {
+				glScaled(1, -1, 1);
+				gameStartText->draw();
+			} glPopMatrix();
+
+			// instructions
+			glPushMatrix(); {
+				glTranslated(0, ((gameStartText->characterUnitHeight / 2) + 2), 0);
+				glScalef(0.3, 0.3, 0.3);
+				glScaled(1, -1, 1);
+				gameStartInstructions->draw();
+			} glPopMatrix();
+
+			glScaled(1000, 1000, 1000);
+			draw3DAxis();
+
+		} glPopMatrix();
 	}
 	else {
+		/* DRAW THE SCENE */
+		switch (viewType) {
+		case 0:
+			// 2D isometric front view
+			glViewport(0, 0, gw(), gh());
+
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
+		
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
+			break;
+		case 1:
+			// 3D side view
+			glViewport(0, 0, gw(), gh());
+
+			perspective(lensAngle, alpha, beta);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 3), 0, 0, 1, 0);
+			break;
+		case 2:
+			// create small viewport off whole matrix to make first person view more easy to play
+			glViewport(gw() - gw() * 0.3, gh() - gh() * 0.3, gw() * 0.25, gh() * 0.25);
+
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
+
+			glPushMatrix(); {
+				for (int i = 0; i < maxBalls; i++) {
+					balls[i].draw();
+				}
+
+				if (drawQbert) qbert->draw();
+				pyramid->draw();
+			} glPopMatrix();
+
+			// first person view
+			glViewport(0, 0, gw(), gh());
+
+			perspective(fpLensAngle, fpAlpha, fpBeta);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			lookat(fpCamera.x, fpCamera.y, fpCamera.z, fpTarget.x, fpTarget.y, fpTarget.z, 0, 1, 0);
+			break;
+		case 3:
+			// random tests
+			//glViewport(0, 0, gw(), gh());
+
+			glTranslated(gw() / 2, gh() / 2, 0);
+			glRotated(debugRotationX, 1, 0, 0);
+			glRotated(debugRotationY, 0, 1, 0);
+			glRotated(debugRotationZ, 0, 0, 1);
+			break;
+		}
+
+		/* DRAW THE GAME */
 		// draw animation text (for level up or game over)
-		char text[100];
 		glPushMatrix(); {
 			if (gameEnd || luAnimation) {
 				printText();
@@ -550,7 +565,7 @@ void ofApp::draw(){
 		} glPopMatrix();
 
 
-		// draw the game
+		// draw the game pieces
 		glPushMatrix(); {
 			glRotated(pyramidShakeAngle, 1, 0, 1);
 
@@ -570,7 +585,20 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
+	// start game menu exit
+	if (gameStart) {
+		if (key == ' ') {
+			gameStart = false;
+
+			luAnimation = true;
+			textAnimationStage = TextAnimationStage::START;
+			viewType = 0;
+			//setupTextAnimation("LEVEL 1", "");
+		}
+		return;
+	}
+
 	// basic debug and view key presses
 	switch (key) {
 	case '1':
@@ -641,18 +669,6 @@ void ofApp::keyPressed(int key){
 
 	// deactivate key press while level up animation is running
 	if (luAnimation) {
-		return;
-	}
-
-	// start game menu exit
-	if (gameStart) {
-		if (key == ' ') {
-			gameStart = false;
-
-			luAnimation = true;
-			textAnimationStage = TextAnimationStage::START;
-			//setupTextAnimation("LEVEL 1", "");
-		}
 		return;
 	}
 
