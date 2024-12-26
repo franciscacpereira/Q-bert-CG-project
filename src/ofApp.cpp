@@ -25,7 +25,7 @@ void ofApp::setup() {
 	pyramidCubeSize = 50;
 	currentPyramidLevel = 7;
 	pyramid = new Pyramid(currentPyramidLevel, pyramidCubeSize);
-	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 2);
+	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 10 * 0.1); //-(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	// animations
 	pyramidShakeAngle = 0;
@@ -195,6 +195,7 @@ void ofApp::update(){
 			// kill all objects
 			//this->qbert->isDead = true;
 			//for (int i = 0; i < maxBalls; i++) balls[i].isDead = true;
+			viewType = 0;
 			textAnimationStage = TextAnimationStage::START;
 			gameEnd = true;
 		}
@@ -387,7 +388,7 @@ void ofApp::update(){
 
 	/* UPDATE CAMERA VARIABLES */
 	// ortho view
-	isometricCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
+	isometricCameraDistance = (sqrt(2) * (pyramid->tileSize * pyramid->maxLevel)) * 4; //+ (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
 	orthoAdjust = 200;
 	orthoRatio = pyramid->maxLevel * (pyramid->tileSize / 1000); //1; //pyramid->tileSize * 0.35 / 50;
 
@@ -526,9 +527,8 @@ void ofApp::draw(){
 		} glPopMatrix();
 	}
 	else {
-
 		/* DRAW THE GAME */
-		// draw animation text (for level up or game over)
+		// draw animation text (for level up, game over or game won)
 		glPushMatrix(); {
 			if (gameEnd || luAnimation) {
 				printText();
@@ -538,7 +538,6 @@ void ofApp::draw(){
 
 		// draw the game pieces
 		glPushMatrix(); {
-
 			glRotated(pyramidShakeAngle, 1, 0, 1);
 
 			for (int i = 0; i < qbert->lives; i++) lives[i].draw();
@@ -553,6 +552,9 @@ void ofApp::draw(){
 			draw3DAxis();
 
 		} glPopMatrix();
+
+		// draw the game background
+		//drawBackground();
 	}
 }
 
@@ -647,9 +649,7 @@ void ofApp::keyPressed(int key) {
 	// reset game
 	if (gameOver || gameWon || gameEnd) {
 		if (key == 'r') {
-			int curentView = viewType;
 			setup();
-			viewType = curentView;
 		}
 		return;
 	}
@@ -909,6 +909,8 @@ void ofApp::setupTextAnimation(string mainText, string subText, ofVec3f originPo
 	textScaleTarget = targetScale;
 }
 
+// opening screen
+// version that uses no glOrtho or view types
 void ofApp::drawOpeningScreen() {
 	float logoHeight = 200;
 	float logoWidth = 600;
@@ -978,6 +980,8 @@ void ofApp::drawOpeningScreen() {
 	} glPopMatrix();
 }
 
+// opening screen
+// version that uses glOrtho and view types to make it sit on top of the pyramid (if it was shown)
 void ofApp::drawOpeningScreen_2() {
 	// everything is drawn in the center of the screen
 	// all letters have a height of 6 units (because they have a height of 6 cube that form each character)
@@ -1041,9 +1045,17 @@ void ofApp::drawOpeningScreen_2() {
 
 		} glPopMatrix();
 
-		// debug axis
-		glScaled(1000, 1000, 1000);
-		draw3DAxis();
+	} glPopMatrix();
+}
 
+void ofApp::drawBackground() {
+	float size = pyramid->tileSize * pyramid->maxLevel * 10;
+
+	glPushMatrix(); {
+		setColor(CYAN);
+		glTranslated(size * 0.44, size * 0.44, size * 0.44);
+		glScaled(size, size, size);
+		//drawLines();
+		unitCubeGrid(10, 10);
 	} glPopMatrix();
 }

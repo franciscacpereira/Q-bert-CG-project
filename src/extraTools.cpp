@@ -377,3 +377,74 @@ void drawCylinder(float bottomRadius, float topRadius, float height, int nbrFace
 	glEnd();
 	*/
 }
+
+// draw unitary grid with m x n squares
+void unitGrid(GLint m, GLint n) {
+	GLfloat x_start = -0.5;
+	GLfloat y_start = -0.5;
+	GLfloat x_step = 1.0 / GLfloat(m);
+	GLfloat y_step = 1.0 / GLfloat(n);
+
+	glBegin(GL_QUADS);
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			glVertex2d(i * x_step + x_start, j * y_step + y_start);
+			glVertex2d(i * x_step + x_start, (j + 1) * y_step + y_start);
+			glVertex2d((i + 1) * x_step + x_start, (j + 1) * y_step + y_start);
+			glVertex2d((i + 1) * x_step + x_start, j * y_step + y_start);
+		}
+	}
+	glEnd();
+}
+
+// draw unitary grid in cube with unitGrid()
+void unitCubeGrid(GLint m, GLint n) {
+
+	// top
+	glColor3f(0, 0, 1);				// use to have a different color in each face
+	glPushMatrix();
+	glTranslated(0., -0.5, 0.);		// move up in y axis
+	glRotated(90, 1, 0, 0);
+	unitGrid(m, n);
+	glPopMatrix();
+
+	// bottom
+	glColor3f(0, 1, 0);
+	glPushMatrix();
+	glTranslated(0., 0.5, 0);		// move down in y axis
+	glRotated(270, 1, 0, 0);
+	unitGrid(m, n);
+	glPopMatrix();
+
+	// left
+	glColor3f(1, 0, 0);
+	glPushMatrix();
+	glTranslated(-0.5, 0., 0.);		// move left in x axis
+	glRotated(270, 0, 1, 0);
+	unitGrid(m, n);
+	glPopMatrix();
+
+	// right
+	glColor3f(1, 1, 0);
+	glPushMatrix();
+	glTranslated(0.5, 0., 0.);		// move right in x axis
+	glRotated(90, 0, 1, 0);
+	unitGrid(m, n);
+	glPopMatrix();
+
+	// back
+	glColor3f(1, 0, 1);
+	glPushMatrix();
+	glTranslated(0., 0., -0.5);		// move back in z axis
+	glRotated(180, 0, 1, 0);
+	unitGrid(m, n);
+	glPopMatrix();
+
+	// front
+	glColor3f(0, 1, 1);
+	glPushMatrix();
+	glTranslated(0., 0., 0.5);		// move front in z axis
+	// ...                          // no need to rotate
+	unitGrid(m, n);
+	glPopMatrix();
+}

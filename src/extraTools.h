@@ -32,5 +32,7 @@ void unitCube();
 void unitSphere();
 void drawSphere(GLint, GLint, GLfloat);
 void drawCylinder(GLfloat, GLfloat, GLfloat, GLint);
+void unitGrid(GLint, GLint);
+void unitCubeGrid(GLint, GLint);
 
 #endif // EXTRATOOLS_H
