@@ -44,6 +44,7 @@ class ofApp : public ofBaseApp{
 		void printText();
 		void setupTextAnimation(string mainText, string subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
 		void drawOpeningScreen();
+		void drawOpeningScreen_2();
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;

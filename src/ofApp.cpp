@@ -454,75 +454,78 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	/* DRAW THE SCENE */
+	switch (viewType) {
+	case 0:
+		// 2D isometric front view
+		glViewport(0, 0, gw(), gh());
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
+		break;
+	case 1:
+		// 3D side view
+		glViewport(0, 0, gw(), gh());
+
+		perspective(lensAngle, alpha, beta);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 3), 0, 0, 1, 0);
+		break;
+	case 2:
+		// create small viewport off whole matrix to make first person view more easy to play
+		glViewport(gw() - gw() * 0.3, gh() - gh() * 0.3, gw() * 0.25, gh() * 0.25);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
+
+		glPushMatrix(); {
+			for (int i = 0; i < maxBalls; i++) {
+				balls[i].draw();
+			}
+
+			if (drawQbert) qbert->draw();
+			pyramid->draw();
+		} glPopMatrix();
+
+		// first person view
+		glViewport(0, 0, gw(), gh());
+
+		perspective(fpLensAngle, fpAlpha, fpBeta);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		lookat(fpCamera.x, fpCamera.y, fpCamera.z, fpTarget.x, fpTarget.y, fpTarget.z, 0, 1, 0);
+		break;
+	case 3:
+		// random tests
+		//glViewport(0, 0, gw(), gh());
+
+		glTranslated(gw() / 2, gh() / 2, 0);
+		glRotated(debugRotationX, 1, 0, 0);
+		glRotated(debugRotationY, 0, 1, 0);
+		glRotated(debugRotationZ, 0, 0, 1);
+		break;
+	}
+
 	if (gameStart) {
 		// game start screen
-		drawOpeningScreen();
+		glPushMatrix(); {
+			drawOpeningScreen_2();
+		} glPopMatrix();
 	}
 	else {
-		/* DRAW THE SCENE */
-		switch (viewType) {
-		case 0:
-			// 2D isometric front view
-			glViewport(0, 0, gw(), gh());
-
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
-		
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
-			break;
-		case 1:
-			// 3D side view
-			glViewport(0, 0, gw(), gh());
-
-			perspective(lensAngle, alpha, beta);
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			lookat(perspectiveCameraDistance / 4, perspectiveCameraDistance / 3, perspectiveCameraDistance / 2, 0, pyramid->tileSize * (pyramid->maxLevel / 3), 0, 0, 1, 0);
-			break;
-		case 2:
-			// create small viewport off whole matrix to make first person view more easy to play
-			glViewport(gw() - gw() * 0.3, gh() - gh() * 0.3, gw() * 0.25, gh() * 0.25);
-
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glOrtho(-gw() * orthoRatio, gw() * orthoRatio, (-gh() + orthoAdjust) * orthoRatio, (gh() + orthoAdjust) * orthoRatio, -isometricCameraDistance, isometricCameraDistance);
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
-
-			glPushMatrix(); {
-				for (int i = 0; i < maxBalls; i++) {
-					balls[i].draw();
-				}
-
-				if (drawQbert) qbert->draw();
-				pyramid->draw();
-			} glPopMatrix();
-
-			// first person view
-			glViewport(0, 0, gw(), gh());
-
-			perspective(fpLensAngle, fpAlpha, fpBeta);
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-			lookat(fpCamera.x, fpCamera.y, fpCamera.z, fpTarget.x, fpTarget.y, fpTarget.z, 0, 1, 0);
-			break;
-		case 3:
-			// random tests
-			//glViewport(0, 0, gw(), gh());
-
-			glTranslated(gw() / 2, gh() / 2, 0);
-			glRotated(debugRotationX, 1, 0, 0);
-			glRotated(debugRotationY, 0, 1, 0);
-			glRotated(debugRotationZ, 0, 0, 1);
-			break;
-		}
 
 		/* DRAW THE GAME */
 		// draw animation text (for level up or game over)
@@ -535,6 +538,8 @@ void ofApp::draw(){
 
 		// draw the game pieces
 		glPushMatrix(); {
+			drawOpeningScreen_2();
+
 			glRotated(pyramidShakeAngle, 1, 0, 1);
 
 			for (int i = 0; i < qbert->lives; i++) lives[i].draw();
@@ -916,8 +921,8 @@ void ofApp::drawOpeningScreen() {
 	float textSpacing = textHeight * 2.5;
 
 	glPushMatrix(); {
+		// set the text position right
 		glTranslatef(gw() / 2, gh() / 2, 0);
-		//glScaled(20, 20, 20);
 
 		// logo
 		glPushMatrix(); {
@@ -957,6 +962,74 @@ void ofApp::drawOpeningScreen() {
 						glTranslated(-textHeight * 4.5, textOffset, 0);
 						glScalef(textHeight * 5, textHeight * 2, textSize);
 						glScaled(1, -1, 1);		// flip upside down (because there is no glOrtho)
+
+						unitCube();
+					} glPopMatrix();
+				}
+
+				textOffset += textSpacing + textHeight;
+			}
+
+		} glPopMatrix();
+
+		// debug axis
+		glScaled(1000, 1000, 1000);
+		draw3DAxis();
+
+	} glPopMatrix();
+}
+
+void ofApp::drawOpeningScreen_2() {
+	// everything is drawn in the center of the screen
+	// all letters have a height of 6 units (because they have a height of 6 cube that form each character)
+	float logoHeight = 40;
+	float logoWidth = 150;
+	
+	float textHeight = this->gameStartText[0].characterUnitHeight;
+	float textOffset = 0;
+	float textSpacing = textHeight * 2.5;
+
+	glPushMatrix(); {
+		// set the text position right
+		glTranslated(textTranslation.x, textTranslation.y, textTranslation.z);
+		glRotated(45, 0, 1, 0);
+		glRotated(-textRotation, 1, 0, 0);
+		glScaled(textScale.x * 0.3, textScale.y * 0.3, textScale.z * 0.3);
+
+
+		// logo
+		glPushMatrix(); {
+			glTranslatef(0, logoHeight, 0);		// move the logo to sit above the middle of the screen line
+			glScalef(logoWidth, logoHeight, 1);
+			unitCube();
+		} glPopMatrix();
+
+		// text
+		glPushMatrix(); {
+			//glTranslatef(0, logoHeight * 0.3, 0);		// move the text to sit above the logo
+
+			// text
+			for (int i = 0; i < this->gameStartText.size(); i++) {
+				glPushMatrix(); {
+					glTranslated(0, -textOffset, 0);
+
+					this->gameStartText[i].draw();
+				} glPopMatrix();
+
+				if (i == 0) {
+					// space key image
+					glPushMatrix(); {
+						glTranslated(-textHeight * 1.5, -textOffset, 0);
+						glScalef(textHeight * 5, textHeight * 3, 1);
+
+						unitCube();
+					} glPopMatrix();
+				}
+				else if (i == 2) {
+					// controls image
+					glPushMatrix(); {
+						glTranslated(-textHeight * 4.5, -textOffset, 0);
+						glScalef(textHeight * 5, textHeight * 2, 1);
 
 						unitCube();
 					} glPopMatrix();
