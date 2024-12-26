@@ -7,9 +7,11 @@
 #include "Pyramid.h"
 #include "Qbert.h"
 #include "Ball.h"
+#include "Text.h"
 
 #include <random>
 #include <iostream>
+#include <string>
 
 enum class TextAnimationStage { DEACTIVATED, START, SHOW, STAY, EXIT};
 
@@ -39,8 +41,8 @@ class ofApp : public ofBaseApp{
 		void cheatGame();
 
 		void printStartInstructionsConsole();
-		void printText(char* text);
-		void setupTextAnimation(char* mainText, char* subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
+		void printText();
+		void setupTextAnimation(string mainText, string subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
@@ -108,14 +110,18 @@ class ofApp : public ofBaseApp{
 		float textAnimationProgress;
 		float textAnimationTime;
 		float textAnimationDuration;
-		char* mainText;
-		char* subText;
+		string mainText;
+		string subText;
 		TextAnimationStage textAnimationStage;
 
 		// text variables 
 		ofVec3f textTranslation;
 		ofVec3f textScale;
 		float textRotation;
+
+		Text* dynamicMainText;
+		Text* dynamicSubText;
+		Text* gameStartText;
 
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;

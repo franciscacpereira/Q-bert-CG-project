@@ -51,6 +51,10 @@ void ofApp::setup() {
 	mainText = subText = "";
 	textAnimationStage = TextAnimationStage::DEACTIVATED;
 
+	dynamicMainText = new Text();
+	dynamicSubText = new Text();
+	gameStartText = new Text("QBERT");
+
 	// qbert
 	drawQbert = true;
 	GLfloat qbertSize = pyramid->tileSize * PYRAMID_TO_QBERT_RATIO;
@@ -128,7 +132,7 @@ void ofApp::update(){
 	// update text vectors
 	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
 	textTranslation = ofVec3f(pyramidSide * sqrt(2) / 3, pyramidSide * 2 / 3, pyramidSide * sqrt(2) / 3);
-	textScale = ofVec3f(pyramidSide * sqrt(2) * 0.8, pyramidSide * 0.4, pyramid->tileSize);
+	textScale = ofVec3f(pyramidCubeSize * 0.3, pyramidCubeSize * 0.3, pyramidCubeSize * 0.3);
 	textRotation = atan(textTranslation.x / textTranslation.y) * 180 / PI;
 
 
@@ -156,15 +160,18 @@ void ofApp::update(){
 
 			// activate text animation
 			textAnimationStage = TextAnimationStage::START;
-
+			currentGameLevel++;
+			
 			if (currentGameLevel > maxGameLevel) {
 				// end of game animation
 				gameEnd = true;
+				luAnimation = false;
 			}
 			else {
 				// level up animation
-				luAnimation = true;
 				currentPyramidLevel++;
+				luAnimation = true;
+				gameEnd = false;
 			}
 		}
 	}
@@ -227,7 +234,7 @@ void ofApp::update(){
 				textScaleCurrent = textScaleTarget;
 
 				// move up to next stage
-				textAnimationDuration = 2;
+				textAnimationDuration = 1.5;
 				textAnimationTime = currentTime;
 				textAnimationStage = TextAnimationStage::STAY;
 			}
@@ -250,7 +257,7 @@ void ofApp::update(){
 					// move up to next stage
 					textAnimationStage = TextAnimationStage::EXIT;
 
-					ofVec3f camera = ofVec3f(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2);
+					ofVec3f camera = ofVec3f(isometricCameraDistance * 0.6, isometricCameraDistance * 0.6, isometricCameraDistance * 0.6);
 					setupTextAnimation(mainText, subText, textTranslation, camera, textScale, 10 * textScale);
 				}
 			}
@@ -285,6 +292,13 @@ void ofApp::update(){
 
 				ofVec3f newScale = textScaleStart.getInterpolated(textScaleTarget, textAnimationProgress);
 				textScaleCurrent = newScale;
+
+				// check if next stage will be the final one
+				if (textAnimationProgress >= 0.95) {
+					// fill the whole screen with the text
+					dynamicMainText->setText("###");
+					textScaleCurrent *= 10;
+				}
 			}
 
 			break;
@@ -335,7 +349,7 @@ void ofApp::update(){
 
 
 	// reposition qbert after death and game is running (else stays dead)
-	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon) {
+	if (this->qbert->isDead && this->qbert->lives > 0 && !gameWon && !gameEnd) {
 		drawQbert = true;
 		this->qbert->activate();
 	}
@@ -511,14 +525,17 @@ void ofApp::draw(){
 		glRotated(debugRotationY, 0, 1, 0);
 		glRotated(debugRotationZ, 0, 0, 1);
 		break;
+
 	}
 
 	/* DRAW THE GAME */
 
 	if (gameStart) {
 		// draw the start screen
-
-		// to be implemented ...
+		glPushMatrix(); {
+			glScaled(50, 50, 50);
+			gameStartText->draw();
+		} glPopMatrix();
 
 		glScaled(1000, 1000, 1000);
 		draw3DAxis();
@@ -527,17 +544,8 @@ void ofApp::draw(){
 		// draw animation text (for level up or game over)
 		char text[100];
 		glPushMatrix(); {
-			if (gameEnd) {
-				if (qbert->lives <= 0) {
-					printText("GAME OVER");
-				}
-				else {
-					printText("YOU WON");
-				}
-			}
-			else if (luAnimation) {
-				sprintf(text, "LEVEL %d", currentGameLevel);
-				printText(text);
+			if (gameEnd || luAnimation) {
+				printText();
 			}
 		} glPopMatrix();
 
@@ -875,7 +883,7 @@ void ofApp::printStartInstructionsConsole() {
 	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
 }
 
-void ofApp::printText(char* text) {
+void ofApp::printText() {
 	glPushMatrix(); {
 		glTranslated(textCurrentPosition.x, textCurrentPosition.y, textCurrentPosition.z);
 		glRotated(45, 0, 1, 0);
@@ -883,21 +891,27 @@ void ofApp::printText(char* text) {
 		glScaled(textScaleCurrent.x, textScaleCurrent.y, textScaleCurrent.z);
 		
 		/////////////////////////////
-		drawLines();
-		setColor(Color::GREEN);
-		unitCube();
+		dynamicMainText->draw();
 
-		drawFilled();
-		setColor(Color::WHITE);
-		unitCube();
+		if (!dynamicSubText->isTextNull()) {
+			glPushMatrix(); {
+				glTranslated(0, -((dynamicSubText->characterUnitHeight / 2) + 2), 0);
+				glScalef(0.4, 0.4, 0.4);
+				dynamicSubText->draw();
+			} glPopMatrix();
+		}
 		////////////////////////////
 
 	} glPopMatrix();
 }
 
-void ofApp::setupTextAnimation(char* mainText, char* subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale) {
+void ofApp::setupTextAnimation(string mainText, string subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale) {
 	// define interpolation variables
 	textAnimationProgress = 0;
+	this->mainText = mainText;
+	this->subText = subText;
+	dynamicMainText->setText(mainText);
+	dynamicSubText->setText(subText);
 
 	// define start position and scale
 	textStartPosition = textCurrentPosition = originPos;
