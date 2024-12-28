@@ -46,10 +46,11 @@ void ofApp::setup() {
 
 	dynamicMainText = new Text();
 	dynamicSubText = new Text();
-	gameStartText = vector<Text>(3);
-	gameStartText[0].setText("Use                  to move");
-	gameStartText[1].setText("Don't fall off the pyramid!");
-	gameStartText[2].setText("Press                    to start the game");
+	gameStartText = vector<Text>(4);
+	gameStartText[0].setText("Use                        to move");
+	gameStartText[1].setText("Jump on all tiles to win");
+	gameStartText[2].setText("Careful! Don't fall off the pyramid");
+	gameStartText[3].setText("Press                    to start the game");
 
 	// qbert
 	drawQbert = true;
@@ -83,7 +84,12 @@ void ofApp::setup() {
 		lives.push_back(Qbert(startPos, qbertSize, 0, 0, 0, maxLives));
 	}
 
-
+	/* INIT TEXTURE VARIABLES */
+	ofDisableArbTex();				// enable the use of normalized texture coordinates
+	background.load("sky.png");
+	logo.load("logo-2.png");
+	arrowKeys.load("keys.png");
+	spaceKey.load("space.png");
 
 	/* INIT CAMERA VARIABLES */
 	viewType = 0;
@@ -525,6 +531,9 @@ void ofApp::draw(){
 		glPushMatrix(); {
 			drawOpeningScreen_2();
 		} glPopMatrix();
+
+		// draw the game background
+		//drawBackground();
 	}
 	else {
 		/* DRAW THE GAME */
@@ -554,7 +563,7 @@ void ofApp::draw(){
 		} glPopMatrix();
 
 		// draw the game background
-		//drawBackground();
+		drawBackground();
 	}
 }
 
@@ -634,12 +643,14 @@ void ofApp::keyPressed(int key) {
 		break;
 
 	case 'w':
+		cout << "CHEAT GAME!" << endl;
 		cheatGame();
 		return;
 
 	default:
 		break;
 	}
+
 
 	// deactivate key press while level up animation is running
 	if (luAnimation) {
@@ -992,7 +1003,7 @@ void ofApp::drawOpeningScreen_2() {
 
 
 	float logoHeight = textHeight * 7;
-	float logoWidth = charLength * 45;
+	float logoWidth = logoHeight * 1200 / 410; //charLength * 45;
 
 	glPushMatrix(); {
 		// set the text position right
@@ -1003,15 +1014,28 @@ void ofApp::drawOpeningScreen_2() {
 
 
 		// logo
-		glPushMatrix(); {
-			glTranslatef(0, logoHeight, 0);		// move the logo to sit above the middle of the screen line
-			glScalef(logoWidth, logoHeight, 1);
-			unitCube();
-		} glPopMatrix();
+		glEnable(GL_TEXTURE); {
+			logo.bind();
+
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+			glPushMatrix(); {
+				glTranslatef(0, logoHeight, 0);		// move the logo to sit above the middle of the screen line
+				glScalef(logoWidth, -logoHeight, 1);
+				unitTextureCube(1, true);
+			} glPopMatrix();
+
+			logo.unbind();
+		} glDisable(GL_TEXTURE);
 
 		// text
 		glPushMatrix(); {
-			//glTranslatef(0, logoHeight * 0.3, 0);		// move the text to sit above the logo
+			glTranslatef(0, logoHeight * 0.1, 0);		// move the text to sit above the logo
 
 			// text
 			for (int i = 0; i < this->gameStartText.size(); i++) {
@@ -1022,27 +1046,60 @@ void ofApp::drawOpeningScreen_2() {
 				} glPopMatrix();
 
 				if (i == 0) {
-					// space key image
-					glPushMatrix(); {
-						glTranslated(-textHeight * 1.5, -textOffset, 0);
-						glScalef(textHeight * 5, textHeight * 3, 1);
+					// arrow keys image
+					glEnable(GL_TEXTURE); {
+						arrowKeys.bind();
 
-						unitCube();
-					} glPopMatrix();
+						glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+						glPushMatrix(); {
+							glTranslated(-textHeight * 1.5, -textOffset, 0);
+							glScalef(textHeight * 5.5, -textHeight * 5.5 * 541 / 719, 1);
+							unitTextureCube(1, true);
+						} glPopMatrix();
+
+						arrowKeys.unbind();
+					} glDisable(GL_TEXTURE);
 				}
-				else if (i == 2) {
-					// controls image
-					glPushMatrix(); {
-						glTranslated(-textHeight * 4.5, -textOffset, 0);
-						glScalef(textHeight * 5, textHeight * 2, 1);
+				else if (i == 3) {
+					// space key image
+					glEnable(GL_TEXTURE); {
+						spaceKey.bind();
 
-						unitCube();
-					} glPopMatrix();
+						glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+						glPushMatrix(); {
+							glTranslated(-textHeight * 4.5, -textOffset, 0);
+							glScalef(textHeight * 5, -textHeight * 2, 1);
+
+							unitTextureCube(1, true);
+						} glPopMatrix();
+
+						spaceKey.unbind();
+					} glDisable(GL_TEXTURE);
 				}
 
 				textOffset += textSpacing + textHeight;
 			}
 
+		} glPopMatrix();
+
+		// draw home screen background
+		glPushMatrix(); {
+			setColor(PINK);
+			glTranslated(0, 0, -1);
+			glScaled(gw(), gh(), 1);
+			unitCube();
 		} glPopMatrix();
 
 	} glPopMatrix();
@@ -1051,11 +1108,23 @@ void ofApp::drawOpeningScreen_2() {
 void ofApp::drawBackground() {
 	float size = pyramid->tileSize * pyramid->maxLevel * 10;
 
+	glEnable(GL_TEXTURE);
+	background.bind();
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
 	glPushMatrix(); {
-		setColor(CYAN);
 		glTranslated(size * 0.44, size * 0.44, size * 0.44);
 		glScaled(size, size, size);
 		//drawLines();
-		unitCubeGrid(10, 10);
+		unitTextureCube(10, false);
 	} glPopMatrix();
+
+	background.unbind();
+	glDisable(GL_TEXTURE);
 }

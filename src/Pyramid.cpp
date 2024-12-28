@@ -139,7 +139,6 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		setColor(Color::GREEN);
 		drawLines();
 		unitCube();
-
 	} glPopMatrix();
 
 	drawFilled();

@@ -117,6 +117,13 @@ class ofApp : public ofBaseApp{
 		Text* dynamicSubText;
 		vector<Text> gameStartText;
 
+		/* GAME TEXTURE VARIABLES */
+		ofImage background;
+		ofImage logo;
+		ofImage spaceKey;
+		ofImage arrowKeys;
+
+
 		/* GAME STATE VARIABLES */ 
 		bool enemyActivated;
 		bool gameOver;
