@@ -12,6 +12,7 @@
 #include "extraTools.h"
 #include "colorTools.h"
 #include "movementTools.h"
+#include "materialTools.h"
 
 #define PYRAMID_TO_QBERT_RATIO 0.6
 

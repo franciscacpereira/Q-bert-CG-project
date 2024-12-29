@@ -87,8 +87,8 @@ void ofApp::setup() {
 
 	/* INIT TEXTURE VARIABLES */
 	ofDisableArbTex();				// enable the use of normalized texture coordinates
-	background.load("stars.png");
-	logo.load("logo.png");
+	background.load("sky.png");
+	logo.load("logo-2.png");
 	arrowKeys.load("arrowKkeys.png");
 	spaceKey.load("space.png");
 
@@ -568,7 +568,7 @@ void ofApp::draw(){
 		} glPopMatrix();
 
 		// draw the game background
-		//drawBackground();
+		drawBackground();
 	}
 }
 
@@ -1018,6 +1018,7 @@ void ofApp::drawOpeningScreen_2() {
 
 
 		// logo
+		setMaterial(PEARL);
 		glEnable(GL_TEXTURE); {
 			logo.bind();
 
@@ -1099,10 +1100,10 @@ void ofApp::drawOpeningScreen_2() {
 
 		// draw home screen background
 		glPushMatrix(); {
-			//setColor(PINK);
+			setMaterial(OBSIDIAN);
 			glTranslated(0, 0, -1);
 			glScaled(gw(), gh(), 1);
-			//unitCube();
+			unitCube();
 		} glPopMatrix();
 
 	} glPopMatrix();
@@ -1111,6 +1112,7 @@ void ofApp::drawOpeningScreen_2() {
 void ofApp::drawBackground() {
 	float size = pyramid->tileSize * pyramid->maxLevel * 10;
 
+	setMaterial(PEARL);
 	glEnable(GL_TEXTURE);
 	background.bind();
 
@@ -1125,7 +1127,7 @@ void ofApp::drawBackground() {
 		glTranslated(size * 0.44, size * 0.44, size * 0.44);
 		glScaled(size, size, size);
 		//drawLines();
-		unitTextureCube(10, false);
+		invertedUnitTextureCube(10, false);
 	} glPopMatrix();
 
 	background.unbind();
@@ -1136,6 +1138,7 @@ void ofApp::drawLights() {
 	// setup light definitions
 	glEnable(GL_LIGHTING);
 	glEnable(GL_NORMALIZE);
+	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_COLOR_MATERIAL);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);

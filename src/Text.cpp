@@ -36,6 +36,7 @@ void Text::draw() {
 	int xOffset = 0;		// used to translate the characters to the right of the text
 	char character;
 
+	setMaterial(GREEN_PLASTIC);
 	glPushMatrix(); {
 		// center text in the origin
 		glTranslatef(-this->textUnitLength / 2, (this->textUnitHeight / 2) * unit, 0);

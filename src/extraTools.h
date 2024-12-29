@@ -30,6 +30,7 @@ void unitCircle();
 void drawCircle(GLfloat, GLint);
 void unitCube();
 void unitTextureCube(GLint, bool);
+void invertedUnitTextureCube(GLint, bool);
 void unitSphere();
 void drawSphere(GLint, GLint, GLfloat);
 void drawCylinder(GLfloat, GLfloat, GLfloat, GLint);

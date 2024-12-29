@@ -11,6 +11,7 @@
 #include "extraTools.h"
 #include "colorTools.h"
 #include "movementTools.h"
+#include "materialTools.h"
 
 class Ball {
 public:

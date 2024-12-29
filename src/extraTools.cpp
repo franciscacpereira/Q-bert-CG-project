@@ -338,6 +338,134 @@ void unitTextureCube(GLint tilingFactor, bool frontOnly) {
 }
 
 
+// function to draw an inverted unit cube that allows for texture usage (light can be inside the cube)
+// cube visualization:
+//         8 ------- 5
+//        /|        /|
+//       / |       / |
+//      1 ------- 4  |
+//      |  7 ------- 6
+//      | /       | /
+//      |/        |/
+//      2 ------- 3
+void invertedUnitTextureCube(GLint tilingFactor, bool frontOnly) {
+	float p = 0.5;
+	glBegin(GL_QUADS); {
+
+		// front (z is positive)
+		glNormal3f(0, 0, -1);
+
+		glTexCoord2f(0, 0);
+		glVertex3f(-p, -p, p);	    // 1
+		glTexCoord2f(0, 1 * tilingFactor);
+		glVertex3f(-p, p, p);	    // 2
+		glTexCoord2f(1 * tilingFactor, 1 * tilingFactor);
+		glVertex3f(p, p, p);        // 3
+		glTexCoord2f(1 * tilingFactor, 0);
+		glVertex3f(p, -p, p);	    // 4
+
+		if (frontOnly) {
+			// back (z is negative)
+			glNormal3f(0, 0, 1);
+			glVertex3f(p, -p, -p);		// 5
+			glVertex3f(p, p, -p);		// 6
+			glVertex3f(-p, p, -p); 	    // 7
+			glVertex3f(-p, -p, -p);		// 8
+
+			// top (y is negative)
+			glNormal3f(0, -1, 0);
+			glVertex3f(-p, -p, -p);		// 8
+			glVertex3f(-p, -p, p);		// 1
+			glVertex3f(p, -p, p);		// 4
+			glVertex3f(p, -p, -p);		// 5
+
+			// bottom (y is positive)
+			glNormal3f(0, 1, 0);
+			glVertex3f(-p, p, p);		// 2
+			glVertex3f(-p, p, -p);		// 7
+			glVertex3f(p, p, -p);		// 6
+			glVertex3f(p, p, p);		// 3
+
+			// left (x is negative)
+			glNormal3f(1, 0, 0);
+			glVertex3f(-p, -p, -p);		// 8
+			glVertex3f(-p, p, -p);		// 7
+			glVertex3f(-p, p, p);		// 2
+			glVertex3f(-p, -p, p);		// 1
+
+			// right (x is positive)
+			glNormal3f(-1, 0, 0);
+			glVertex3f(p, -p, p);		// 4
+			glVertex3f(p, p, p);		// 3
+			glVertex3f(p, p, -p);		// 6
+			glVertex3f(p, -p, -p);		// 5
+		}
+		else {
+			// back (z is negative)
+			glNormal3f(0, 0, 1);
+
+			glTexCoord2d(0, 0);
+			glVertex3f(p, -p, -p);		// 5
+			glTexCoord2d(0, 1 * tilingFactor);
+			glVertex3f(p, p, -p);		// 6
+			glTexCoord2d(1 * tilingFactor, 1 * tilingFactor);
+			glVertex3f(-p, p, -p); 	    // 7
+			glTexCoord2d(1 * tilingFactor, 0);
+			glVertex3f(-p, -p, -p);		// 8
+
+			// top (y is negative)
+			glNormal3f(0, -1, 0);
+
+			glTexCoord2d(0, 0);
+			glVertex3f(-p, -p, -p);		// 8
+			glTexCoord2d(0, 1 * tilingFactor);
+			glVertex3f(-p, -p, p);		// 1
+			glTexCoord2d(1 * tilingFactor, 1 * tilingFactor);
+			glVertex3f(p, -p, p);		// 4
+			glTexCoord2d(1 * tilingFactor, 0);
+			glVertex3f(p, -p, -p);		// 5
+
+			// bottom (y is positive)
+			glNormal3f(0, 1, 0);
+
+			glTexCoord2d(0, 0);
+			glVertex3f(-p, p, p);		// 2
+			glTexCoord2d(0, 1 * tilingFactor);
+			glVertex3f(-p, p, -p);		// 7
+			glTexCoord2d(1 * tilingFactor, 1 * tilingFactor);
+			glVertex3f(p, p, -p);		// 6
+			glTexCoord2d(1 * tilingFactor, 0);
+			glVertex3f(p, p, p);		// 3
+
+			// left (x is negative)
+			glNormal3f(1, 0, 0);
+
+			glTexCoord2d(0, 0);
+			glVertex3f(-p, -p, -p);		// 8
+			glTexCoord2d(0, 1 * tilingFactor);
+			glVertex3f(-p, p, -p);		// 7
+			glTexCoord2d(1 * tilingFactor, 1 * tilingFactor);
+			glVertex3f(-p, p, p);		// 2
+			glTexCoord2d(1 * tilingFactor, 0);
+			glVertex3f(-p, -p, p);		// 1
+
+			// right (x is positive)
+			glNormal3f(-1, 0, 0);
+
+			glTexCoord2d(0, 0);
+			glVertex3f(p, -p, p);		// 4
+			glTexCoord2d(0, 1 * tilingFactor);
+			glVertex3f(p, p, p);		// 3
+			glTexCoord2d(1 * tilingFactor, 1 * tilingFactor);
+			glVertex3f(p, p, -p);		// 6
+			glTexCoord2d(1 * tilingFactor, 0);
+			glVertex3f(p, -p, -p);		// 5
+		}
+
+	} glEnd();
+}
+
+
 // function to draw a unit sphere
 void unitSphere() {
 	GLint m = 20;
