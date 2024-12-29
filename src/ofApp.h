@@ -33,6 +33,9 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		void updateLights();
+		void updateCamera();
 		
 		void levelUp();
 		void checkPyramidCollision();
@@ -133,11 +136,21 @@ class ofApp : public ofBaseApp{
 		ofVec4f dirLightDiffuse;
 		ofVec4f dirLightSpecular;
 
+		bool dirLightOn;
+		bool dirLightAmbientOn;
+		bool dirLightDiffuseOn;
+		bool dirLightSpecularOn;
+
 		// point light
 		ofVec4f pointLightPosition;
 		ofVec4f pointLightAmbient;
 		ofVec4f pointLightDiffuse;
 		ofVec4f pointLightSpecular;
+
+		bool pointLightOn;
+		bool pointLightAmbientOn;
+		bool pointLightDiffuseOn;
+		bool pointLightSpecularOn;
 
 
 		/* GAME STATE VARIABLES */ 
@@ -151,6 +164,7 @@ class ofApp : public ofBaseApp{
 
 		/* CAMERA AND VIEWPORT VARIABLES */
 		int viewType;
+		int maxViewType;
 
 		// ortho view variables
 		GLfloat isometricCameraDistance;

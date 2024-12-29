@@ -14,7 +14,6 @@ void ofApp::setup() {
 	debug = false;
 
 
-
 	/* INIT GAME VARIABLES */
 	currentGameLevel = 1;
 	maxGameLevel = 3;
@@ -28,6 +27,7 @@ void ofApp::setup() {
 	GLfloat objectDeathHeight = -(pyramid->tileSize * pyramid->maxLevel * 10 * 0.1); //-(pyramid->tileSize * pyramid->maxLevel * 2);
 
 	// animations
+	// game over
 	pyramidShakeAngle = 0;
 	shakeAmplitude = 1.5;
 	shakeFrequency = 10;
@@ -35,9 +35,11 @@ void ofApp::setup() {
 	gameOverTime = 0;
 	gameOverDuration = 2;
 
+	// victory
 	victoryAnimationTime = 0;
 	victoryAnimationDuration = gameOverDuration;
 
+	// text movement
 	ofVec3f initValues = ofVec3f(0, 0, 0);
 	textStartPosition = textTargetPosition = textCurrentPosition = initValues;
 	textScaleStart = textScaleTarget = textScaleCurrent = initValues;
@@ -88,14 +90,32 @@ void ofApp::setup() {
 	/* INIT TEXTURE VARIABLES */
 	ofDisableArbTex();				// enable the use of normalized texture coordinates
 	background.load("sky.png");
-	logo.load("logo-2.png");
-	arrowKeys.load("arrowKkeys.png");
+	logo.load("keys.png");
+	arrowKeys.load("keys.png");
 	spaceKey.load("space.png");
+
+
+	/* INIT LIGHT VARIABLES */
+	// directional light
+	dirLightOn = false;
+	dirLightAmbientOn = true;
+	dirLightDiffuseOn = true;
+	dirLightSpecularOn = true;
+
+	// point light
+	pointLightOn = false;
+	pointLightAmbientOn = true;
+	pointLightDiffuseOn = true;
+	pointLightSpecularOn = true;
+
+	// spot light
+	// to be implemented
 
 
 
 	/* INIT CAMERA VARIABLES */
 	viewType = 0;
+	maxViewType = 1;
 
 	isometricCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
 	orthoAdjust = 200;
@@ -126,7 +146,7 @@ void ofApp::setup() {
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
 	/* UPDATE GAME VARIABLES */
 	// calculate time per frame (delta_t)
 	float currentTime = getTime();
@@ -134,13 +154,13 @@ void ofApp::update(){
 	this->previousTime = currentTime;
 
 
-	// update text vectors
+	/* UPDATE TEXT VARIABLES */
 	GLfloat pyramidSide = pyramid->tileSize * pyramid->maxLevel;
-	textTranslation = ofVec3f(pyramidSide * sqrt(2) / 3, pyramidSide * 2 / 3, pyramidSide * sqrt(2) / 3);
+	textTranslation = ofVec3f(pyramidSide * sqrt(2) / 3, pyramidSide * 2 / 3, pyramidSide * sqrt(2) / 3);	// y = sqrt(2) * x
 	textScale = ofVec3f(pyramidSide * 0.03, pyramidSide * 0.03, pyramidSide * 0.03);
 	textRotation = atan(textTranslation.x / textTranslation.y) * 180 / PI;
 
-
+	/* UPDATE GAME OBJECTS */
 	// game won (could be any level, does not mean end of game)
 	if (pyramid->nbrFlippedTiles == pyramid->nbrTotalTiles && !luAnimation && !gameEnd) {
 
@@ -394,72 +414,16 @@ void ofApp::update(){
 
 	checkPyramidCollision();
 
+	/* UPDATE LIGHT VARIABLES */
+	updateLights();
 
 	/* UPDATE CAMERA VARIABLES */
-	// ortho view
-	isometricCameraDistance = (sqrt(2) * (pyramid->tileSize * pyramid->maxLevel)) * 4; //+ (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
-	orthoAdjust = 200;
-	orthoRatio = pyramid->maxLevel * (pyramid->tileSize / 1000); //1; //pyramid->tileSize * 0.35 / 50;
-
-	// 3d view
-	perspectiveCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (pyramid->tileSize * pyramid->maxLevel * 1.5);
-	lensAngle = 75;
-	alpha = 10;
-	beta = 1000;
-
-	// first person view
-	fpCamera.x = qbert->currentPosition.x;
-	fpCamera.y = qbert->currentPosition.y;
-	fpCamera.z = qbert->currentPosition.z;
-
-	fpTarget.x = fpTarget.y = fpTarget.z = 0;
-
-	switch (qbert->orientation) {
-	case Orientation::LEFT_DOWN:
-		fpCamera.y += qbert->size * 3;
-		fpCamera.z += qbert->size * 0.5;
-
-		fpTarget.x = fpCamera.x;
-		fpTarget.y = fpCamera.y - pyramid->tileSize * pyramid->maxLevel;
-		fpTarget.z = fpCamera.z + pyramid->tileSize * pyramid->maxLevel * 0.5;
-		break;
-
-	case Orientation::RIGHT_DOWN:
-		fpCamera.x += qbert->size * 0.5;
-		fpCamera.y += qbert->size * 3;
-
-		fpTarget.x = fpCamera.x + pyramid->tileSize * pyramid->maxLevel * 0.5;
-		fpTarget.y = fpCamera.y - pyramid->tileSize * pyramid->maxLevel;
-		fpTarget.z = fpCamera.z;
-		break;
-
-	case Orientation::LEFT_UP:
-		fpCamera.x += qbert->size * 0.5;
-		fpCamera.y += qbert->size * 3;
-
-		fpTarget.x = qbert->currentPosition.x - pyramid->tileSize;
-		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
-		fpTarget.z = qbert->currentPosition.z;
-		break;
-
-	case Orientation::RIGHT_UP:
-		fpCamera.y += qbert->size * 3;
-		fpCamera.z += qbert->size * 0.5;
-
-		fpTarget.x = qbert->currentPosition.x;
-		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
-		fpTarget.z = qbert->currentPosition.z - pyramid->tileSize;
-		break;
-	}
+	updateCamera();
 
 	/* UPDATE DEBUG VARIABLES */
 	debugRotationX += 0.5;
 	debugRotationY += 0.5;
 	debugRotationZ += 1;
-
-	if (debug) {
-		enemyActivated = false;
-	}
 }
 
 //--------------------------------------------------------------
@@ -570,80 +534,89 @@ void ofApp::draw(){
 		// draw the game background
 		drawBackground();
 	}
+
+	if (debug) {
+		// draw representaion of lights
+		glDisable(GL_LIGHTING);
+		glColor3f(1, 1, 1);
+
+		// directional light
+		glPushMatrix(); {
+			glTranslatef(dirLightPosition.x, dirLightPosition.y, dirLightPosition.z);
+			glScalef(30, 30, 30);
+			unitCube();
+		} glPopMatrix();
+
+		glPushMatrix(); {
+			glBegin(GL_LINES);
+			glVertex3f(0, 0, 0);
+			glVertex3f(dirLightPosition.x, dirLightPosition.y, dirLightPosition.z);
+			glEnd();
+		} glPopMatrix();
+
+		// point light
+		glPushMatrix(); {
+			glTranslatef(pointLightPosition.x, pointLightPosition.y, pointLightPosition.z);
+			glScalef(30, 30, 30);
+			unitCube();
+		} glPopMatrix();
+
+		// spot light
+		// to be implemented
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-	// start game menu exit
-	if (gameStart) {
-		if (key == ' ') {
-			gameStart = false;
-
-			luAnimation = true;
-			textAnimationStage = TextAnimationStage::START;
-			viewType = 0;
-		}
-		return;
-	}
-
 	// basic debug and view key presses
 	switch (key) {
 	case '1':
-		glDisable(GL_CULL_FACE);
+		dirLightAmbientOn = !dirLightAmbientOn;
 		break;
 
 	case '2':
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		dirLightDiffuseOn = !dirLightDiffuseOn;
 		break;
 
 	case '3':
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
+		dirLightSpecularOn = !dirLightSpecularOn;
 		break;
 
 	case '4':
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT_AND_BACK);
+		pointLightAmbientOn = !pointLightAmbientOn;
 		break;
 
-	case 'g':
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	case '5':
+		pointLightDiffuseOn = !pointLightDiffuseOn;
 		break;
 
-	case 'f':
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	case '6':
+		pointLightSpecularOn = !pointLightSpecularOn;
+		break;
+
+	case '7':
+		// spot light ambient
+		break;
+
+	case '8':
+		// spot light diffuse
+		break;
+
+	case '9':
+		// spot light specular
+		break;
+
+	case 'd':
+		debug = !debug;
+		maxViewType = 3;
 		break;
 
 	case 'v':
 		viewType++;
 		
-		if (viewType > 3) {
+		if (viewType > maxViewType) {
 			viewType = 0;
 		}
-		break;
-
-	case 'l':
-		fpLensAngle++;
-
-		if (fpLensAngle > 180)
-			fpLensAngle = 0;
-
-		cout << "LENS ANGLE = " << fpLensAngle << endl;
-		break;
-	
-	case 'a':
-		fpAlpha += 0.1;
-
-		cout << "ALPHA = " << fpAlpha << endl;
-		break;
-
-	case 'b':
-		fpBeta++;
-		break;
-
-	case 'd':
-		debug = !debug;
 		break;
 
 	case 'w':
@@ -654,9 +627,20 @@ void ofApp::keyPressed(int key) {
 		break;
 	}
 
-
 	// deactivate key press while level up animation is running
 	if (luAnimation) {
+		return;
+	}
+
+	// start game menu exit
+	if (gameStart) {
+		if (key == ' ') {
+			gameStart = false;
+			luAnimation = true;
+			textAnimationStage = TextAnimationStage::START;
+			viewType = 0;
+			maxViewType = 2;
+		}
 		return;
 	}
 
@@ -748,6 +732,102 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 ////////////////////////////////////////////////////////////////
+
+/////////////////////// UPDATE FUNCTIONS ///////////////////////
+
+void ofApp::updateLights() {
+	float pyramidSide = pyramid->tileSize * pyramid->maxLevel;
+
+	// directional light
+	// determine position of the light => x = -z + b (b = pyramidSize)
+	float zPos = pyramidSide * 1.5;
+	float xPos = -zPos + pyramidSide;
+
+	dirLightPosition = ofVec4f(xPos, pyramidSide * 0.5, zPos, 0);
+	(dirLightAmbientOn) ? dirLightAmbient = ofVec4f(1, 1, 1, 1) : dirLightAmbient = ofVec4f(0, 0, 0, 1);
+	(dirLightDiffuseOn) ? dirLightDiffuse = ofVec4f(1, 1, 1, 1) : dirLightDiffuse = ofVec4f(0, 0, 0, 1);
+	(dirLightSpecularOn) ? dirLightSpecular = ofVec4f(1, 1, 1, 1) : dirLightSpecular = ofVec4f(0, 0, 0, 1);
+
+	// point light
+	// determine position of the light => y = sqrt(2) * x (same as the text animation movement)
+	xPos = textCurrentPosition.x;
+	zPos = textCurrentPosition.z;
+	float yPos = xPos * sqrt(2);
+	float distanceRatio = 1.5;
+
+	if (gameStart) {
+		pointLightPosition = ofVec4f(textTranslation.x * distanceRatio, textTranslation.y * 1.3, textTranslation.z * distanceRatio, 1);
+	}
+	else {
+		pointLightPosition = ofVec4f(xPos * distanceRatio, yPos * 1.3, zPos * distanceRatio, 1);
+	}
+
+	(pointLightAmbientOn) ? pointLightAmbient = ofVec4f(1, 1, 1, 1) : pointLightAmbient = ofVec4f(0, 0, 0, 1);
+	(pointLightDiffuseOn) ? pointLightDiffuse = ofVec4f(1, 1, 1, 1) : pointLightDiffuse = ofVec4f(0, 0, 0, 1);
+	(pointLightSpecularOn) ? pointLightSpecular = ofVec4f(1, 1, 1, 1) : pointLightSpecular = ofVec4f(0, 0, 0, 1);
+
+	// spot light
+
+}
+
+void ofApp::updateCamera() {
+	// ortho view
+	isometricCameraDistance = (sqrt(2) * (pyramid->tileSize * pyramid->maxLevel)) * 4; //+ (sqrt(2) * pyramid->tileSize * pyramid->maxLevel * 0.5);
+	orthoAdjust = 200;
+	orthoRatio = pyramid->maxLevel * (pyramid->tileSize / 1000); //1; //pyramid->tileSize * 0.35 / 50;
+
+	// 3d view
+	perspectiveCameraDistance = sqrt(2) * (pyramid->tileSize * pyramid->maxLevel) + (pyramid->tileSize * pyramid->maxLevel * 1.5);
+	lensAngle = 75;
+	alpha = 10;
+	beta = 1000;
+
+	// first person view
+	fpCamera.x = qbert->currentPosition.x;
+	fpCamera.y = qbert->currentPosition.y;
+	fpCamera.z = qbert->currentPosition.z;
+
+	fpTarget.x = fpTarget.y = fpTarget.z = 0;
+
+	switch (qbert->orientation) {
+	case Orientation::LEFT_DOWN:
+		fpCamera.y += qbert->size * 3;
+		fpCamera.z += qbert->size * 0.5;
+
+		fpTarget.x = fpCamera.x;
+		fpTarget.y = fpCamera.y - pyramid->tileSize * pyramid->maxLevel;
+		fpTarget.z = fpCamera.z + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		break;
+
+	case Orientation::RIGHT_DOWN:
+		fpCamera.x += qbert->size * 0.5;
+		fpCamera.y += qbert->size * 3;
+
+		fpTarget.x = fpCamera.x + pyramid->tileSize * pyramid->maxLevel * 0.5;
+		fpTarget.y = fpCamera.y - pyramid->tileSize * pyramid->maxLevel;
+		fpTarget.z = fpCamera.z;
+		break;
+
+	case Orientation::LEFT_UP:
+		fpCamera.x += qbert->size * 0.5;
+		fpCamera.y += qbert->size * 3;
+
+		fpTarget.x = qbert->currentPosition.x - pyramid->tileSize;
+		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+		fpTarget.z = qbert->currentPosition.z;
+		break;
+
+	case Orientation::RIGHT_UP:
+		fpCamera.y += qbert->size * 3;
+		fpCamera.z += qbert->size * 0.5;
+
+		fpTarget.x = qbert->currentPosition.x;
+		fpTarget.y = qbert->currentPosition.y + pyramid->tileSize * 0.5;
+		fpTarget.z = qbert->currentPosition.z - pyramid->tileSize;
+		break;
+	}
+
+}
 
 /////////////////////// GAME DYNAMICS //////////////////////////
 
@@ -1004,6 +1084,7 @@ void ofApp::drawOpeningScreen_2() {
 	float charLength = this->gameStartText[0].textUnitLength / this->gameStartText[0].textLength;
 	float textOffset = 0;
 	float textSpacing = textHeight * 2.5;
+	Material backgroundMaterial = OBSIDIAN;
 
 
 	float logoHeight = textHeight * 7;
@@ -1018,11 +1099,11 @@ void ofApp::drawOpeningScreen_2() {
 
 
 		// logo
-		setMaterial(PEARL);
+		setMaterial(backgroundMaterial);
 		glEnable(GL_TEXTURE); {
 			logo.bind();
 
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -1100,10 +1181,10 @@ void ofApp::drawOpeningScreen_2() {
 
 		// draw home screen background
 		glPushMatrix(); {
-			setMaterial(OBSIDIAN);
+			setMaterial(backgroundMaterial);
 			glTranslated(0, 0, -1);
 			glScaled(gw(), gh(), 1);
-			unitCube();
+			//unitCube();
 		} glPopMatrix();
 
 	} glPopMatrix();
@@ -1116,7 +1197,7 @@ void ofApp::drawBackground() {
 	glEnable(GL_TEXTURE);
 	background.bind();
 
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -1146,21 +1227,21 @@ void ofApp::drawLights() {
 	glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
 
 	// directional light
-	dirLightPosition = ofVec4f(0, pyramid->maxLevel * pyramidCubeSize * 0.5, pyramid->maxLevel * pyramidCubeSize, 0);
-	dirLightAmbient = ofVec4f(1, 1, 1, 1);
-	dirLightDiffuse = ofVec4f(1, 1, 1, 1);
-	dirLightSpecular = ofVec4f(1, 1, 1, 1);
-
 	glLightfv(GL_LIGHT0, GL_POSITION, dirLightPosition.getPtr());
 	glLightfv(GL_LIGHT0, GL_AMBIENT, dirLightAmbient.getPtr());
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, dirLightDiffuse.getPtr());
 	glLightfv(GL_LIGHT0, GL_SPECULAR, dirLightSpecular.getPtr());
 
-	glEnable(GL_LIGHT0);
+	(luAnimation || gameEnd || gameStart) ? glDisable(GL_LIGHT0) : glEnable(GL_LIGHT0);
 
 	// point light
-	// to be implemented...
+	glLightfv(GL_LIGHT1, GL_POSITION, pointLightPosition.getPtr());
+	glLightfv(GL_LIGHT1, GL_AMBIENT, pointLightAmbient.getPtr());
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, pointLightDiffuse.getPtr());
+	glLightfv(GL_LIGHT1, GL_SPECULAR, pointLightSpecular.getPtr());
 
-	// sptlight
+	(luAnimation || gameEnd || gameStart) ? glEnable(GL_LIGHT1) : glDisable(GL_LIGHT1);
+
+	// spotlight
 	// to be implemented...
 }
