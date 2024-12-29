@@ -109,8 +109,12 @@ void ofApp::setup() {
 	pointLightSpecularOn = true;
 
 	// spot light
-	// to be implemented
-
+	spotLightOn = false;
+	spotLightAmbientOn = true;
+	spotLightDiffuseOn = true;
+	spotLightSpecularOn = true;
+	spotLightCutOff = 40;
+	spotLightExponent = 100;
 
 
 	/* INIT CAMERA VARIABLES */
@@ -159,6 +163,7 @@ void ofApp::update() {
 	textTranslation = ofVec3f(pyramidSide * sqrt(2) / 3, pyramidSide * 2 / 3, pyramidSide * sqrt(2) / 3);	// y = sqrt(2) * x
 	textScale = ofVec3f(pyramidSide * 0.03, pyramidSide * 0.03, pyramidSide * 0.03);
 	textRotation = atan(textTranslation.x / textTranslation.y) * 180 / PI;
+
 
 	/* UPDATE GAME OBJECTS */
 	// game won (could be any level, does not mean end of game)
@@ -377,7 +382,7 @@ void ofApp::update() {
 	}
 
 
-	// game running
+	// game is running (basic updates)
 	qbert->update();
 	pyramid->update();
 
@@ -414,11 +419,25 @@ void ofApp::update() {
 
 	checkPyramidCollision();
 
+
 	/* UPDATE LIGHT VARIABLES */
 	updateLights();
 
+	if (luAnimation || gameEnd || gameStart) {
+		dirLightOn = false; 
+		pointLightOn = true;
+		spotLightOn = false;
+	}
+	else {
+		dirLightOn = true;
+		pointLightOn = false;
+		spotLightOn = true;
+	}
+
+
 	/* UPDATE CAMERA VARIABLES */
 	updateCamera();
+
 
 	/* UPDATE DEBUG VARIABLES */
 	debugRotationX += 0.5;
@@ -538,7 +557,7 @@ void ofApp::draw(){
 	if (debug) {
 		// draw representaion of lights
 		glDisable(GL_LIGHTING);
-		glColor3f(1, 1, 1);
+		//glColor3f(1, 1, 1);
 
 		// directional light
 		glPushMatrix(); {
@@ -562,7 +581,11 @@ void ofApp::draw(){
 		} glPopMatrix();
 
 		// spot light
-		// to be implemented
+		glPushMatrix(); {
+			glTranslatef(spotLightPosition.x, spotLightPosition.y, spotLightPosition.z);
+			glScalef(30, 30, 30);
+			unitCube();
+		} glPopMatrix();
 	}
 }
 
@@ -595,15 +618,15 @@ void ofApp::keyPressed(int key) {
 		break;
 
 	case '7':
-		// spot light ambient
+		spotLightAmbientOn = !spotLightAmbientOn;
 		break;
 
 	case '8':
-		// spot light diffuse
+		spotLightDiffuseOn = !spotLightDiffuseOn;
 		break;
 
 	case '9':
-		// spot light specular
+		spotLightSpecularOn = !spotLightSpecularOn;
 		break;
 
 	case 'd':
@@ -622,6 +645,26 @@ void ofApp::keyPressed(int key) {
 	case 'w':
 		cheatGame();
 		return;
+
+	case '+':
+		spotLightCutOff += 1;
+		cout << "CutOff = " << spotLightCutOff << endl;
+		break;
+
+	case '-':
+		spotLightCutOff -= 1;
+		cout << "CutOff = " << spotLightCutOff << endl;
+		break;
+
+	case '*':
+		spotLightExponent += 1;
+		cout << "Exponent = " << spotLightExponent << endl;
+		break;
+
+	case '/':
+		spotLightExponent -= 1;
+		cout << "Exponent = " << spotLightExponent << endl;
+		break;
 
 	default:
 		break;
@@ -753,7 +796,7 @@ void ofApp::updateLights() {
 	xPos = textCurrentPosition.x;
 	zPos = textCurrentPosition.z;
 	float yPos = xPos * sqrt(2);
-	float distanceRatio = 1.5;
+	float distanceRatio = 2;
 
 	if (gameStart) {
 		pointLightPosition = ofVec4f(textTranslation.x * distanceRatio, textTranslation.y * 1.3, textTranslation.z * distanceRatio, 1);
@@ -767,7 +810,16 @@ void ofApp::updateLights() {
 	(pointLightSpecularOn) ? pointLightSpecular = ofVec4f(1, 1, 1, 1) : pointLightSpecular = ofVec4f(0, 0, 0, 1);
 
 	// spot light
+	xPos = qbert->currentPosition.x;
+	yPos = qbert->currentPosition.y + pyramidCubeSize * 3;
+	zPos = qbert->currentPosition.z;
 
+	spotLightPosition = ofVec4f(xPos, yPos, zPos, 1);
+	spotLightDirectionVector = ofVec3f(0, -1, 0);
+	
+	(spotLightAmbientOn) ? spotLightAmbient = ofVec4f(1, 1, 1, 1) : spotLightAmbient = ofVec4f(0, 0, 0, 1);
+	(spotLightDiffuseOn) ? spotLightDiffuse = ofVec4f(1, 1, 1, 1) : spotLightDiffuse = ofVec4f(0, 0, 0, 1);
+	(spotLightSpecularOn) ? spotLightSpecular = ofVec4f(1, 1, 1, 1) : spotLightSpecular = ofVec4f(0, 0, 0, 1);
 }
 
 void ofApp::updateCamera() {
@@ -828,6 +880,7 @@ void ofApp::updateCamera() {
 	}
 
 }
+
 
 /////////////////////// GAME DYNAMICS //////////////////////////
 
@@ -1182,7 +1235,7 @@ void ofApp::drawOpeningScreen_2() {
 		// draw home screen background
 		glPushMatrix(); {
 			setMaterial(backgroundMaterial);
-			glTranslated(0, 0, -1);
+			glTranslated(0, 0, 0);
 			glScaled(gw(), gh(), 1);
 			//unitCube();
 		} glPopMatrix();
@@ -1207,7 +1260,6 @@ void ofApp::drawBackground() {
 	glPushMatrix(); {
 		glTranslated(size * 0.44, size * 0.44, size * 0.44);
 		glScaled(size, size, size);
-		//drawLines();
 		invertedUnitTextureCube(10, false);
 	} glPopMatrix();
 
@@ -1221,6 +1273,10 @@ void ofApp::drawLights() {
 	glEnable(GL_NORMALIZE);
 	glShadeModel(GL_SMOOTH);
 
+	// disable ambient light
+	ofVec4f amb = ofVec4f(0, 0, 0, 1);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, amb.getPtr());
+
 	glEnable(GL_COLOR_MATERIAL);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
@@ -1232,7 +1288,7 @@ void ofApp::drawLights() {
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, dirLightDiffuse.getPtr());
 	glLightfv(GL_LIGHT0, GL_SPECULAR, dirLightSpecular.getPtr());
 
-	(luAnimation || gameEnd || gameStart) ? glDisable(GL_LIGHT0) : glEnable(GL_LIGHT0);
+	(dirLightOn) ? glEnable(GL_LIGHT0) : glDisable(GL_LIGHT0);
 
 	// point light
 	glLightfv(GL_LIGHT1, GL_POSITION, pointLightPosition.getPtr());
@@ -1240,8 +1296,25 @@ void ofApp::drawLights() {
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, pointLightDiffuse.getPtr());
 	glLightfv(GL_LIGHT1, GL_SPECULAR, pointLightSpecular.getPtr());
 
-	(luAnimation || gameEnd || gameStart) ? glEnable(GL_LIGHT1) : glDisable(GL_LIGHT1);
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.0001);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.00001);
+
+	(pointLightOn) ? glEnable(GL_LIGHT1) : glDisable(GL_LIGHT1);
 
 	// spotlight
-	// to be implemented...
+	glLightfv(GL_LIGHT2, GL_POSITION, spotLightPosition.getPtr());
+	glLightfv(GL_LIGHT2, GL_AMBIENT, spotLightAmbient.getPtr());
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, spotLightDiffuse.getPtr());
+	glLightfv(GL_LIGHT2, GL_SPECULAR, spotLightSpecular.getPtr());
+
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spotLightDirectionVector.getPtr());
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, spotLightCutOff);
+	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, spotLightExponent);
+
+	glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1);
+	glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
+	glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
+
+	(spotLightOn) ? glEnable(GL_LIGHT2) : glDisable(GL_LIGHT2);
 }

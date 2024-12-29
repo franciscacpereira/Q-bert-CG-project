@@ -34,15 +34,18 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		// update functions
 		void updateLights();
 		void updateCamera();
 		
+		// game dynamics functions
 		void levelUp();
 		void checkPyramidCollision();
 		void checkBallCollision();
 		ofVec3f getBallSpawnPoint();
 		void cheatGame();
 
+		// game animation functions
 		void printStartInstructionsConsole();
 		void printText();
 		void setupTextAnimation(string mainText, string subText, ofVec3f originPos, ofVec3f targetPos, ofVec3f originScale, ofVec3f targetScale);
@@ -151,6 +154,20 @@ class ofApp : public ofBaseApp{
 		bool pointLightAmbientOn;
 		bool pointLightDiffuseOn;
 		bool pointLightSpecularOn;
+
+		// spotlight
+		ofVec4f spotLightPosition;
+		ofVec4f spotLightAmbient;
+		ofVec4f spotLightDiffuse;
+		ofVec4f spotLightSpecular;
+		ofVec3f spotLightDirectionVector;
+		GLfloat spotLightCutOff;
+		GLfloat spotLightExponent;
+
+		bool spotLightOn;
+		bool spotLightAmbientOn;
+		bool spotLightDiffuseOn;
+		bool spotLightSpecularOn;
 
 
 		/* GAME STATE VARIABLES */ 
