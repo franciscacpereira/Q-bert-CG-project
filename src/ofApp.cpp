@@ -529,7 +529,7 @@ void ofApp::draw(){
 	if (gameStart) {
 		// game start screen
 		glPushMatrix(); {
-			drawOpeningScreen_2();
+			//drawOpeningScreen_2();
 		} glPopMatrix();
 
 		// draw the game background
@@ -563,7 +563,7 @@ void ofApp::draw(){
 		} glPopMatrix();
 
 		// draw the game background
-		drawBackground();
+		//drawBackground();
 	}
 }
 
@@ -577,7 +577,6 @@ void ofApp::keyPressed(int key) {
 			luAnimation = true;
 			textAnimationStage = TextAnimationStage::START;
 			viewType = 0;
-			//setupTextAnimation("LEVEL 1", "");
 		}
 		return;
 	}
@@ -643,7 +642,6 @@ void ofApp::keyPressed(int key) {
 		break;
 
 	case 'w':
-		cout << "CHEAT GAME!" << endl;
 		cheatGame();
 		return;
 
