@@ -87,20 +87,22 @@ void drawPoint() {
 
 // function to draw the 3D axis
 void draw3DAxis() {
-	glBegin(GL_LINES);
-	// x = red
-	glColor3f(1, 0, 0);
-	glVertex3f(0, 0, 0);
-	glVertex3f(1, 0, 0);
-	// y = green
-	glColor3f(0, 1, 0);
-	glVertex3f(0, 0, 0);
-	glVertex3f(0, 1, 0);
-	// z = blue
-	glColor3f(0, 0, 1);
-	glVertex3f(0, 0, 0);
-	glVertex3f(0, 0, 1);
-	glEnd();
+	glBegin(GL_LINES); {
+		// x = red
+		//glColor3f(1, 0, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(1, 0, 0);
+
+		// y = green
+		//glColor3f(0, 1, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 1, 0);
+
+		// z = blue
+		//glColor3f(0, 0, 1);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 0, 1);
+	} glEnd();
 }
 
 // function to draw a unit square
@@ -557,7 +559,6 @@ void unitGrid(GLint m, GLint n) {
 void unitCubeGrid(GLint m, GLint n) {
 
 	// top
-	glColor3f(0, 0, 1);				// use to have a different color in each face
 	glPushMatrix(); {
 		glTranslated(0., -0.5, 0.);		// move up in y axis
 		glRotated(90, 1, 0, 0);
@@ -565,7 +566,6 @@ void unitCubeGrid(GLint m, GLint n) {
 	} glPopMatrix();
 
 	// bottom
-	glColor3f(0, 1, 0);
 	glPushMatrix(); {
 		glTranslated(0., 0.5, 0);		// move down in y axis
 		glRotated(270, 1, 0, 0);
@@ -573,7 +573,6 @@ void unitCubeGrid(GLint m, GLint n) {
 	} glPopMatrix();
 
 	// left
-	glColor3f(1, 0, 0);
 	glPushMatrix(); {
 		glTranslated(-0.5, 0., 0.);		// move left in x axis
 		glRotated(270, 0, 1, 0);
@@ -581,7 +580,6 @@ void unitCubeGrid(GLint m, GLint n) {
 	} glPopMatrix();
 
 	// right
-	glColor3f(1, 1, 0);
 	glPushMatrix();
 	glTranslated(0.5, 0., 0.);		// move right in x axis
 	glRotated(90, 0, 1, 0);
@@ -589,7 +587,6 @@ void unitCubeGrid(GLint m, GLint n) {
 	glPopMatrix();
 
 	// back
-	glColor3f(1, 0, 1);
 	glPushMatrix(); {
 		glTranslated(0., 0., -0.5);		// move back in z axis
 		glRotated(180, 0, 1, 0);
@@ -597,7 +594,6 @@ void unitCubeGrid(GLint m, GLint n) {
 	} glPopMatrix();
 
 	// front
-	glColor3f(0, 1, 1);
 	glPushMatrix(); {
 		glTranslated(0., 0., 0.5);		// move front in z axis
 		// ...                          // no need to rotate

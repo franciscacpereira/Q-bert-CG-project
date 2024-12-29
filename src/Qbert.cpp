@@ -53,7 +53,7 @@ void Qbert::draw() {
 
 	// draw the qbert player
 	glPushMatrix(); {
-		glOrange();
+		//glOrange();
 
 		glTranslatef(this->currentPosition.x, this->currentPosition.y, this->currentPosition.z);
 		
@@ -73,7 +73,7 @@ void Qbert::draw() {
 		glScaled(this->size, this->size, this->size);
 
 		// nose stack
-		glDarkOrange();
+		//glDarkOrange();
 		glPushMatrix(); {
 			glTranslatef(0, 0, unit * 1.5);
 			glRotated(270, 1, 0, 0);
@@ -81,7 +81,7 @@ void Qbert::draw() {
 		} glPopMatrix();
 
 		// main sphere
-		glOrange();
+		//glOrange();
 		unitSphere();
 	} glPopMatrix();
 }

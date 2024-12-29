@@ -56,7 +56,7 @@ void Ball::resetPhysics() {
 
 void Ball::draw() {
 	if (this->isDead) return;
-	glPurple();
+	//glPurple();
 	glPushMatrix(); {
 		glTranslatef(this->currentPosition.x, this->currentPosition.y, this->currentPosition.z);
 		glScalef(this->size, this->size, this->size);

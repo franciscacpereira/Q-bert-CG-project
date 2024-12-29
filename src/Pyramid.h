@@ -11,6 +11,7 @@
 #include "extraTools.h"
 #include "colorTools.h"
 #include "movementTools.h"
+#include "materialTools.h"
 
 #define COLOR_CHANGE_TIME 0.1	// ms
 
@@ -41,6 +42,7 @@ public:
 
 	bool rainbowAnimation;
 	vector<Color> rainbowColors;
+	vector<Material> rainbowMaterials;
 	float colorChangeTime = COLOR_CHANGE_TIME;
 	float previousChangeTimer;
 	int currentColorIndex;

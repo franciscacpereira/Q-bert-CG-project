@@ -24,6 +24,7 @@ Pyramid::Pyramid(GLint maxLevel, GLfloat tileSize) {
 	this->shakeAnimation = false;
 	this->rainbowAnimation = false;
 	this->rainbowColors = { RED, ORANGE, YELLOW, GREEN, CYAN, DARK_BLUE, PURPLE };
+	this->rainbowMaterials = { RUBY, BRASS, GOLD, GREEN_PLASTIC, TURQUOISE, CYAN_PLASTIC, OBSIDIAN };
 	this->previousChangeTimer = 0;
 	this->currentColorIndex = 0;
 }
@@ -40,6 +41,7 @@ void Pyramid::baseSetup() {
 	this->shakeAnimation = false;
 	this->rainbowAnimation = false;
 	this->rainbowColors = { RED, ORANGE, YELLOW, GREEN, CYAN, DARK_BLUE, PURPLE };
+	this->rainbowMaterials = { RUBY, BRASS, GOLD, GREEN_PLASTIC, TURQUOISE, CYAN_PLASTIC, OBSIDIAN };
 	this->previousChangeTimer = 0;
 	this->currentColorIndex = -1;
 }
@@ -67,7 +69,7 @@ void Pyramid::update() {
 		if (elapsedTime >= this->colorChangeTime) {
 
 			this->currentColorIndex++;
-			if (this->currentColorIndex >= this->rainbowColors.size()) {
+			if (this->currentColorIndex >= this->rainbowMaterials.size()) {
 				this->currentColorIndex = 0;
 			}
 
@@ -135,23 +137,28 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 	glTranslated(center.x, center.y, center.z);
 	glScaled(this->tileSize, this->tileSize, this->tileSize);
 
+	// outline
+	/*
 	glPushMatrix(); {
-		setColor(Color::GREEN);
+		//setColor(Color::GREEN);
 		drawLines();
 		unitCube();
-	} glPopMatrix();
+	} glPopMatrix();*/
 
+	// cube
 	drawFilled();
 	glPushMatrix(); {
+		setMaterial(BRASS);
+
 		// front face
-		setColor(this->leftFaceColor);
+		//setColor(this->leftFaceColor);
 		glPushMatrix(); {
 			glTranslated(0, 0, unit);
 			unitSquare();
 		} glPopMatrix();
 
 		// back face
-		setColor(this->rightFaceColor);
+		//setColor(this->rightFaceColor);
 		glPushMatrix(); {
 			glTranslated(0, 0, -unit);
 			glRotated(180, 0, 1, 0);
@@ -159,7 +166,7 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// left face
-		setColor(this->leftFaceColor);
+		//setColor(this->leftFaceColor);
 		glPushMatrix(); {
 			glTranslated(-unit, 0, 0);
 			glRotated(270, 0, 1, 0);
@@ -167,7 +174,7 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// right face
-		setColor(this->rightFaceColor);
+		//setColor(this->rightFaceColor);
 		glPushMatrix(); {
 			glTranslated(unit, 0, 0);
 			glRotated(90, 0, 1, 0);
@@ -175,7 +182,7 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// bottom face
-		glWhite();
+		//glWhite();
 		glPushMatrix(); {
 			glTranslated(0, -unit, 0);
 			glRotated(90, 1, 0, 0);
@@ -184,14 +191,17 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 
 		// top face
 		if (this->rainbowAnimation) {
-			setColor(this->rainbowColors[this->currentColorIndex]);
+			//setColor(this->rainbowColors[this->currentColorIndex]);
+			setMaterial(this->rainbowMaterials[this->currentColorIndex]);
 		}
 		else {
 			if (!isFlipped) {
-				setColor(this->topColor);
+				//setColor(this->topColor);
+				setMaterial(SILVER);
 			}
 			else {
-				glDarkBlue();
+				//glDarkBlue();
+				setMaterial(RUBY);
 			}
 		}
 		glPushMatrix(); {

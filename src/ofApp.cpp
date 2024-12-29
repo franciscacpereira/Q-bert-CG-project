@@ -84,12 +84,15 @@ void ofApp::setup() {
 		lives.push_back(Qbert(startPos, qbertSize, 0, 0, 0, maxLives));
 	}
 
+
 	/* INIT TEXTURE VARIABLES */
 	ofDisableArbTex();				// enable the use of normalized texture coordinates
-	background.load("sky.png");
-	logo.load("logo-2.png");
-	arrowKeys.load("keys.png");
+	background.load("stars.png");
+	logo.load("logo.png");
+	arrowKeys.load("arrowKkeys.png");
 	spaceKey.load("space.png");
+
+
 
 	/* INIT CAMERA VARIABLES */
 	viewType = 0;
@@ -526,10 +529,12 @@ void ofApp::draw(){
 		break;
 	}
 
+	drawLights();
+
 	if (gameStart) {
 		// game start screen
 		glPushMatrix(); {
-			//drawOpeningScreen_2();
+			drawOpeningScreen_2();
 		} glPopMatrix();
 
 		// draw the game background
@@ -851,6 +856,7 @@ void ofApp::cheatGame() {
 	pyramid->nbrFlippedTiles = pyramid->nbrTotalTiles;
 }
 
+
 ///////////////////// GAME ANIMATIONS //////////////////////////
 
 void ofApp::printStartInstructionsConsole() {
@@ -1039,7 +1045,6 @@ void ofApp::drawOpeningScreen_2() {
 			for (int i = 0; i < this->gameStartText.size(); i++) {
 				glPushMatrix(); {
 					glTranslated(0, -textOffset, 0);
-
 					this->gameStartText[i].draw();
 				} glPopMatrix();
 
@@ -1094,10 +1099,10 @@ void ofApp::drawOpeningScreen_2() {
 
 		// draw home screen background
 		glPushMatrix(); {
-			setColor(PINK);
+			//setColor(PINK);
 			glTranslated(0, 0, -1);
 			glScaled(gw(), gh(), 1);
-			unitCube();
+			//unitCube();
 		} glPopMatrix();
 
 	} glPopMatrix();
@@ -1125,4 +1130,34 @@ void ofApp::drawBackground() {
 
 	background.unbind();
 	glDisable(GL_TEXTURE);
+}
+
+void ofApp::drawLights() {
+	// setup light definitions
+	glEnable(GL_LIGHTING);
+	glEnable(GL_NORMALIZE);
+
+	glEnable(GL_COLOR_MATERIAL);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+
+	// directional light
+	dirLightPosition = ofVec4f(0, pyramid->maxLevel * pyramidCubeSize * 0.5, pyramid->maxLevel * pyramidCubeSize, 0);
+	dirLightAmbient = ofVec4f(1, 1, 1, 1);
+	dirLightDiffuse = ofVec4f(1, 1, 1, 1);
+	dirLightSpecular = ofVec4f(1, 1, 1, 1);
+
+	glLightfv(GL_LIGHT0, GL_POSITION, dirLightPosition.getPtr());
+	glLightfv(GL_LIGHT0, GL_AMBIENT, dirLightAmbient.getPtr());
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, dirLightDiffuse.getPtr());
+	glLightfv(GL_LIGHT0, GL_SPECULAR, dirLightSpecular.getPtr());
+
+	glEnable(GL_LIGHT0);
+
+	// point light
+	// to be implemented...
+
+	// sptlight
+	// to be implemented...
 }

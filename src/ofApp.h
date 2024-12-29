@@ -46,6 +46,7 @@ class ofApp : public ofBaseApp{
 		void drawOpeningScreen();
 		void drawOpeningScreen_2();
 		void drawBackground();
+		void drawLights();
 
 		/* DEBUG VARIALES */
 		GLfloat debugRotationX, debugRotationY, debugRotationZ;
@@ -58,6 +59,7 @@ class ofApp : public ofBaseApp{
 		vector<Qbert> lives;
 		vector<Ball> balls;
 
+		// pyramid variables
 		int currentPyramidLevel;
 		int currentGameLevel;
 		int maxGameLevel;
@@ -122,6 +124,20 @@ class ofApp : public ofBaseApp{
 		ofImage logo;
 		ofImage spaceKey;
 		ofImage arrowKeys;
+
+
+		/* GAME LIGHT VARIABLES */
+		// directional light
+		ofVec4f dirLightPosition;
+		ofVec4f dirLightAmbient;
+		ofVec4f dirLightDiffuse;
+		ofVec4f dirLightSpecular;
+
+		// point light
+		ofVec4f pointLightPosition;
+		ofVec4f pointLightAmbient;
+		ofVec4f pointLightDiffuse;
+		ofVec4f pointLightSpecular;
 
 
 		/* GAME STATE VARIABLES */ 
