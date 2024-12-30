@@ -545,9 +545,6 @@ void ofApp::draw(){
 
 			pyramid->draw();
 
-			glScaled(1000, 1000, 1000);
-			draw3DAxis();
-
 		} glPopMatrix();
 
 		// draw the game background
@@ -585,6 +582,12 @@ void ofApp::draw(){
 			glTranslatef(spotLightPosition.x, spotLightPosition.y, spotLightPosition.z);
 			glScalef(30, 30, 30);
 			unitCube();
+		} glPopMatrix();
+
+		// axis
+		glPushMatrix(); {
+			glScaled(1000, 1000, 1000);
+			draw3DAxis();
 		} glPopMatrix();
 	}
 }
@@ -796,7 +799,7 @@ void ofApp::updateLights() {
 	xPos = textCurrentPosition.x;
 	zPos = textCurrentPosition.z;
 	float yPos = xPos * sqrt(2);
-	float distanceRatio = 2;
+	float distanceRatio = 1.5;
 
 	if (gameStart) {
 		pointLightPosition = ofVec4f(textTranslation.x * distanceRatio, textTranslation.y * 1.3, textTranslation.z * distanceRatio, 1);
@@ -1137,7 +1140,7 @@ void ofApp::drawOpeningScreen_2() {
 	float charLength = this->gameStartText[0].textUnitLength / this->gameStartText[0].textLength;
 	float textOffset = 0;
 	float textSpacing = textHeight * 2.5;
-	Material backgroundMaterial = OBSIDIAN;
+	Material backgroundMaterial = RUBY;
 
 
 	float logoHeight = textHeight * 7;
@@ -1150,6 +1153,13 @@ void ofApp::drawOpeningScreen_2() {
 		glRotated(-textRotation, 1, 0, 0);
 		glScaled(textScale.x * 0.3, textScale.y * 0.3, textScale.z * 0.3);
 
+		// draw home screen background
+		setMaterial(backgroundMaterial);
+		glPushMatrix(); {
+			glTranslated(0, 0, -10);
+			glScaled(gw(), gh(), 1);
+			unitCube();
+		} glPopMatrix();
 
 		// logo
 		setMaterial(backgroundMaterial);
@@ -1185,10 +1195,11 @@ void ofApp::drawOpeningScreen_2() {
 
 				if (i == 0) {
 					// arrow keys image
+					setMaterial(backgroundMaterial);
 					glEnable(GL_TEXTURE); {
 						arrowKeys.bind();
 
-						glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+						glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -1206,10 +1217,11 @@ void ofApp::drawOpeningScreen_2() {
 				}
 				else if (i == 3) {
 					// space key image
+					setMaterial(backgroundMaterial);
 					glEnable(GL_TEXTURE); {
 						spaceKey.bind();
 
-						glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+						glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
@@ -1232,14 +1244,6 @@ void ofApp::drawOpeningScreen_2() {
 
 		} glPopMatrix();
 
-		// draw home screen background
-		glPushMatrix(); {
-			setMaterial(backgroundMaterial);
-			glTranslated(0, 0, 0);
-			glScaled(gw(), gh(), 1);
-			//unitCube();
-		} glPopMatrix();
-
 	} glPopMatrix();
 }
 
@@ -1247,24 +1251,24 @@ void ofApp::drawBackground() {
 	float size = pyramid->tileSize * pyramid->maxLevel * 10;
 
 	setMaterial(PEARL);
-	glEnable(GL_TEXTURE);
-	background.bind();
+	glEnable(GL_TEXTURE); {
+		background.bind();
 
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glPushMatrix(); {
-		glTranslated(size * 0.44, size * 0.44, size * 0.44);
-		glScaled(size, size, size);
-		invertedUnitTextureCube(10, false);
-	} glPopMatrix();
+		glPushMatrix(); {
+			glTranslated(size * 0.44, size * 0.44, size * 0.44);
+			glScaled(size, size, size);
+			invertedUnitTextureCube(10, false);
+		} glPopMatrix();
 
-	background.unbind();
-	glDisable(GL_TEXTURE);
+		background.unbind();
+	} glDisable(GL_TEXTURE);
 }
 
 void ofApp::drawLights() {

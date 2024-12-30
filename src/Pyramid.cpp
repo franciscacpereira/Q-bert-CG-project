@@ -148,17 +148,15 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 	// cube
 	drawFilled();
 	glPushMatrix(); {
-		setMaterial(BRASS);
+		setMaterial(BLUE_TILE);
 
 		// front face
-		//setColor(this->leftFaceColor);
 		glPushMatrix(); {
 			glTranslated(0, 0, unit);
 			unitSquare();
 		} glPopMatrix();
 
 		// back face
-		//setColor(this->rightFaceColor);
 		glPushMatrix(); {
 			glTranslated(0, 0, -unit);
 			glRotated(180, 0, 1, 0);
@@ -166,7 +164,6 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// left face
-		//setColor(this->leftFaceColor);
 		glPushMatrix(); {
 			glTranslated(-unit, 0, 0);
 			glRotated(270, 0, 1, 0);
@@ -174,7 +171,6 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// right face
-		//setColor(this->rightFaceColor);
 		glPushMatrix(); {
 			glTranslated(unit, 0, 0);
 			glRotated(90, 0, 1, 0);
@@ -182,7 +178,6 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		} glPopMatrix();
 
 		// bottom face
-		//glWhite();
 		glPushMatrix(); {
 			glTranslated(0, -unit, 0);
 			glRotated(90, 1, 0, 0);
@@ -196,12 +191,10 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		}
 		else {
 			if (!isFlipped) {
-				//setColor(this->topColor);
-				setMaterial(SILVER);
+				setMaterial(YELLOW_RUBBER);
 			}
 			else {
-				//glDarkBlue();
-				setMaterial(RUBY);
+				setMaterial(PINK_TILE);
 			}
 		}
 		glPushMatrix(); {

@@ -21,7 +21,12 @@ enum Material {
 	GREEN_PLASTIC,
 	RED_PLASTIC,
 	WHITE_PLASTIC,
-	YELLOW_PLASTIC
+	YELLOW_PLASTIC,
+	YELLOW_RUBBER,
+	BLUE_TILE,
+	MAUVE_TILE,
+	DARK_PURPLE_TILE,
+	PINK_TILE
 };
 
 inline void setMaterial(Material material) {
@@ -153,6 +158,47 @@ inline void setMaterial(Material material) {
 		diffuse[0] = 0.5; diffuse[1] = 0.5; diffuse[2] = 0.0; diffuse[3] = 1;
 		specular[0] = 0.60; specular[1] = 0.60; specular[2] = 0.50; specular[3] = 1;
 		coeffient = 0.25 * 128;
+		break;
+
+	case YELLOW_RUBBER:
+		ambient[0] = 0.454; ambient[1] = 0.2392; ambient[2] = 0.0235; ambient[3] = 1;
+		diffuse[0] = 0.8352; diffuse[1] = 0.4392; diffuse[2] = 0.0423; diffuse[3] = 1;
+		specular[0] = 0.992157; specular[1] = 0.941176; specular[2] = 0.807843; specular[3] = 1;
+		coeffient = 0.6 * 128;
+		break;
+
+	case BLUE_TILE:
+		ambient[0] = 0.137254; ambient[1] = 0.262745; ambient[2] = 0.239215; ambient[3] = 1;
+		diffuse[0] = 0.1921577; diffuse[1] = 0.3647; diffuse[2] = 0.33333; diffuse[3] = 1;
+		specular[0] = 0.297254; specular[1] = 0.30829; specular[2] = 0.306678; specular[3] = 1;
+		coeffient = 0.2 * 128;
+		/*
+		ambient[0] = 0.1607; ambient[1] = 0.3176; ambient[2] = 0.29019; ambient[3] = 1;
+		diffuse[0] = 0.1608; diffuse[1] = 0.3218; diffuse[2] = 0.29412; diffuse[3] = 1;
+		specular[0] = 0.297254; specular[1] = 0.30829; specular[2] = 0.306678; specular[3] = 1;
+		coeffient = 0.2 * 128;
+		*/
+		break;
+
+	case MAUVE_TILE:
+		ambient[0] = 0.658; ambient[1] = 0.3019; ambient[2] = 0.4039; ambient[3] = 1;
+		diffuse[0] = 0.11454; diffuse[1] = 0.2039; diffuse[2] = 0.17646; diffuse[3] = 1;
+		specular[0] = 0.297254; specular[1] = 0.10829; specular[2] = 0.306678; specular[3] = 1;
+		coeffient = 0.2 * 128;
+		break;
+
+	case DARK_PURPLE_TILE:
+		ambient[0] = 0.11372; ambient[1] = 0.01568; ambient[2] = 0.3058; ambient[3] = 1;
+		diffuse[0] = 0.08237; diffuse[1] = 0.01177; diffuse[2] = 0.227533; diffuse[3] = 1;
+		specular[0] = 0.10829; specular[1] = 0.10829; specular[2] = 0.306678; specular[3] = 1;
+		coeffient = 0.2 * 128;
+		break;
+
+	case PINK_TILE:
+		ambient[0] = 0.96862; ambient[1] = 0.14901; ambient[2] = 0.50588; ambient[3] = 1;
+		diffuse[0] = 0.011772; diffuse[1] = 0.30981; diffuse[2] = 0.180394; diffuse[3] = 1;
+		specular[0] = 0.297254; specular[1] = 0.10829; specular[2] = 0.306678; specular[3] = 1;
+		coeffient = 0.2 * 128;
 		break;
 
 	default:

@@ -56,7 +56,7 @@ void Ball::resetPhysics() {
 
 void Ball::draw() {
 	if (this->isDead) return;
-	setMaterial(OBSIDIAN);
+	setMaterial(DARK_PURPLE_TILE);
 	glPushMatrix(); {
 		glTranslatef(this->currentPosition.x, this->currentPosition.y, this->currentPosition.z);
 		glScalef(this->size, this->size, this->size);

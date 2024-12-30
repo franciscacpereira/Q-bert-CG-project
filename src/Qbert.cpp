@@ -72,7 +72,7 @@ void Qbert::draw() {
 		glScaled(this->size, this->size, this->size);
 
 		// nose stack
-		setMaterial(JADE);
+		setMaterial(YELLOW_RUBBER);
 		glPushMatrix(); {
 			glTranslatef(0, 0, unit * 1.5);
 			glRotated(270, 1, 0, 0);
@@ -80,7 +80,7 @@ void Qbert::draw() {
 		} glPopMatrix();
 
 		// main sphere
-		setMaterial(JADE);
+		setMaterial(YELLOW_RUBBER);
 		unitSphere();
 	} glPopMatrix();
 }
