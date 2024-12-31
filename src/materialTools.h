@@ -22,11 +22,14 @@ enum Material {
 	RED_PLASTIC,
 	WHITE_PLASTIC,
 	YELLOW_PLASTIC,
-	YELLOW_RUBBER,
+	ORANGE_RUBBER,
+	PURPLE_RUBBER,
+	YELLOW_TILE,
 	BLUE_TILE,
 	MAUVE_TILE,
 	DARK_PURPLE_TILE,
-	PINK_TILE
+	PINK_TILE,
+	NONE
 };
 
 inline void setMaterial(Material material) {
@@ -160,11 +163,37 @@ inline void setMaterial(Material material) {
 		coeffient = 0.25 * 128;
 		break;
 
-	case YELLOW_RUBBER:
+	case ORANGE_RUBBER:
+		ambient[0] = 0.745098039; ambient[1] = 0.301960784; ambient[2] = 0.117647059; ambient[3] = 1;
+		diffuse[0] = 0.215686275; diffuse[1] = 0.152941176; diffuse[2] = 0.; diffuse[3] = 1;
+		specular[0] = 0.066666667; specular[1] = 0.231372549; specular[2] = 0.019607843; specular[3] = 1;
+		coeffient = 0.6 * 128;
+		/*
 		ambient[0] = 0.454; ambient[1] = 0.2392; ambient[2] = 0.0235; ambient[3] = 1;
 		diffuse[0] = 0.8352; diffuse[1] = 0.4392; diffuse[2] = 0.0423; diffuse[3] = 1;
 		specular[0] = 0.992157; specular[1] = 0.941176; specular[2] = 0.807843; specular[3] = 1;
 		coeffient = 0.6 * 128;
+		*/
+		break;
+
+	case PURPLE_RUBBER:
+		ambient[0] = 0.105882353; ambient[1] = 0.039215686; ambient[2] = 0.121568627; ambient[3] = 1;
+		diffuse[0] = 0.207843137; diffuse[1] = 0.078431373; diffuse[2] = 0.239215686; diffuse[3] = 1;
+		specular[0] = 0.10829; specular[1] = 0.; specular[2] = 0.306678; specular[3] = 1;
+		coeffient = 0.6 * 128;
+		break;
+
+	case YELLOW_TILE:
+		ambient[0] = 0.960784314; ambient[1] = 0.623529412; ambient[2] = 0.; ambient[3] = 1;
+		diffuse[0] = 0.039215686; diffuse[1] = 0.098039216; diffuse[2] = 0.; diffuse[3] = 1;
+		specular[0] = 0.3; specular[1] = 0.25; specular[2] = 0.; specular[3] = 1;
+		coeffient = 0.2 * 128;
+		/*
+		ambient[0] = 0.454; ambient[1] = 0.2392; ambient[2] = 0.0235; ambient[3] = 1;
+		diffuse[0] = 0.8352; diffuse[1] = 0.4392; diffuse[2] = 0.0423; diffuse[3] = 1;
+		specular[0] = 0.3; specular[1] = 0.25; specular[2] = 0.05; specular[3] = 1;
+		coeffient = 0.2 * 128;
+		*/
 		break;
 
 	case BLUE_TILE:
@@ -199,6 +228,13 @@ inline void setMaterial(Material material) {
 		diffuse[0] = 0.011772; diffuse[1] = 0.30981; diffuse[2] = 0.180394; diffuse[3] = 1;
 		specular[0] = 0.297254; specular[1] = 0.10829; specular[2] = 0.306678; specular[3] = 1;
 		coeffient = 0.2 * 128;
+		break;
+
+	case NONE:
+		ambient[0] = 1.0; ambient[1] = 1.0; ambient[2] = 1.0; ambient[3] = 1;
+		diffuse[0] = 1.0; diffuse[1] = 1.0; diffuse[2] = 1.0; diffuse[3] = 1;
+		specular[0] = 1.0; specular[1] = 1.0; specular[2] = 1.0; specular[3] = 1;
+		coeffient = 128;
 		break;
 
 	default:

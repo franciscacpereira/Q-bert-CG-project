@@ -3,7 +3,9 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 	glEnable(GL_DEPTH_TEST);	// makes the objets closer to the camera appear in front of the others (even if they are drawn later)
-	ofBackground(18, 18, 23);
+	//ofBackground(18, 18, 23);
+	ofBackground(17, 33, 30);
+	ofSetWindowTitle("Q*bert!");
 	glLineWidth(5);
 
 
@@ -51,8 +53,8 @@ void ofApp::setup() {
 	gameStartText = vector<Text>(4);
 	gameStartText[0].setText("Use                        to move");
 	gameStartText[1].setText("Jump on all tiles to win");
-	gameStartText[2].setText("Careful! Don't fall off the pyramid");
-	gameStartText[3].setText("Press                    to start the game");
+	gameStartText[2].setText("Careful!  Don't fall off the pyramid");
+	gameStartText[3].setText("Press                         to start the game");
 
 	// qbert
 	drawQbert = true;
@@ -90,9 +92,9 @@ void ofApp::setup() {
 	/* INIT TEXTURE VARIABLES */
 	ofDisableArbTex();				// enable the use of normalized texture coordinates
 	background.load("sky.png");
-	logo.load("keys.png");
-	arrowKeys.load("keys.png");
-	spaceKey.load("space.png");
+	logo.load("logo.png");
+	arrowKeys.load("arrowKeys.png");
+	spaceKey.load("spaceBar.png");
 
 
 	/* INIT LIGHT VARIABLES */
@@ -422,7 +424,23 @@ void ofApp::update() {
 
 	/* UPDATE LIGHT VARIABLES */
 	updateLights();
-
+	/*
+	if (gameStart) {
+		dirLightOn = true;
+		pointLightOn = false;
+		spotLightOn = false;
+	}
+	else if (luAnimation || gameEnd) {
+		dirLightOn = false;
+		pointLightOn = true;
+		spotLightOn = false;
+	}
+	else {
+		dirLightOn = true;
+		pointLightOn = false;
+		spotLightOn = true;
+	}*/
+	
 	if (luAnimation || gameEnd || gameStart) {
 		dirLightOn = false; 
 		pointLightOn = true;
@@ -484,6 +502,8 @@ void ofApp::draw(){
 		lookat(isometricCameraDistance / 2, isometricCameraDistance / 2, isometricCameraDistance / 2, 0, 0, 0, 0, 1, 0);
 
 		glPushMatrix(); {
+			drawLights();
+
 			for (int i = 0; i < maxBalls; i++) {
 				balls[i].draw();
 			}
@@ -794,12 +814,19 @@ void ofApp::updateLights() {
 	(dirLightDiffuseOn) ? dirLightDiffuse = ofVec4f(1, 1, 1, 1) : dirLightDiffuse = ofVec4f(0, 0, 0, 1);
 	(dirLightSpecularOn) ? dirLightSpecular = ofVec4f(1, 1, 1, 1) : dirLightSpecular = ofVec4f(0, 0, 0, 1);
 
+	if (gameStart) {
+		dirLightPosition = ofVec4f(textTranslation.x * 2, textTranslation.y * 1.3, textTranslation.z * 2, 0);
+	}
+	else {
+		dirLightPosition = ofVec4f(xPos, pyramidSide * 0.5, zPos, 0);
+	}
+
 	// point light
 	// determine position of the light => y = sqrt(2) * x (same as the text animation movement)
 	xPos = textCurrentPosition.x;
 	zPos = textCurrentPosition.z;
 	float yPos = xPos * sqrt(2);
-	float distanceRatio = 1.5;
+	float distanceRatio = 2;
 
 	if (gameStart) {
 		pointLightPosition = ofVec4f(textTranslation.x * distanceRatio, textTranslation.y * 1.3, textTranslation.z * distanceRatio, 1);
@@ -1009,15 +1036,15 @@ void ofApp::printStartInstructionsConsole() {
 
 	cout << "DEBUG KEYS:" << endl;
 	cout << "\t- 'd' to enable/disable debug mode" << endl;
-	cout << "\t- '1' to disable culling" << endl;
-	cout << "\t- '2' to enable culling with back face" << endl;
-	cout << "\t- '3' to enable culling with front face" << endl;
-	cout << "\t- '4' to enable culling with front and back face" << endl;
-	cout << "\t- 'g' to change polygon mode to GL_LINE" << endl;
-	cout << "\t- 'f' to change polygon mode to GL_FILL" << endl;
-	cout << "\t- 'l' to change first person view lens angle" << endl;
-	cout << "\t- 'a' to change first person view alpha" << endl;
-	cout << "\t- 'b' to change first person view beta" << endl;
+	cout << "\t- '1' to enable/disable ambient directional light" << endl;
+	cout << "\t- '2' to enable/disable diffuse directional light" << endl;
+	cout << "\t- '3' to enable/disable specular directional light" << endl;
+	cout << "\t- '1' to enable/disable ambient directional light" << endl;
+	cout << "\t- '2' to enable/disable diffuse directional light" << endl;
+	cout << "\t- '3' to enable/disable specular directional light" << endl;
+	cout << "\t- '4' to enable/disable ambient directional light" << endl;
+	cout << "\t- '4' to enable/disable ambient directional light" << endl;
+	cout << "\t- '4' to enable/disable ambient directional light" << endl;
 	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
 }
 
@@ -1140,7 +1167,7 @@ void ofApp::drawOpeningScreen_2() {
 	float charLength = this->gameStartText[0].textUnitLength / this->gameStartText[0].textLength;
 	float textOffset = 0;
 	float textSpacing = textHeight * 2.5;
-	Material backgroundMaterial = RUBY;
+	Material backgroundMaterial = BLUE_TILE;
 
 
 	float logoHeight = textHeight * 7;
@@ -1153,16 +1180,8 @@ void ofApp::drawOpeningScreen_2() {
 		glRotated(-textRotation, 1, 0, 0);
 		glScaled(textScale.x * 0.3, textScale.y * 0.3, textScale.z * 0.3);
 
-		// draw home screen background
-		setMaterial(backgroundMaterial);
-		glPushMatrix(); {
-			glTranslated(0, 0, -10);
-			glScaled(gw(), gh(), 1);
-			unitCube();
-		} glPopMatrix();
-
 		// logo
-		setMaterial(backgroundMaterial);
+		setMaterial(NONE);
 		glEnable(GL_TEXTURE); {
 			logo.bind();
 
@@ -1207,8 +1226,8 @@ void ofApp::drawOpeningScreen_2() {
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 						glPushMatrix(); {
-							glTranslated(-textHeight * 1.5, -textOffset, 0);
-							glScalef(textHeight * 5.5, -textHeight * 5.5 * 541 / 719, 1);
+							glTranslated(-textHeight * 1.5, -textOffset + 2, 0);
+							glScalef(textHeight * 6, -textHeight * 6 * 88 / 134, 1);
 							unitTextureCube(1, true);
 						} glPopMatrix();
 
@@ -1230,7 +1249,7 @@ void ofApp::drawOpeningScreen_2() {
 
 						glPushMatrix(); {
 							glTranslated(-textHeight * 4.5, -textOffset, 0);
-							glScalef(textHeight * 5, -textHeight * 2, 1);
+							glScalef(textHeight * 7, -textHeight * 7 * 47 / 175, 1);
 
 							unitTextureCube(1, true);
 						} glPopMatrix();
@@ -1242,6 +1261,16 @@ void ofApp::drawOpeningScreen_2() {
 				textOffset += textSpacing + textHeight;
 			}
 
+		} glPopMatrix();
+
+		// draw home screen background
+		setMaterial(backgroundMaterial);
+		glPushMatrix(); {
+			glTranslated(0, 0, 0);
+			//glScaled(gw(), gh(), 1);
+			glScaled(330, 330, 1);
+			//unitSquare();
+			//unitCube();
 		} glPopMatrix();
 
 	} glPopMatrix();

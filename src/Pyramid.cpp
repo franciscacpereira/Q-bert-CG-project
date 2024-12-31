@@ -191,7 +191,7 @@ void Pyramid::drawTile(ofVec3f center, bool isFlipped) {
 		}
 		else {
 			if (!isFlipped) {
-				setMaterial(YELLOW_RUBBER);
+				setMaterial(YELLOW_TILE);
 			}
 			else {
 				setMaterial(PINK_TILE);
