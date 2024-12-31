@@ -24,7 +24,7 @@ Pyramid::Pyramid(GLint maxLevel, GLfloat tileSize) {
 	this->shakeAnimation = false;
 	this->rainbowAnimation = false;
 	this->rainbowColors = { RED, ORANGE, YELLOW, GREEN, CYAN, DARK_BLUE, PURPLE };
-	this->rainbowMaterials = { RUBY, BRASS, GOLD, GREEN_PLASTIC, TURQUOISE, CYAN_PLASTIC, OBSIDIAN };
+	this->rainbowMaterials = { RUBY, MAUVE_TILE, ORANGE_RUBBER, GREEN_PLASTIC, CYAN_PLASTIC, DARK_PURPLE_TILE, OBSIDIAN };
 	this->previousChangeTimer = 0;
 	this->currentColorIndex = 0;
 }

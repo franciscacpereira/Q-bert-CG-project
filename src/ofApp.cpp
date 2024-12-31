@@ -539,9 +539,6 @@ void ofApp::draw(){
 		glPushMatrix(); {
 			drawOpeningScreen_2();
 		} glPopMatrix();
-
-		// draw the game background
-		//drawBackground();
 	}
 	else {
 		/* DRAW THE GAME */
@@ -668,26 +665,6 @@ void ofApp::keyPressed(int key) {
 	case 'w':
 		cheatGame();
 		return;
-
-	case '+':
-		spotLightCutOff += 1;
-		cout << "CutOff = " << spotLightCutOff << endl;
-		break;
-
-	case '-':
-		spotLightCutOff -= 1;
-		cout << "CutOff = " << spotLightCutOff << endl;
-		break;
-
-	case '*':
-		spotLightExponent += 1;
-		cout << "Exponent = " << spotLightExponent << endl;
-		break;
-
-	case '/':
-		spotLightExponent -= 1;
-		cout << "Exponent = " << spotLightExponent << endl;
-		break;
 
 	default:
 		break;
@@ -1035,17 +1012,17 @@ void ofApp::printStartInstructionsConsole() {
 	cout << "\t- 'DOWN' to move LEFT DOWN" << endl << endl;
 
 	cout << "DEBUG KEYS:" << endl;
-	cout << "\t- 'd' to enable/disable debug mode" << endl;
-	cout << "\t- '1' to enable/disable ambient directional light" << endl;
-	cout << "\t- '2' to enable/disable diffuse directional light" << endl;
-	cout << "\t- '3' to enable/disable specular directional light" << endl;
-	cout << "\t- '1' to enable/disable ambient directional light" << endl;
-	cout << "\t- '2' to enable/disable diffuse directional light" << endl;
-	cout << "\t- '3' to enable/disable specular directional light" << endl;
-	cout << "\t- '4' to enable/disable ambient directional light" << endl;
-	cout << "\t- '4' to enable/disable ambient directional light" << endl;
-	cout << "\t- '4' to enable/disable ambient directional light" << endl;
+	cout << "\t- 'd' to enable/disable debug mode (shows light representations and axis)" << endl;
 	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
+	cout << "\t- '1' to enable/disable ambient directional light" << endl;
+	cout << "\t- '2' to enable/disable diffuse directional light" << endl;
+	cout << "\t- '3' to enable/disable specular directional light" << endl;
+	cout << "\t- '4' to enable/disable ambient point light" << endl;
+	cout << "\t- '5' to enable/disable diffuse point light" << endl;
+	cout << "\t- '6' to enable/disable specular point light" << endl;
+	cout << "\t- '7' to enable/disable ambient spotlight" << endl;
+	cout << "\t- '8' to enable/disable diffuse spotlight" << endl;
+	cout << "\t- '9' to enable/disable specular spotlight" << endl;
 }
 
 void ofApp::printText() {
