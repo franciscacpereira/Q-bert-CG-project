@@ -651,7 +651,7 @@ void ofApp::keyPressed(int key) {
 
 	case 'd':
 		debug = !debug;
-		maxViewType = 3;
+		(debug) ? maxViewType = 3 : maxViewType = 2;
 		break;
 
 	case 'v':
