@@ -39,7 +39,7 @@ void Qbert::resetPhysics() {
 	// set variables for jump
 	this->pyramidCollision = false;
 	this->jumpStartPosition = ofVec3f(0, 0, 0);
-	this->targetPosition = ofVec3f(0, 0, 0);
+	this->targetPosition = this->currentPosition; //ofVec3f(0, 0, 0);
 
 	this->jumpProgress = 0;
 	this->timePerFrame = 0;
