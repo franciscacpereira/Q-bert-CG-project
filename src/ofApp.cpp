@@ -96,6 +96,14 @@ void ofApp::setup() {
 	arrowKeys.load("arrowKeys.png");
 	spaceKey.load("spaceBar.png");
 
+	/* INIT SOUND VARIABLES */
+	victorySound.load("victory.mp3");
+	levelUpSound.load("levelUp.mp3");
+	gameOverSound.load("gameOver.mp3");
+	gameOverSound.setSpeed(0.75);
+	gameStartSound.load("gameStart.mp3");
+	gameStartSound.play();
+
 
 	/* INIT LIGHT VARIABLES */
 	// directional light
@@ -183,6 +191,7 @@ void ofApp::update() {
 			// start rainbow animation
 			pyramid->rainbowAnimation = true;
 			victoryAnimationTime = currentTime;
+			victorySound.play();
 		}
 
 		// end win rainbow animation
@@ -194,6 +203,8 @@ void ofApp::update() {
 			textAnimationStage = TextAnimationStage::START;
 			currentGameLevel++;
 			
+			// stop rainbow animation sound
+
 			if (currentGameLevel > maxGameLevel) {
 				// end of game animation
 				gameEnd = true;
@@ -204,6 +215,8 @@ void ofApp::update() {
 				currentPyramidLevel++;
 				luAnimation = true;
 				gameEnd = false;
+				victorySound.stop();
+				levelUpSound.play();
 			}
 		}
 	}
@@ -219,6 +232,9 @@ void ofApp::update() {
 
 			this->qbert->pause();
 			for (int i = 0; i < maxBalls; i++) balls[i].pause();
+
+			// start game over sound
+			gameOverSound.play();
 		}
 
 		// check if game over animation has ended
@@ -687,6 +703,8 @@ void ofApp::keyPressed(int key) {
 			textAnimationStage = TextAnimationStage::START;
 			viewType = 0;
 			maxViewType = 2;
+			gameStartSound.stop();
+			levelUpSound.play();
 		}
 		return;
 	}
@@ -787,8 +805,14 @@ void ofApp::updateLights() {
 
 	// directional light
 	// determine position of the light => x = -z + b (b = pyramidSize)
+	/*
 	float zPos = pyramidSide * 1.5;
 	float xPos = -zPos + pyramidSide;
+	float yPos = pyramidSide * 0.5;
+	*/
+	float zPos = pyramidSide * 2;
+	float xPos = pyramidSide * 0.7;
+	float yPos = pyramidSide * 0.5;
 
 	dirLightPosition = ofVec4f(xPos, pyramidSide * 0.5, zPos, 0);
 	(dirLightAmbientOn) ? dirLightAmbient = ofVec4f(1, 1, 1, 1) : dirLightAmbient = ofVec4f(0, 0, 0, 1);
@@ -799,14 +823,14 @@ void ofApp::updateLights() {
 		dirLightPosition = ofVec4f(textTranslation.x * 2, textTranslation.y * 1.3, textTranslation.z * 2, 0);
 	}
 	else {
-		dirLightPosition = ofVec4f(xPos, pyramidSide * 0.5, zPos, 0);
+		dirLightPosition = ofVec4f(xPos, yPos, zPos, 0);
 	}
 
 	// point light
 	// determine position of the light => y = sqrt(2) * x (same as the text animation movement)
 	xPos = textCurrentPosition.x;
 	zPos = textCurrentPosition.z;
-	float yPos = xPos * sqrt(2);
+	yPos = xPos * sqrt(2);
 	float distanceRatio = 2;
 
 	if (gameStart) {
@@ -1007,6 +1031,7 @@ void ofApp::printStartInstructionsConsole() {
 
 	cout << "BASIC CONTROLS:" << endl;
 	cout << "\t- 'v' to change view" << endl;
+	cout << "\t- 'space' to start the game" << endl;
 	cout << "\t- 'r' to restart the game" << endl << endl;
 
 	cout << "GAME CONTROLS (for isometric view):" << endl;
@@ -1017,7 +1042,7 @@ void ofApp::printStartInstructionsConsole() {
 
 	cout << "DEBUG KEYS:" << endl;
 	cout << "\t- 'd' to enable/disable debug mode (shows light representations and axis)" << endl;
-	cout << "\t- 'w' to win current level imeadiatly" << endl << endl << endl;
+	cout << "\t- 'w' to win current level imeadiatly" << endl;
 	cout << "\t- '1' to enable/disable ambient directional light" << endl;
 	cout << "\t- '2' to enable/disable diffuse directional light" << endl;
 	cout << "\t- '3' to enable/disable specular directional light" << endl;
@@ -1026,7 +1051,7 @@ void ofApp::printStartInstructionsConsole() {
 	cout << "\t- '6' to enable/disable specular point light" << endl;
 	cout << "\t- '7' to enable/disable ambient spotlight" << endl;
 	cout << "\t- '8' to enable/disable diffuse spotlight" << endl;
-	cout << "\t- '9' to enable/disable specular spotlight" << endl;
+	cout << "\t- '9' to enable/disable specular spotlight" << endl << endl << endl;
 }
 
 void ofApp::printText() {

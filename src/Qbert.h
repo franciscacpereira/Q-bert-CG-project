@@ -65,6 +65,11 @@ public:
 	ofVec3f fallAcceleration;
 	GLfloat velocityMod;
 	GLfloat fallAngle;
+
+	// sound effects variables
+	ofSoundPlayer jump;
+	ofSoundPlayer fall;
+	ofSoundPlayer ballCollisionSound;
 };
 
 #endif // QBERT_H

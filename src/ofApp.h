@@ -132,6 +132,13 @@ class ofApp : public ofBaseApp{
 		ofImage arrowKeys;
 
 
+		/* GAME SOUND VARIABLES */
+		ofSoundPlayer victorySound;
+		ofSoundPlayer levelUpSound;
+		ofSoundPlayer gameOverSound;
+		ofSoundPlayer gameStartSound;
+
+
 		/* GAME LIGHT VARIABLES */
 		// directional light
 		ofVec4f dirLightPosition;

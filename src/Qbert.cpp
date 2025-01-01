@@ -15,8 +15,8 @@ Qbert::Qbert(ofVec3f startPosition, GLfloat size, GLfloat jumpHeight, GLfloat ju
 	this->deathHeight = deathHeight;
 	this->lives = lives;
 
-	this->velocityMod = 15.;
-	this->fallAngle = 13 * PI / 9; //25 * PI / 18;  // ideal: 163 * PI / 120;
+	this->velocityMod = 7.;			// ideal: 15. (but for the sound to be accurate it should be 7);
+	this->fallAngle = 13 * PI / 9;	//25 * PI / 18;  // ideal: 163 * PI / 120;
 
 	baseSetup();
 }
@@ -30,6 +30,9 @@ void Qbert::baseSetup() {
 	this->ballCollision = false;
 	this->isWaiting = true;
 	resetPhysics();
+	this->jump.load("jump.mp3");
+	this->fall.load("fall.mp3");
+	this->ballCollisionSound.load("ballCollision.mp3");
 }
 
 void Qbert::resetPhysics() {
@@ -110,13 +113,12 @@ void Qbert::update() {
 		return;
 	}
 
-	//cout << "Lives: " << this->lives << endl;
-	
 	// check if the player collision with ball
 	if (this->ballCollision) {
 		this->isDead = true;
 		this->previousOrientation = this->orientation;
 		this->lives--;
+		this->ballCollisionSound.play();
 	}
 
 
@@ -155,6 +157,8 @@ void Qbert::update() {
 				} else if (this->orientation == Orientation::LEFT_DOWN) {
 					this->fallVelocity.z = - (this->velocityMod * cos(this->fallAngle));
 				}
+
+				this->fall.play();
 			}
 		}
 
@@ -205,6 +209,7 @@ void Qbert::keyPressed(int key) {
 
 void Qbert::startJump(ofVec3f target) {
 	if (isMoving) return;
+	this->jump.play();
 	this->isMoving = true;
 	this->isWaiting = false;
 	this->jumpStartPosition = this->currentPosition;
