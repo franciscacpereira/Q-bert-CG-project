@@ -185,6 +185,7 @@ void ofApp::update() {
 			enemyActivated = false;
 
 			// pause all objects
+			this->qbert->currentPosition = this->qbert->targetPosition;		// so it wins on top of the tile and not the collision spot (that is most times inside the cube)
 			this->qbert->pause();
 			for (int i = 0; i < maxBalls; i++) balls[i].pause();
 
