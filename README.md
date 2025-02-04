@@ -28,7 +28,7 @@ The game has a start screen explaining the basic key commands
 
 ![opening-screen](https://github.com/user-attachments/assets/7c50f2bf-8d40-4017-8ad6-4465ae1ee173)
 
-It also has 3 different view points. Each one can be changed during run time throught the 'V' key.
+It also has 3 different view points. Each one can be changed during run time via the 'V' key.
 
 ![game-start-v1](https://github.com/user-attachments/assets/984d5e17-f739-45dd-922e-a2c82754d61e)
 ![game-start-v2](https://github.com/user-attachments/assets/664f201e-0e24-4a4e-9d3e-05083138319d)
