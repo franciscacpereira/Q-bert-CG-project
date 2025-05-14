@@ -7,7 +7,7 @@ Disclaimer
 
 ## Installation Guide
 
-The language used was C++ along with the toolkit *OpenFrameworks*. The IDE I used was *Visual Studio*. However, I know that *VS Code* can be used, aswell as other IDE's, which I would recommend the use of considering the poor experience I has with VS.
+The language used was C++ along with the toolkit *OpenFrameworks*. The IDE I used was *Visual Studio*. However, I know that *VS Code* can be used, aswell as other IDE's, which I would recommend the use of, considering the poor experience I had with VS.
 
 1. Follow the instruction on the official website of [openframeworks](https://openframeworks.cc/download/)
    * Note 1: Choose version 0.12.0
